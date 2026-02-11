@@ -3,10 +3,13 @@ services:
     image: mariadb:10.6
     restart: always
     environment:
+      # TÄSSÄ KÄYTETÄÄN ROOT-SALASANAA:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wpuser
-      MYSQL_PASSWORD: wppassword
-      MYSQL_ROOT_PASSWORD: rootpassword
+      # TÄSSÄ KÄYTETÄÄN TAVALLISTA SALASANAA:
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
 
@@ -20,10 +23,11 @@ services:
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD: wppassword
+      # TÄSSÄ KÄYTETÄÄN SAMAAN TAVALLISTA SALASANAA KUIN YLLÄ:
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_DB_NAME: wordpress
     volumes:
-      - ./wp-content:/var/lib/docker/volumes/luopioistenkasvisto_wp-content/_data
+      - ./wp-content:/var/www/html/wp-content
 
 volumes:
   db_data: {}

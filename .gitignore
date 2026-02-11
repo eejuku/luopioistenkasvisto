@@ -1,2 +1,3 @@
 # Älä lataa tietokannan raakadataa tai WordPressin ytimen muuttuvia osia
-wp-content/
+# wp-content/
+.env
