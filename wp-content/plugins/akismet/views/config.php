@@ -41,7 +41,7 @@ $kses_allow_link_href = array(
 				<div class="akismet-new-snapshot">
 					<?php /* name attribute on iframe is used as a cache-buster here to force Firefox to load the new style charts: https://bugzilla.mozilla.org/show_bug.cgi?id=356558 */ ?>
 					<div class="akismet-new-snapshot__chart">
-						<iframe id="stats-iframe" allowtransparency="true" scrolling="no" frameborder="0" style="width: 100%; height: 220px; overflow: hidden;" src="<?php echo esc_url( sprintf( 'https://tools.akismet.com/1.0/snapshot.php?blog=%s&token=%s&height=200&locale=%s&is_redecorated=1', rawurlencode( get_option( 'home' ) ), rawurlencode( Akismet::get_access_token() ), get_locale() ) ); ?>" name="<?php echo esc_attr( 'snapshot-' . filemtime( __FILE__ ) ); ?>" title="<?php echo esc_attr__( 'Akismet stats', 'akismet' ); ?>"></iframe>
+						<iframe id="stats-iframe" allowtransparency="true" scrolling="no" frameborder="0" style="width: 100%; height: 220px; overflow: hidden;" src="<?php echo esc_url( sprintf( 'https://tools.akismet.com/1.0/snapshot.php?blog=%s&token=%s&height=200&locale=%s&is_redecorated=1', rawurlencode( get_option( 'home' ) ), rawurlencode( Akismet::get_access_token() ), get_user_locale() ) ); ?>" name="<?php echo esc_attr( 'snapshot-' . filemtime( __FILE__ ) ); ?>" title="<?php echo esc_attr__( 'Akismet stats', 'akismet' ); ?>"></iframe>
 					</div>
 
 					<ul class="akismet-new-snapshot__list">
@@ -70,6 +70,10 @@ $kses_allow_link_href = array(
 					</ul>
 				</div> <!-- close akismet-new-snapshot -->
 			</div> <!-- close akismet-card -->
+		<?php endif; ?>
+
+		<?php if ( apply_filters( 'akismet_show_compatible_plugins', true ) ) : ?>
+			<?php Akismet::view( 'compatible-plugins' ); ?>
 		<?php endif; ?>
 
 		<?php if ( $akismet_user ) : ?>
@@ -164,7 +168,7 @@ $kses_allow_link_href = array(
 										</div>
 										<div>
 											<label class="akismet-settings__row-input-label" for="akismet_strictness_0">
-												<input type="radio" name="akismet_strictness" id="akismet_strictness_0" value="0" <?php checked( '0', get_option( 'akismet_strictness' ) ); ?> />
+												<input type="radio" name="akismet_strictness" id="akismet_strictness_0" value="0" <?php checked( true, get_option( 'akismet_strictness' ) !== '1' ); ?> />
 												<span class="akismet-settings__row-label-text">
 													<?php esc_html_e( 'Always put spam in the Spam folder for review.', 'akismet' ); ?>
 												</span>
@@ -270,13 +274,13 @@ $kses_allow_link_href = array(
 									<th scope="row"><?php esc_html_e( 'Status', 'akismet' ); ?></th>
 									<td>
 										<?php
-										if ( 'cancelled' === $akismet_user->status ) :
+										if ( Akismet::USER_STATUS_CANCELLED === $akismet_user->status ) :
 											esc_html_e( 'Cancelled', 'akismet' );
-										elseif ( 'suspended' === $akismet_user->status ) :
+										elseif ( Akismet::USER_STATUS_SUSPENDED === $akismet_user->status ) :
 											esc_html_e( 'Suspended', 'akismet' );
-										elseif ( 'missing' === $akismet_user->status ) :
+										elseif ( Akismet::USER_STATUS_MISSING === $akismet_user->status ) :
 											esc_html_e( 'Missing', 'akismet' );
-										elseif ( 'no-sub' === $akismet_user->status ) :
+										elseif ( Akismet::USER_STATUS_NO_SUB === $akismet_user->status ) :
 											esc_html_e( 'No subscription found', 'akismet' );
 										else :
 											esc_html_e( 'Active', 'akismet' );
@@ -295,9 +299,9 @@ $kses_allow_link_href = array(
 							</tbody>
 						</table>
 						<div class="akismet-card-actions">
-							<?php if ( $akismet_user->status === 'active' ) : ?>
+							<?php if ( $akismet_user->status === Akismet::USER_STATUS_ACTIVE ) : ?>
 								<div class="akismet-card-actions__secondary-action">
-									<a href="https://akismet.com/account" target="_blank" rel="noopener noreferrer" aria-label="Account overview on akismet.com (opens in a new window)"><?php esc_html_e( 'Account overview', 'akismet' ); ?></a>
+									<a href="https://akismet.com/account?utm_source=akismet_plugin&amp;utm_campaign=plugin_static_link&amp;utm_medium=in_plugin&amp;utm_content=account_overview" class="akismet-external-link" aria-label="Account overview on akismet.com"><?php esc_html_e( 'Account overview', 'akismet' ); ?></a>
 								</div>
 							<?php endif; ?>
 							<div id="publishing-action">
@@ -305,8 +309,9 @@ $kses_allow_link_href = array(
 								Akismet::view(
 									'get',
 									array(
-										'text'     => ( $akismet_user->account_type === 'free-api-key' && $akismet_user->status === 'active' ? __( 'Upgrade', 'akismet' ) : __( 'Change', 'akismet' ) ),
-										'redirect' => 'upgrade',
+										'text'        => ( $akismet_user->account_type === 'free-api-key' && $akismet_user->status === Akismet::USER_STATUS_ACTIVE ? __( 'Upgrade', 'akismet' ) : __( 'Change', 'akismet' ) ),
+										'redirect'    => 'upgrade',
+										'utm_content' => ( $akismet_user->account_type === 'free-api-key' && $akismet_user->status === Akismet::USER_STATUS_ACTIVE ? 'config_upgrade' : 'config_change' ),
 									)
 								);
 								?>

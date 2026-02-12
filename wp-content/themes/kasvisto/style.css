@@ -1,0 +1,246 @@
+/*
+Theme Name: Luopioisten Kasvisto
+Author: Eero Kuitunen
+Description: Erikoisteema kasviston esittelyyn.
+Version: 1.0
+*/
+
+/* 1. Yleiset ja Containerit */
+.kasvi-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Flex-grid: tiedot vasemmalla, kuvat oikealla */
+.kasvi-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.kasvi-details {
+    flex: 1;
+    min-width: 300px;
+}
+
+.kasvi-gallery-container {
+    flex: 0 0 350px; /* Galleria pysyy vakiolevuisena */
+}
+
+/* 2. Otsikot ja Nimet */
+.kasvi-header {
+    border-bottom: 3px solid #4a7c44;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+.kasvi-header h1 {
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+    margin: 0;
+}
+
+.tieteellinen-nimi {
+    font-size: 1.2rem;
+    color: #555;
+    font-weight: normal;
+}
+
+.kasvi-ryhma {
+    display: inline-block;
+    background: #4a7c44;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* 3. Sisältölohkot */
+.kasvi-info-block {
+    background: #f9f9f9;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.kasvi-info-block h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.kasvi-info-block.kuvaus {
+    background: #fff;
+    border-left: 5px solid #4a7c44;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.kasvi-note {
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+/* 4. Kuvagalleria (S3-kuvat) */
+.kasvi-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 kuvaa rinnakkain */
+    gap: 15px;
+}
+
+.gallery-link {
+    display: block;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #eee;
+}
+
+.gallery-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-link:hover img {
+    transform: scale(1.08);
+}
+
+.gallery-hint {
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* 5. Lightbox ja Footer */
+.lum-lightbox {
+    z-index: 100000 !important; /* Pakotetaan lightbox kaiken päälle */
+}
+
+.kasvi-footer {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+/* 6. Mobiiliresponsiivisuus */
+@media (max-width: 768px) {
+    .kasvi-gallery-container {
+        flex: 1 1 100%;
+    }
+}
+
+
+.kasvi-lista-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.lista-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #4a7c44;
+    padding-bottom: 20px;
+}
+
+#kasvi-haku {
+    padding: 12px 20px;
+    width: 350px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+}
+
+#kasvi-haku:focus {
+    border-color: #4a7c44;
+}
+
+
+/* Navigaatio */
+.kasvi-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.nav-btn.active {
+    background: #4a7c44;
+    color: white;
+}
+
+/* Lista-asettelu */
+.lista-otsikot {
+    display: flex;
+    background: #4a7c44;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+}
+
+.kasvi-rivi {
+    display: flex;
+    text-decoration: none;
+    color: #333;
+    padding: 12px 20px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.kasvi-rivi:hover {
+    background: #f5f9f5;
+}
+
+.sarake {
+    flex: 1; /* Tämä tekee kaksi yhtä suurta saraketta */
+}
+
+.nimi-suomi {
+    font-weight: 600;
+}
+
+.nimi-latina {
+    color: #666;
+}
+
+/* Hakukentän hienosäätö */
+.haku-osio {
+    margin-bottom: 20px;
+}
+
+#kasvi-haku {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
