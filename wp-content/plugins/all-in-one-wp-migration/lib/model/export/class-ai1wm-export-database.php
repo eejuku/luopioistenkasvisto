@@ -93,7 +93,7 @@ class Ai1wm_Export_Database {
 		ai1wm_close( $tables_list );
 
 		// Get database client
-		$db_client = Ai1wm_Database_Utility::create_client();
+		$db_client = Ai1wm_Database_Utility::get_client();
 
 		// Exclude spam comments
 		if ( isset( $params['options']['no_spam_comments'] ) ) {

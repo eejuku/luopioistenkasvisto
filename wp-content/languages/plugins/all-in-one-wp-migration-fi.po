@@ -1,0 +1,277 @@
+# Translation of Plugins - All-in-One WP Migration and Backup - Stable (latest release) in Finnish
+# This file is distributed under the same license as the Plugins - All-in-One WP Migration and Backup - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-06-01 12:56:28+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: fi\n"
+"Project-Id-Version: Plugins - All-in-One WP Migration and Backup - Stable (latest release)\n"
+
+#: lib/model/import/class-ai1wm-import-check-encryption.php:63
+msgid "Backup is encrypted. Please provide decryption password: "
+msgstr "Varmuskopio on salattu. Anna salasana suojauksen purkamiseksi, ole hyvä: "
+
+#: lib/view/export/advanced-settings.php:66
+msgid "Password-protect and encrypt backups"
+msgstr "Salasanasuojaa ja salaa varmuuskopiot"
+
+#: lib/view/export/advanced-settings.php:53
+msgid "A password is required"
+msgstr "Salasana tarvitaan"
+
+#: lib/view/export/advanced-settings.php:46
+msgid "Encrypt this backup with a password"
+msgstr "Suojaa tämä varmuuskopio salasanalla"
+
+#: lib/controller/class-ai1wm-main-controller.php:854
+#: lib/view/export/advanced-settings.php:58
+msgid "The passwords do not match"
+msgstr "Salasanat eivät täsmää"
+
+#: lib/controller/class-ai1wm-main-controller.php:853
+#: lib/view/export/advanced-settings.php:56
+msgid "Repeat the password"
+msgstr "Syötä salasana uudelleen"
+
+#: lib/controller/class-ai1wm-main-controller.php:851
+#: lib/controller/class-ai1wm-main-controller.php:897
+msgid "Submit"
+msgstr "Lähetä"
+
+#. translators: 1: Number of files, 2: Progress.
+#: lib/model/export/class-ai1wm-export-themes.php:102
+#: lib/model/export/class-ai1wm-export-themes.php:142
+msgid "Archiving %1$d theme files...<br />%2$d%% complete"
+msgstr "Arkistoidaan %d teematiedostoa...<br />%d%% valmis"
+
+#: lib/view/main/contact-support.php:33
+msgid "Contact Support"
+msgstr "Ota yhteyttä tukeen"
+
+#: lib/view/main/translate.php:33
+msgid "Translate"
+msgstr "Käännä"
+
+#: lib/view/import/import-buttons.php:41
+msgid "Drag & Drop a backup to import it"
+msgstr "Siirrä varmuuskopio ja tuo se"
+
+#: lib/controller/class-ai1wm-main-controller.php:252
+msgid "All-in-One WP Migration Command"
+msgstr "All-in-One WP Migration komento"
+
+#: lib/controller/class-ai1wm-main-controller.php:817
+#: lib/model/export/class-ai1wm-export-init.php:47
+msgid "Preparing to export..."
+msgstr "Valmistelee vientiä..."
+
+#. translators: Human time diff
+#: lib/view/backups/backups-list.php:84
+msgid "%s ago"
+msgstr "%s sitten"
+
+#: lib/controller/class-ai1wm-main-controller.php:848
+msgid "Please do not close this browser window or your import will fail"
+msgstr "Älä sulje tätä ikkunaa tai muuten tuontisi epäonnistuu"
+
+#: lib/controller/class-ai1wm-main-controller.php:847
+msgid "Continue"
+msgstr "Jatka"
+
+#: lib/controller/class-ai1wm-main-controller.php:845
+msgid "Proceed"
+msgstr "Etene"
+
+#: lib/controller/class-ai1wm-main-controller.php:843
+msgid "Stop import"
+msgstr "Pysäytä tuonti"
+
+#: lib/controller/class-ai1wm-main-controller.php:824
+msgid "Stop export"
+msgstr "Pysäytä vienti"
+
+#: lib/controller/class-ai1wm-main-controller.php:823
+#: lib/controller/class-ai1wm-main-controller.php:842
+#: lib/controller/class-ai1wm-main-controller.php:896
+msgid "Close"
+msgstr "Sulje"
+
+#. translators: Progress.
+#: lib/model/export/class-ai1wm-export-database-file.php:88
+#: lib/model/export/class-ai1wm-export-database-file.php:127
+msgid "Archiving database...<br />%d%% complete"
+msgstr "Arkistoidaan tietokantaa...<br />%d%% suoritettu"
+
+#. translators: Progress.
+#: lib/model/import/class-ai1wm-import-database.php:81
+#: lib/model/import/class-ai1wm-import-database.php:1037
+msgid "Restoring database...<br />%d%% complete"
+msgstr "Palautetaan tietokantaa...<br />%d%% suoritettu"
+
+#: lib/controller/class-ai1wm-main-controller.php:1367
+msgid "Monthly"
+msgstr "Kuukausittain"
+
+#: lib/controller/class-ai1wm-main-controller.php:1363
+msgid "Weekly"
+msgstr "Viikoittain"
+
+#: lib/controller/class-ai1wm-main-controller.php:834
+msgid "Preparing to import..."
+msgstr "Valmistellaan tuontia..."
+
+#: lib/model/import/class-ai1wm-import-mu-plugins.php:37
+msgid "Activating mu-plugins..."
+msgstr "Aktivoidaan pakollisia lisäosia..."
+
+#: lib/model/import/class-ai1wm-import-blogs.php:37
+msgid "Preparing blogs..."
+msgstr "Valmistellaan..."
+
+#: lib/controller/class-ai1wm-main-controller.php:812
+#: lib/view/updater/check.php:33
+msgid "Check for updates"
+msgstr "Tarkista päivitykset"
+
+#: lib/view/backups/backups-list.php:40
+msgid "Size"
+msgstr "Koko"
+
+#: lib/view/backups/backups-list.php:39
+msgid "Date"
+msgstr "Päiväys"
+
+#: lib/view/backups/backups-list.php:136 lib/view/backups/backups-list.php:138
+msgid "Delete"
+msgstr "Poista"
+
+#: lib/controller/class-ai1wm-main-controller.php:710
+#: lib/controller/class-ai1wm-main-controller.php:711
+msgid "Import"
+msgstr "Tuonti"
+
+#: lib/view/backups/backups-list.php:109 lib/view/backups/backups-list.php:111
+#: lib/view/backups/backups-list.php:114 lib/view/backups/backups-list.php:116
+#: lib/view/backups/backups-list.php:124
+msgid "Download"
+msgstr "Lataa"
+
+#: lib/view/backups/backups-list.php:101 lib/view/backups/backups-list.php:103
+msgid "Restore"
+msgstr "Palauta"
+
+#: lib/view/common/leave-feedback.php:69
+msgid "Cancel"
+msgstr "Peruuta"
+
+#: lib/view/backups/backups-list.php:38
+msgid "Name"
+msgstr "Nimi"
+
+#: lib/controller/class-ai1wm-main-controller.php:701
+#: lib/controller/class-ai1wm-main-controller.php:702
+msgid "Export"
+msgstr "Vienti"
+
+#: lib/view/export/find-replace.php:54
+msgid "Add"
+msgstr "Lisää"
+
+#. Author of the plugin
+#: all-in-one-wp-migration.php
+msgid "ServMask"
+msgstr "ServMask"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: all-in-one-wp-migration.php
+msgid "https://servmask.com/"
+msgstr "https://servmask.com/"
+
+#: lib/view/import/index.php:39
+msgid "Import Site"
+msgstr "Tuo sivusto"
+
+#: lib/view/import/import-buttons.php:45
+msgid "Import From"
+msgstr "Tuo"
+
+#: lib/view/export/index.php:39
+msgid "Export Site"
+msgstr "Vie sivu"
+
+#: lib/view/export/find-replace.php:41
+msgid "in the database"
+msgstr "tietokannassa"
+
+#: lib/view/export/find-replace.php:40
+msgid "<another-text>"
+msgstr "<another-text>"
+
+#: lib/view/export/find-replace.php:39 lib/view/export/find-replace.php:47
+msgid "Replace with"
+msgstr "Korvaa"
+
+#: lib/view/export/find-replace.php:38
+msgid "<text>"
+msgstr "<text>"
+
+#: lib/view/export/button-file.php:33 lib/view/import/button-file.php:34
+msgid "File"
+msgstr "Tiedosto"
+
+#: lib/view/export/advanced-settings.php:38
+msgid "(click to expand)"
+msgstr "(klikkaa laajentaaksesi)"
+
+#: lib/view/export/advanced-settings.php:37
+msgid "Advanced options"
+msgstr "Edistyneet asetukset"
+
+#: lib/view/common/share-buttons.php:73
+msgid "Tweet"
+msgstr "Twiittaa"
+
+#: lib/view/common/leave-feedback.php:72
+msgid "Send"
+msgstr "Lähetä"
+
+#: lib/view/common/sidebar-right.php:41
+msgid "Leave Feedback"
+msgstr "Jätä palautetta"
+
+#: lib/view/backups/index.php:59
+msgid "Create backup"
+msgstr "Luo varmuuskopio"
+
+#: lib/controller/class-ai1wm-main-controller.php:719
+#: lib/controller/class-ai1wm-main-controller.php:720
+#: lib/view/backups/index.php:39
+msgid "Backups"
+msgstr "Varmuuskopiot"
+
+#: lib/view/main/multisite-notice.php:43
+msgid "Get multisite"
+msgstr "Hanki monisivusto"
+
+#: lib/view/export/help-section.php:52
+msgid "Once the file is successfully downloaded on your computer, you can import it to any of your WordPress sites."
+msgstr "Kun olet ladannut tiedoston konellesi voit viedä sen mihinkä tahansa WordPress sivustolle."
+
+#: lib/view/export/help-section.php:48
+msgid "Press \"Export\" button and the site archive file will pop up in your browser."
+msgstr "Paina \"Vie\" -nappia ja arkistotiedosto tulee ladattavaksi selaimeen."
+
+#: lib/view/export/help-section.php:44
+msgid "In the advanced settings section you can configure more precisely the way of exporting."
+msgstr "Laajennetut asetukset osiossa voit konfiguroida vientiasetukset tarkemmin."
+
+#: lib/model/import/class-ai1wm-import-done.php:365
+#: lib/model/import/class-ai1wm-import-done.php:367
+#: lib/model/import/class-ai1wm-import-done.php:369
+msgid "Your site has been imported successfully!"
+msgstr "Sivustosi tuonti onnistui!"

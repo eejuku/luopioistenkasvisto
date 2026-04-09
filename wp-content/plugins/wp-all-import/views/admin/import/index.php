@@ -81,11 +81,11 @@
 						<div class="wpallimport-upload-type-container" rel="upload_type">
 							<div id="plupload-ui" class="wpallimport-file-type-options">
 					            <div>
-					                <input type="hidden" name="filepath" value="<?php echo $post['filepath'] ?>" id="filepath"/>
+					                <input type="hidden" name="filepath" value="<?php echo esc_attr($post['filepath']); ?>" id="filepath"/>
 					                <a id="select-files" href="javascript:void(0);" <?php if (empty($post['filepath'])):?>style="display:none;"<?php endif; ?> /><?php _e('Click here to select file from your computer...', 'wp_all_import_plugin'); ?></a>
 					                <div id="progressbar" class="wpallimport-progressbar">
 					                	<?php if (!empty($post['filepath'])):?>
-					                	<span><?php _e('Upload Complete', 'wp_all_import_plugin');?></span> - <?php echo basename($post['filepath']); ?>
+					                	<span><?php _e('Upload Complete', 'wp_all_import_plugin');?></span> - <?php echo esc_html(basename($post['filepath'])); ?>
 					                	<?php endif; ?>
 					                </div>
 					                <div id="progress" class="wpallimport-progress" <?php if (!empty($post['filepath'])):?>style="visibility: visible; display: block;"<?php endif; ?>>

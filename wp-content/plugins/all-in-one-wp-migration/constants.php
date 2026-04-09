@@ -37,7 +37,7 @@ define( 'AI1WM_DEBUG', false );
 // ==================
 // = Plugin Version =
 // ==================
-define( 'AI1WM_VERSION', '7.102' );
+define( 'AI1WM_VERSION', '7.104' );
 
 // ===============
 // = Plugin Name =
@@ -505,7 +505,7 @@ if ( ! defined( 'AI1WM_DEFAULT_BACKUPS_PATH' ) ) {
 // ================
 // = Backups Path =
 // ================
-define( 'AI1WM_BACKUPS_PATH', get_option( AI1WM_BACKUPS_PATH_OPTION, AI1WM_DEFAULT_BACKUPS_PATH ) );
+define( 'AI1WM_BACKUPS_PATH', ai1wm_resolve_backups_path() );
 
 // ==========================
 // = Storage index.php File =

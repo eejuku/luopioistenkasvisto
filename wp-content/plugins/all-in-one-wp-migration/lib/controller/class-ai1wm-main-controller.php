@@ -152,6 +152,7 @@ class Ai1wm_Main_Controller {
 		add_filter( 'ai1wm_export', 'Ai1wm_Export_Themes::execute', 180 );
 		add_filter( 'ai1wm_export', 'Ai1wm_Export_Database::execute', 200 );
 		add_filter( 'ai1wm_export', 'Ai1wm_Export_Database_File::execute', 220 );
+		add_filter( 'ai1wm_export', 'Ai1wm_Export_Archive_Crc::execute', 240 );
 		add_filter( 'ai1wm_export', 'Ai1wm_Export_Download::execute', 250 );
 		add_filter( 'ai1wm_export', 'Ai1wm_Export_Clean::execute', 300 );
 
@@ -159,6 +160,7 @@ class Ai1wm_Main_Controller {
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Upload::execute', 5 );
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Compatibility::execute', 10 );
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Validate::execute', 50 );
+		add_filter( 'ai1wm_import', 'Ai1wm_Import_Validate_Crc::execute', 55 );
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Check_Compression::execute', 70 );
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Check_Encryption::execute', 75 );
 		add_filter( 'ai1wm_import', 'Ai1wm_Import_Confirm::execute', 100 );
@@ -299,7 +301,7 @@ class Ai1wm_Main_Controller {
 	public function check_auto_increment() {
 		global $wpdb;
 
-		$db_client = Ai1wm_Database_Utility::create_client();
+		$db_client = Ai1wm_Database_Utility::get_client();
 		if ( ! $db_client->has_auto_increment( $wpdb->options ) ) {
 			if ( is_multisite() ) {
 				return add_action( 'network_admin_notices', array( $this, 'missing_auto_increment' ) );

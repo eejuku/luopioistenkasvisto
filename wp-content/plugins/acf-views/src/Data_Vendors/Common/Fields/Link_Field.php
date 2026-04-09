@@ -1,0 +1,106 @@
+<?php
+
+declare( strict_types=1 );
+
+namespace Org\Wplake\Advanced_Views\Data_Vendors\Common\Fields;
+
+use Org\Wplake\Advanced_Views\Groups\Field_Settings;
+use Org\Wplake\Advanced_Views\Groups\Layout_Settings;
+use Org\Wplake\Advanced_Views\Layouts\Field_Meta_Interface;
+use Org\Wplake\Advanced_Views\Layouts\Fields\Markup_Field_Data;
+use Org\Wplake\Advanced_Views\Layouts\Fields\Variable_Field_Data;
+use function Org\Wplake\Advanced_Views\Vendors\WPLake\Typed\arr;
+use function Org\Wplake\Advanced_Views\Vendors\WPLake\Typed\bool;
+use function Org\Wplake\Advanced_Views\Vendors\WPLake\Typed\string;
+
+defined( 'ABSPATH' ) || exit;
+
+class Link_Field extends Markup_Field {
+	public function print_markup( string $field_id, Markup_Field_Data $markup_field_data ): void {
+		echo '<a';
+		$markup_field_data->get_template_generator()->print_array_item_attribute( 'target', $field_id, 'target' );
+		printf(
+			' class="%s"',
+			esc_html(
+				$this->get_field_class(
+					'link',
+					$markup_field_data
+				)
+			)
+		);
+		$markup_field_data->get_template_generator()->print_array_item_attribute( 'href', $field_id, 'value' );
+		echo '>';
+
+		echo "\r\n";
+		$markup_field_data->increment_and_print_tabs();
+
+		$markup_field_data->get_template_generator()->print_filled_array_item( $field_id, 'linkLabel', 'title' );
+
+		echo "\r\n";
+		$markup_field_data->decrement_and_print_tabs();
+
+		echo '</a>';
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function get_template_variables( Variable_Field_Data $variable_field_data ): array {
+		$args = array(
+			'value'     => '',
+			'target'    => '_self',
+			'title'     => '',
+			'linkLabel' => $variable_field_data->get_field_data()->get_link_label_translation(),
+		);
+
+		$value = arr( $variable_field_data->get_value() );
+
+		if ( 0 === count( $value ) ) {
+			return $args;
+		}
+
+		$target        = string( $value, 'target' );
+		$is_target_set = strlen( $target ) > 0 || bool( $value, 'target' );
+
+		$args['value']  = string( $value, 'url' );
+		$args['title']  = string( $value, 'title' );
+		$args['target'] = $variable_field_data->get_field_data()->is_link_target_blank || $is_target_set ?
+			'_blank' :
+			'_self';
+
+		return $args;
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function get_validation_template_variables( Variable_Field_Data $variable_field_data ): array {
+		return array(
+			'value'     => 'https://wordpress.org/',
+			'target'    => '_self',
+			'title'     => 'wordpress.org',
+			'linkLabel' => $variable_field_data->get_field_data()->get_link_label_translation(),
+		);
+	}
+
+	public function is_with_field_wrapper(
+		Layout_Settings $layout_settings,
+		Field_Settings $field_settings,
+		Field_Meta_Interface $field_meta
+	): bool {
+		return $layout_settings->is_with_unnecessary_wrappers;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function get_conditional_fields( Field_Meta_Interface $field_meta ): array {
+		return array_merge(
+			parent::get_conditional_fields( $field_meta ),
+			array(
+				Field_Settings::FIELD_LINK_LABEL,
+				Field_Settings::FIELD_IS_LINK_TARGET_BLANK,
+			)
+		);
+	}
+}

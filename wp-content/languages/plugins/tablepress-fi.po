@@ -1,0 +1,991 @@
+# Translation of Plugins - TablePress &#8211; Tables in WordPress made easy - Stable (latest release) in Finnish
+# This file is distributed under the same license as the Plugins - TablePress &#8211; Tables in WordPress made easy - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2017-11-13 12:39:16+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: fi\n"
+"Project-Id-Version: Plugins - TablePress &#8211; Tables in WordPress made easy - Stable (latest release)\n"
+
+#. translators: %s: Error message
+#: views/view-edit.php:436
+msgid "The following error was registered: %s."
+msgstr "Havaittiin virhe: %s."
+
+#. translators: %s: Label for unknown user
+#: classes/class-tablepress.php:408
+msgid "unknown"
+msgstr "tuntematon"
+
+#. translators: %s: URL to TablePress website
+#: classes/class-admin-page-helper.php:125
+msgid "Thank you for using <a href=\"%s\">TablePress</a>."
+msgstr "Kiitos kun käytät <a href=\"%s\">TablePressiä</a>."
+
+#: views/view-about.php:260
+msgid "the translators in the <a href=\"%s\">Plugin Directory</a>,"
+msgstr "kääntäjät <a href=\"%s\">lisäosahakemistossa</a>,"
+
+#: views/view-about.php:259
+msgid "Allan Jardine for <a href=\"%s\">DataTables</a>,"
+msgstr "Allan Jardine <a href=\"%s\">DataTablesista</a>,"
+
+#: views/view-list.php:215
+msgid "Welcome!"
+msgstr "Tervetuloa!"
+
+#: views/view-list.php:196 views/view-list.php:213 views/view-list.php:236
+#: views/view-list.php:250
+msgid "Hide this message"
+msgstr "Piilota tämä viesti"
+
+#: views/view-list.php:221
+msgid "Tobias Bäthge, developer of TablePress"
+msgstr "Tobias Bäthge, TablePressin kehittäjä"
+
+#: views/view-list.php:258 views/view-list.php:259
+msgid "The table was deleted successfully."
+msgid_plural "The tables were deleted successfully."
+msgstr[0] "Taulukko poistettiin onnistuneesti"
+msgstr[1] "Taulukot poistettiin onnistuneesti."
+
+#: views/view-list.php:269
+msgid "Error: The table could not be copied."
+msgstr "Virhe: Taulukkoa ei voitu kopioida"
+
+#: views/view-list.php:272
+msgid "Error: This bulk action is invalid!"
+msgstr "Virhe: Tämä massatoiminto ei kelpaa!"
+
+#: views/view-list.php:276
+msgid "The tables were imported successfully."
+msgstr "Taulukoiden tuonti onnistui."
+
+#: views/view-list.php:282
+msgid "Tables"
+msgstr "Taulukot"
+
+#: views/class-all-tables-list-table.php:106
+msgid "Author"
+msgstr "Tekijä"
+
+#: views/class-all-tables-list-table.php:107
+msgid "Last Modified By"
+msgstr "Viimeksi muokannut"
+
+#: views/class-all-tables-list-table.php:222
+#: views/class-all-tables-list-table.php:229
+msgid "Edit &#8220;%s&#8221;"
+msgstr "Muokkaa &#8220;%s&#8221;"
+
+#: views/class-all-tables-list-table.php:233
+msgid "Copy &#8220;%s&#8221;"
+msgstr "Kopioi &#8220;%s&#8221;"
+
+#: views/class-all-tables-list-table.php:233 admin/js/build/edit.js:2
+#: admin/js/edit/data/contextmenu.js:85
+msgid "Copy"
+msgstr "Kopioi"
+
+#: views/class-all-tables-list-table.php:368
+msgctxt "bulk action"
+msgid "Copy"
+msgstr "Kopioi"
+
+#: views/class-all-tables-list-table.php:374
+msgctxt "bulk action"
+msgid "Delete"
+msgstr "Poista"
+
+#: views/class-all-tables-list-table.php:412
+msgid "Bulk Actions"
+msgstr "Massatoiminnot"
+
+#: views/view-options.php:41
+msgid "Options saved successfully."
+msgstr "Asetusten tallennus onnistui."
+
+#: views/view-options.php:43
+msgid "Error: Options could not be saved."
+msgstr "Virhe: Asetuksia ei voitu tallentaa."
+
+#: views/view-options.php:62
+msgid "User Options"
+msgstr "Käyttäjäasetukset"
+
+#: views/view-options.php:193
+msgid "Admin menu entry"
+msgstr "Ylläpitäjän valikko"
+
+#: views/view-options.php:194
+msgid "TablePress shall be shown in this section of my admin menu: %s"
+msgstr "TablePress näytetään tässä osassa ylläpitovalikkoa: %s"
+
+#. translators: %s: Connection information form label
+#: views/view-options_custom_css.php:122
+msgid "Connection Information"
+msgstr "Yhteystiedot"
+
+#: views/view-options_custom_css.php:150
+msgid "Proceed without saving a file"
+msgstr "Hyväksy tallentamatta tiedostoa"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: tablepress.php
+msgid "https://tablepress.org/"
+msgstr "https://tablepress.org/"
+
+#. Author of the plugin
+#: tablepress.php
+msgid "Tobias Bäthge"
+msgstr "Tobias Bäthge"
+
+#: views/view-options_custom_css.php:155
+msgid "Proceed without saving &#8220;Custom CSS&#8221; to a file"
+msgstr "Jatka tallentamatta omaa CSS-koodia tiedostoon"
+
+#: views/view-options_custom_css.php:153
+msgid "Your &#8220;Custom CSS&#8221; will then be loaded inline."
+msgstr "Oma CSS-koodisi sisällytetään sivuun."
+
+#: views/view-options_custom_css.php:152
+msgid "To proceed without trying to save the &#8220;Custom CSS&#8221; to a file, click the button below."
+msgstr "Jatkaaksesi tallentamatta omaa CSS-koodia tiedostoon paina alla olevaa nappia."
+
+#. translators: %s: Connection information form label
+#: views/view-options_custom_css.php:122
+msgid "To try again with the same method that you use for updating plugins or themes, please fill out the &#8220;%s&#8221; form below."
+msgstr "Jos haluat yrittää uudestaan samalla tavalla, jota käytät lisäosien ja teemojen päivittämiseen, täytä alla oleva &#8220;%s&#8221; -lomake."
+
+#: views/view-options_custom_css.php:119
+msgid "Due to the configuration of your server, TablePress was not able to automatically save your &#8220;Custom CSS&#8221; to a file."
+msgstr "TablePress ei onnistunut automaattisesti tallentamaan omaa CSS-koodiasi tiedostoon, koska palvelimen asetukset estivät sen."
+
+#: views/view-options_custom_css.php:44
+msgid "Attention: Further action is required to save the changes to your &#8220;Custom CSS&#8221;!"
+msgstr "Huomio: Omaan CSS-koodiisi tekemien muutosten tallentaminen vaatii vielä toimenpiteitä!"
+
+#: views/view-options.php:233
+msgid "Be very careful with this and only click the button if you know what you are doing!"
+msgstr "Paina nappia vain, jos tiedät tarkalleen mitä olet tekemässä!"
+
+#: views/view-options.php:232
+msgid "You will manually need to remove the plugin&#8217;s files from the plugin folder afterwards."
+msgstr "Sinun täytyy poistaa lisäosan tiedostot lisäosahakemistosta itse tämän jälkeen."
+
+#: views/view-options.php:231
+msgid "It is recommended that you create a backup of the tables (by exporting the tables in the JSON format), in case you later change your mind."
+msgstr "Suosittelemme, että luot varmuuskopion taulukoista (viemällä taulukot JSON-muodossa) ennen tietojen tyhjentämistä."
+
+#: views/view-options.php:230
+msgid "Uninstalling <strong>will permanently delete</strong> all TablePress tables and options from the database."
+msgstr "Poistaminen <strong>tuhoaa lopullisesti</strong> kaikki TablePressin taulukot ja asetukset tietokannasta."
+
+#: views/view-options.php:183
+msgid "Top-Level (bottom)"
+msgstr "Ylätaso (ala)"
+
+#: views/view-options.php:182
+msgid "Top-Level (middle)"
+msgstr "Ylätaso (keski)"
+
+#: views/view-options.php:181
+msgid "Top-Level (top)"
+msgstr "Ylätaso (ylä)"
+
+#: views/view-options.php:145
+msgid "Please note that invalid CSS code will be stripped, if it can not be corrected automatically."
+msgstr "Viallinen CSS-koodi poistetaan, jos sitä ei saada automaattisesti korjattua."
+
+#: views/view-options.php:141
+msgid "You can get styling examples from the <a href=\"%s\">FAQ</a>."
+msgstr "Esimerkkejä tyyleistä löytyy <a href=\"%s\">UKK</a>:sta"
+
+#: views/view-options.php:139
+msgid "&#8220;Custom CSS&#8221; (<a href=\"%s\">Cascading Style Sheets</a>) can be used to change the styling or layout of a table."
+msgstr "Omalla CSS-koodilla (<a href=\"%s\">Cascading Style Sheets</a>) voi muuttaa taulukon ulkoasua."
+
+#: views/view-options.php:129
+msgid "Custom CSS"
+msgstr "Oma CSS-koodi"
+
+#: views/view-options.php:42
+msgid "Options saved successfully, but &#8220;Custom CSS&#8221; was not saved to file."
+msgstr "Asetukset tallennettiin, mutta omaa CSS-koodia ei saatu tallennettua tiedostoon."
+
+#: views/class-all-tables-list-table.php:441
+msgid "You should <a href=\"%s\">import</a> a table to get started!"
+msgstr "<a href=\"%s\">Tuo taulukko</a> päästäksesi alkuun!"
+
+#: views/class-all-tables-list-table.php:439
+msgid "You should <a href=\"%s\">add</a> a table to get started!"
+msgstr "<a href=\"%s\">Lisää taulukko</a> päästäksesi alkuun!"
+
+#: views/class-all-tables-list-table.php:417
+msgid "Apply"
+msgstr "Käytä"
+
+#: views/class-all-tables-list-table.php:410
+msgid "Select Bulk Action"
+msgstr "Valitse massatoiminto"
+
+#: views/class-all-tables-list-table.php:371
+msgctxt "bulk action"
+msgid "Export"
+msgstr "Vie"
+
+#: views/class-all-tables-list-table.php:236
+msgctxt "row action"
+msgid "Export"
+msgstr "Vie"
+
+#: views/class-all-tables-list-table.php:236
+msgid "Export &#8220;%s&#8221;"
+msgstr "Vie &#8220;%s&#8221;"
+
+#: views/class-all-tables-list-table.php:231
+msgid "Show Shortcode"
+msgstr "Näytä lyhytkoodi"
+
+#: controllers/controller-admin_ajax.php:297 views/view-about.php:115
+#: views/view-list.php:363 views/view-preview_table.php:81
+msgid "Each table has a unique ID that needs to be adjusted in that Shortcode."
+msgstr "Taulukoilla on ID-numero, joka pitää lisätä lyhytkoodiin."
+
+#: views/view-editor_button_thickbox.php:120 views/view-list.php:353
+msgid "This is a list of your tables."
+msgstr "Tämä on lista taulukoistasi."
+
+#: views/view-list.php:275
+msgid "Notice: Not all selected tables could be copied!"
+msgstr "Huomaa: Kaikkia valittuja taulukoita ei voitu kopioida!"
+
+#: views/view-list.php:274
+msgid "Notice: Not all selected tables could be deleted!"
+msgstr "Huomaa: Kaikkia valittuja taulukoita ei voitu poistaa!"
+
+#: views/view-list.php:273
+msgid "Error: You did not select any tables!"
+msgstr "Virhe: Et valinnut yhtään taulukoita!"
+
+#: views/view-list.php:270
+msgid "Error: You did not specify a valid table ID."
+msgstr "Virhe: Et antanut kelvollista taulukon tunnistetta."
+
+#: views/view-list.php:265
+msgid "The copied table has the table ID &#8220;%s&#8221;."
+msgstr "Taulukon kopion tunniste on &#8220;%s&#8221;."
+
+#: views/view-list.php:252
+msgid "Thank you for updating to TablePress %s!"
+msgstr "Kiitos kun päivitit TablePressin versioon %s!"
+
+#: views/view-list.php:222
+msgid "Hi, my name is Tobias, I&#8217;m the developer of the TablePress plugin."
+msgstr "Hei, nimeni on Tobias, ja olen TablePressin kehittäjä."
+
+#: admin/js/build/list.js:1 admin/js/list/screen.jsx:99
+msgid "To embed this table into a post or page, use this Shortcode:"
+msgstr "Lisätäksesi tämän taulukon artikkeliin tai sivulle, käytä tätä lyhytkoodia:"
+
+#. translators: %s: Author's website URL
+#: views/view-about.php:159
+msgid "This plugin was written and developed by <a href=\"%s\">Tobias Bäthge</a>."
+msgstr "Tämän lisäosan suunnitteli ja kirjoitti <a href=\"%s\">Tobias Bäthge</a>."
+
+#: views/view-about.php:161
+msgid "It is licensed as Free Software under GNU General Public License 2 (GPL 2)."
+msgstr "Se on lisensoitu ilmaisena ohjelmana GNU General Public License 2 (GPL 2):n mukaan."
+
+#: views/view-about.php:216
+msgid "Please provide this information in bug reports and support requests."
+msgstr "Liitä tämä tieto vikailmoitukseen ja tukipyyntöön."
+
+#: views/view-about.php:256
+msgid "Special Thanks go to:"
+msgstr "Erityiskiitokset:"
+
+#: views/view-add.php:41
+msgid "Error: The table could not be added."
+msgstr "Virhe: Taulukkoa ei voitu lisätä."
+
+#: admin/js/add/screen.jsx:128 admin/js/build/add.js:1
+msgid "Add Table"
+msgstr "Lisää taulukko"
+
+#: views/view-add.php:64
+msgid "You can always change the name, description, and size of your table later."
+msgstr "Voit aina vaihtaa nimen, kuvauksen ja taulukon koon myöhemmin."
+
+#: views/class-all-tables-list-table.php:104
+#: views/class-editor-button-thickbox-list-table.php:85
+#: admin/js/add/screen.jsx:71 admin/js/build/add.js:1 admin/js/build/edit.js:1
+#: admin/js/edit/table-information.js:138
+msgid "Table Name"
+msgstr "Taulukon nimi"
+
+#: admin/js/add/screen.jsx:72 admin/js/build/add.js:1
+msgid "The name or title of your table."
+msgstr "Taulukon nimi tai otsikko."
+
+#: views/class-all-tables-list-table.php:105
+#: views/class-editor-button-thickbox-list-table.php:86
+#: admin/js/add/screen.jsx:79 admin/js/build/add.js:1 admin/js/build/edit.js:1
+#: admin/js/edit/table-information.js:150
+msgid "Description"
+msgstr "Kuvaus"
+
+#: admin/js/add/screen.jsx:79 admin/js/build/add.js:1
+msgid "(optional)"
+msgstr "(valinnainen)"
+
+#: admin/js/add/screen.jsx:95 admin/js/build/add.js:1
+msgid "Number of Rows"
+msgstr "Rivien lukumäärä"
+
+#: admin/js/add/screen.jsx:112 admin/js/build/add.js:1
+msgid "Number of Columns"
+msgstr "Sarakkeiden lukumäärä"
+
+#: views/view-edit.php:54
+msgid "The table was added successfully."
+msgstr "Taulukon lisäys onnistui."
+
+#: views/view-edit.php:56
+msgid "The table was imported successfully."
+msgstr "Taulukon tuonti onnistui."
+
+#: views/view-edit.php:82
+msgid "Table Information"
+msgstr "Taulukon tiedot"
+
+#: views/view-edit.php:83
+msgid "Table Content"
+msgstr "Taulukon sisältö"
+
+#: views/view-edit.php:84 admin/js/build/edit.js:1
+#: admin/js/edit/table-manipulation.js:391
+#: admin/js/edit/table-manipulation.js:401
+#: admin/js/edit/table-manipulation.js:408
+msgid "Table Manipulation"
+msgstr "Taulukon muokkaus"
+
+#: views/view-edit.php:85 admin/js/build/edit.js:1 admin/js/build/edit.js:2
+#: admin/js/edit/datatables-features.js:94 admin/js/edit/editor.js:198
+#: admin/js/edit/editor.js:208
+msgid "Table Options"
+msgstr "Taulukon tiedot"
+
+#: views/view-edit.php:103
+msgid "Insert into Table"
+msgstr "Lisää taulukkoon"
+
+#: views/class-all-tables-list-table.php:108 admin/js/build/edit.js:1
+#: admin/js/edit/table-information.js:162
+msgid "Last Modified"
+msgstr "Muokattu viimeksi"
+
+#: views/view-edit.php:374 admin/js/build/edit.js:1 admin/js/build/edit.js:2
+#: admin/js/edit/data/contextmenu.js:137 admin/js/edit/table-manipulation.js:97
+msgid "Advanced Editor"
+msgstr "Edistynyt muokkain"
+
+#: views/class-all-tables-list-table.php:239 admin/js/build/edit.js:1
+#: admin/js/build/edit.js:2 admin/js/build/list.js:1
+#: admin/js/edit/other-actions.js:83 admin/js/edit/table-manipulation.js:179
+#: admin/js/edit/table-manipulation.js:204 admin/js/list/screen.jsx:178
+msgid "Delete"
+msgstr "Poista"
+
+#: admin/js/build/edit.js:2 admin/js/build/list.js:1
+#: admin/js/edit/editor.js:514 admin/js/edit/other-actions.js:75
+#: admin/js/list/screen.jsx:170
+msgid "Cancel"
+msgstr "Keskeytä"
+
+#: admin/js/build/edit.js:1 admin/js/build/edit.js:2
+#: admin/js/common/alert.jsx:73 admin/js/edit/editor.js:521
+msgid "OK"
+msgstr "OK"
+
+#. translators: %1$s: Page title, %2$s: Plugin name
+#: views/view-editor_button_thickbox.php:73
+#: views/view-editor_button_thickbox.php:118
+msgid "List of Tables"
+msgstr "Lista taulukoista"
+
+#: views/view-editor_button_thickbox.php:120
+msgid "You may insert a table into a post or page here."
+msgstr "Voit lisätä taulukon artikkeliin tai sivulle tästä."
+
+#: views/view-editor_button_thickbox.php:131 views/view-list.php:386
+msgid "Search Tables"
+msgstr "Etsi taulukoita"
+
+#: views/class-all-tables-list-table.php:103
+#: views/class-editor-button-thickbox-list-table.php:84
+msgid "ID"
+msgstr "ID"
+
+#: views/class-editor-button-thickbox-list-table.php:87
+msgid "Action"
+msgstr "Toiminto"
+
+#: views/class-all-tables-list-table.php:258
+#: views/class-editor-button-thickbox-list-table.php:165
+msgid "(no description)"
+msgstr "(ei kuvausta)"
+
+#: views/class-all-tables-list-table.php:428
+#: views/class-editor-button-thickbox-list-table.php:189
+#: views/view-export.php:92
+msgid "No tables found."
+msgstr "Taulukoita ei löytynyt."
+
+#: views/view-export.php:41
+msgid "Error: The export failed."
+msgstr "Virhe: Vienti epäonnistui."
+
+#: views/view-export.php:42 views/view-list.php:271
+msgid "Error: This table could not be loaded!"
+msgstr "Virhe: Tätä taulukkoa ei voitu ladata."
+
+#: views/view-export.php:49 views/view-export.php:52
+msgid "Export Tables"
+msgstr "Vie taulukoita"
+
+#: views/view-export.php:67
+msgid "Exporting a table allows you to use it in other programs, like spreadsheets applications."
+msgstr "Taulukon vienti mahdollistaa sen käytön muissa ohjelmissa."
+
+#: views/view-export.php:71
+msgid "To export, select the tables and the desired export format."
+msgstr "Valitse taulukot ja haluttu vientimuoto."
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:96
+msgid "Tables to Export"
+msgstr "Vietävät taulukot"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:103
+msgid "Select all"
+msgstr "Valitse kaikki"
+
+#. translators: %1$s: Table ID, %2$s: Table name
+#: classes/class-elementor-widget-table.php:183 admin/js/build/export.js:1
+#: admin/js/build/import.js:1 admin/js/export/screen.jsx:39
+#: admin/js/import/screen.jsx:62
+msgid "ID %1$s: %2$s"
+msgstr "ID %1$s: %2$s"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:162
+#: admin/js/export/screen.jsx:173
+msgid "Export Format"
+msgstr "Vientimuoto"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:235
+msgid "Note: Support for ZIP file creation seems not to be available on this server."
+msgstr "Huomaa: ZIP-tiedoston luominen ei näytä olevan mahdollista palvelimella."
+
+#: views/view-import.php:56
+msgid "Import Tables"
+msgstr "Tuo taulukoita"
+
+#: views/view-import.php:79
+msgid "You can also choose to import it as a new table, to replace an existing table, or to append the rows to an existing table."
+msgstr "Voit myös tuoda sen uutena taulukkona, korvata olemassaolevan taulukon tai lisätä rivit olemassaolevaan taulukkoon."
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:137
+#: admin/js/import/screen.jsx:142
+msgid "Import Source"
+msgstr "Tuontilähde"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:30
+msgid "File Upload"
+msgstr "Tiedoston lataus"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:34
+msgid "URL"
+msgstr "URL"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:38
+msgid "File on server"
+msgstr "Tiedosto palvelimella"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:35
+msgid "File URL"
+msgstr "Tiedoston URL"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:39
+msgid "Server Path to file"
+msgstr "Palvelimen polku tiedostoon"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:43
+msgid "Import data"
+msgstr "Tuo dataa"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:258
+msgid "Add as new table"
+msgstr "Lisää uutena taulukkona"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:259
+msgid "Replace existing table"
+msgstr "Korvaa olemassaoleva taulukko"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:260
+msgid "Append rows to existing table"
+msgstr "Lisää rivit olemassaolevaan taulukkoon"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:305
+msgctxt "button"
+msgid "Import"
+msgstr "Tuo"
+
+#: views/view-edit.php:55 views/view-list.php:261 views/view-list.php:268
+msgid "The table was copied successfully."
+msgid_plural "The tables were copied successfully."
+msgstr[0] "Taulukko kopioitiin onnistuneesti."
+msgstr[1] "Taulukot kopioitiin onnistuneesti."
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:267
+#: admin/js/import/screen.jsx:277
+msgid "Table to replace or append to"
+msgstr "Taulukko, joka korvataan tai johon lisätään"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:248
+msgid "Add, Replace, or Append?"
+msgstr "Lisää uusi, korvaa vai lisää taulukkoon?"
+
+#: admin/js/build/import.js:1 admin/js/import/screen.jsx:42
+msgid "Manual Input"
+msgstr "Syötä käsin"
+
+#: views/view-import.php:52
+msgid "Error: The import failed."
+msgstr "Virhe: tuonti epäonnistui."
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:229
+msgid "(Mandatory if more than one table is selected.)"
+msgstr "(Pakollinen, jos viedään useampi kuin yksi taulukko.)"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:222
+msgid "Create a ZIP archive."
+msgstr "Luo ZIP-tiedosto"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:213
+msgid "ZIP file"
+msgstr "ZIP-tiedosto"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:205
+msgid "(Only needed for CSV export.)"
+msgstr "(Vaaditaan ainoastaan CVS-viennille.)"
+
+#: admin/js/build/export.js:1 admin/js/export/screen.jsx:184
+#: admin/js/export/screen.jsx:197
+msgid "CSV Delimiter"
+msgstr "CVS-erotinmerkki"
+
+#: views/view-export.php:75
+msgid "For the JSON format, the table data and the table options are exported."
+msgstr "JSON-formaatissa viedään taulukoiden sisältö ja asetukset."
+
+#: views/view-export.php:74
+msgid "Be aware that for the CSV and HTML formats only the table data, but no table options are exported!"
+msgstr "CVS- ja HTML-muodoissa viedään ainoastaan taulukoiden sisältö, mutta ei niiden asetuksia!"
+
+#: views/view-export.php:72
+msgid "If you choose more than one table, the exported files will automatically be stored in a ZIP archive file."
+msgstr "Jos valitset useamman kuin yhden taulukon, viedyt taulukot kootaan automaattisesti ZIP-tiedostoon."
+
+#: views/view-export.php:68
+msgid "Regularly exporting tables is also recommended as a backup of your data."
+msgstr "Taulukoiden vieminen säännöllisesti on hyvä tapa varmuuskopioida taulukkosi."
+
+#: views/view-export.php:44
+msgid "Error: The ZIP file could not be created."
+msgstr "Virhe: ZIP-tiedostoa ei voitu luoda."
+
+#: views/view-export.php:43
+msgid "Error: The internal data of this table is corrupted!"
+msgstr "Virhe: Taulukon sisäinen rakenne on viallinen!"
+
+#: views/class-editor-button-thickbox-list-table.php:191
+msgid "You should add or import a table on the TablePress screens to get started!"
+msgstr "Lisää tai tuo taulukoita TablePressiin päästäksesi alkuun."
+
+#: views/view-editor_button_thickbox.php:124 views/view-list.php:378
+msgid "Search results for &#8220;%s&#8221;"
+msgstr "Tulokset haulle &#8220;%s&#8221;"
+
+#: views/class-editor-button-thickbox-list-table.php:179
+#: views/view-editor_button_thickbox.php:121
+msgid "Insert Shortcode"
+msgstr "Lisää lyhytkoodi"
+
+#: classes/class-view.php:470 views/view-edit.php:448
+msgid "Back to the List of Tables"
+msgstr "Takaisin taulukkolistaan"
+
+#. translators: %s: URL to TablePress FAQ page
+#: views/view-edit.php:444
+msgid "Please see the <a href=\"%s\">TablePress FAQ page</a> for further instructions."
+msgstr "Löydät tarkempia ohjeita <a href=\"%s\">TablePressin UKK-sivulta</a>."
+
+#: views/view-edit.php:441
+msgid "Because of this error, the table can not be edited at this time, to prevent possible further data loss."
+msgstr "Tämän virheen vuoksi taulukkoa ei voi muokata nyt, jotta vältetään tietojen menetys."
+
+#. translators: %1$s: Table name, %2$s: Table ID
+#: views/view-edit.php:433
+msgid "The internal data of table &#8220;%1$s&#8221; (ID %2$s) is corrupted."
+msgstr "Taulukon &#8220;%1$s&#8221; (ID %2$s) sisältö on korruptoitunut."
+
+#: views/view-edit.php:428 admin/js/build/edit.js:1
+#: admin/js/common/ajax-request.js:159
+msgid "Attention: Unfortunately, an error occurred."
+msgstr "Huomio: Valitettavasti tapahtui virhe."
+
+#: views/view-edit.php:57 views/view-list.php:260
+msgid "Error: The table could not be deleted."
+msgstr "Virhe: Taulukkoa ei voitu poistaa."
+
+#: views/view-edit.php:55
+msgid "You are now seeing the copied table, which has the table ID &#8220;%s&#8221;."
+msgstr "Näet nyt taulukon kopion, jonka ID on &#8220;%s&#8221;."
+
+#: admin/js/add/screen.jsx:113 admin/js/build/add.js:1
+msgid "The number of columns in your table."
+msgstr "Sarakkeiden lukumäärä taulukossa."
+
+#: admin/js/add/screen.jsx:96 admin/js/build/add.js:1
+msgid "The number of rows in your table."
+msgstr "Rivien lukumäärä taulukossa."
+
+#: admin/js/add/screen.jsx:97 admin/js/add/screen.jsx:114
+#: admin/js/build/add.js:1 admin/js/build/edit.js:1
+#: admin/js/edit/table-manipulation.js:320
+#: admin/js/edit/table-manipulation.js:359
+msgid "This field must contain a positive number."
+msgstr "Numeron täytyy olla positiivinen."
+
+#: admin/js/add/screen.jsx:80 admin/js/build/add.js:1
+msgid "A description of the contents of your table."
+msgstr "Kuvaus taulukon sisällöstä."
+
+#: views/view-add.php:61
+msgid "To add a new table, enter its name, a description (optional), and the number of rows and columns into the form below."
+msgstr "Lisää uusi taulukko antamalla sen nimi, kuvaus sekä rivien ja sarakkeiden määrä allaolevaan lomakkeeseen."
+
+#: views/view-about.php:199
+msgid "If you do not find an answer there, please <a href=\"%s\">open a new thread</a> in the WordPress Support Forums."
+msgstr "Jos et löydä vastausta sieltä, <a href=\"%s\">aloita uusi keskustelu</a> WordPressin tukifoorumeilla."
+
+#. translators: %s: WordPress Plugin Directory URL
+#: views/view-about.php:166
+msgid "Please rate and review the plugin in the <a href=\"%s\">WordPress Plugin Directory</a>."
+msgstr "Voisitko arvioida lisäosan <a href=\"%s\">WordPressin lisäosahakemistossa</a>, kiitos."
+
+#: views/view-about.php:122
+msgid "For this, each table is given certain CSS classes that can be used as CSS selectors."
+msgstr "Jokaisella taulukolla on tiettyjä CSS-luokkia, joita voi käyttää valitsimina."
+
+#: views/view-about.php:121
+msgid "The plugin ships with default CSS stylesheets, which can be customized with own code or replaced with other stylesheets."
+msgstr "Lisäosan mukana tulee oletustyylitiedosto, jota voi muokata tai jonka voi korvata uudella."
+
+#: views/view-about.php:120
+msgid "Tables can be styled by changing and adding CSS commands."
+msgstr "Taulukoiden tyyliä voi muuttaa CSS-komennoilla."
+
+#: views/view-about.php:102
+msgid "To easily add a link or an image to a cell, use the provided buttons."
+msgstr "Voit lisätä taulukon soluihin kuvia tai linkkejä helposti nappia painamalla."
+
+#: views/view-about.php:98
+msgid "This means that you either let the plugin create an empty table for you or that you load an existing table from either a CSV, HTML, JSON, XLS, or XLSX file."
+msgstr "Voit joko antaa lisäosan luoda sinulle tyhjän taulukon, tai voit ladata olemassaolevan taulukon CSV-, HTML-, JSON-, XLS- tai XLSX-tiedostosta."
+
+#: views/view-about.php:97
+msgid "At first, you should add or import a table."
+msgstr "Aloita tuomalla tai lisäämällä taulukko."
+
+#: classes/class-export.php:55
+msgid "CSV - Character-Separated Values"
+msgstr "CSV - Character-Separated Values"
+
+#: classes/class-export.php:56
+msgid "HTML - Hypertext Markup Language"
+msgstr "HTML - Hypertext Markup Language"
+
+#: classes/class-export.php:57
+msgid "JSON - JavaScript Object Notation"
+msgstr "JSON - JavaScript Object Notation"
+
+#: classes/class-export.php:60
+msgid "; (semicolon)"
+msgstr "; (puolipiste)"
+
+#: classes/class-export.php:61
+msgid ", (comma)"
+msgstr ", (pilkku)"
+
+#: classes/class-export.php:62
+msgid "\\t (tabulator)"
+msgstr "\\t (tabulaattori)"
+
+#: classes/class-import-legacy.php:179 classes/class-import-legacy.php:276
+#: libraries/html-parser.class.php:68
+msgid "The imported file contains errors:"
+msgstr "Tuotu tiedosto sisältää virheitä:"
+
+#. translators: %s: Table ID
+#: classes/class-render.php:360
+msgid "<!-- The table with the ID %s is empty! -->"
+msgstr "<!-- Taulukko, jonka ID on %s on tyhjä! -->"
+
+#: classes/class-render.php:541 views/class-all-tables-list-table.php:229
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: classes/class-view.php:121
+msgid "For more information:"
+msgstr "Lisätietoja:"
+
+#. translators: %1$s: Page title, %2$s: Plugin name (TablePress)
+#. translators: %1$s: Page title, %2$s: Plugin name
+#. translators: %1$s: Page title (Preview), %2$s: Plugin name (TablePress)
+#: classes/class-view.php:163 controllers/controller-admin.php:128
+#: views/view-editor_button_thickbox.php:73
+#: views/view-editor_button_thickbox.php:118
+#: views/view-options_custom_css.php:42 views/view-preview_table.php:61
+msgid "%1$s &lsaquo; %2$s"
+msgstr "%1$s &lsaquo; %2$s"
+
+#: admin/js/build/edit.js:2 admin/js/build/list.js:1
+#: admin/js/edit/other-actions.js:67 admin/js/list.js:67
+#: admin/js/list/screen.jsx:162
+msgid "Do you really want to delete this table?"
+msgid_plural "Do you really want to delete these tables?"
+msgstr[0] "Haluatko todella poistaa taulukon?"
+msgstr[1] "Haluatko todella poistaa taulukot?"
+
+#. Plugin Name of the plugin
+#: tablepress.php classes/class-view.php:411
+msgid "TablePress"
+msgstr "TablePress"
+
+#: classes/class-view.php:489 views/view-options.php:212
+#: admin/js/build/edit.js:1 admin/js/edit/buttons.js:235
+msgid "Save Changes"
+msgstr "Tallenna muutokset"
+
+#: controllers/controller-admin.php:435
+msgid "Frequently Asked Questions"
+msgstr "Usein kysytyt kysymykset"
+
+#: controllers/controller-admin.php:435
+msgid "FAQ"
+msgstr "UKK"
+
+#: controllers/controller-admin.php:437
+msgid "Support"
+msgstr "Tuki"
+
+#: controllers/controller-admin.php:621
+msgctxt "Default CSV delimiter in the translated language (\";\", \",\", or \"tab\")"
+msgid ","
+msgstr ","
+
+#: controllers/controller-admin.php:708 controllers/controller-admin.php:709
+#: controllers/controller-admin.php:710
+msgid "All Tables"
+msgstr "Kaikki taulukot"
+
+#: controllers/controller-admin.php:715 controllers/controller-admin.php:716
+#: admin/js/add/screen.jsx:58 admin/js/build/add.js:1
+msgid "Add New Table"
+msgstr "Lisää taulukko"
+
+#: controllers/controller-admin.php:717
+msgid "Add New"
+msgstr "Lisää uusi"
+
+#: controllers/controller-admin.php:722
+msgid "Edit Table"
+msgstr "Muokkaa taulukkoa"
+
+#: controllers/controller-admin.php:729 controllers/controller-admin.php:730
+msgid "Import a Table"
+msgstr "Tuo taulukko"
+
+#: controllers/controller-admin.php:731
+msgctxt "navigation bar"
+msgid "Import"
+msgstr "Tuo"
+
+#: controllers/controller-admin.php:736 controllers/controller-admin.php:737
+msgid "Export a Table"
+msgstr "Vie taulukko"
+
+#: controllers/controller-admin.php:738
+msgctxt "navigation bar"
+msgid "Export"
+msgstr "Vie"
+
+#: controllers/controller-admin.php:743 controllers/controller-admin.php:744
+#: controllers/controller-admin.php:745
+msgid "Plugin Options"
+msgstr "Lisäosan asetukset"
+
+#: controllers/controller-admin.php:750 controllers/controller-admin.php:752
+msgid "About"
+msgstr "Tietoa"
+
+#: controllers/controller-admin.php:751
+msgid "About TablePress"
+msgstr "Tietoa TablePressistä"
+
+#: controllers/controller-admin.php:1365
+#: controllers/controller-admin_ajax.php:302
+msgid "The preview could not be loaded."
+msgstr "Esikatselua ei voitu ladata."
+
+#. translators: %1$s: Page title (Preview), %2$s: Plugin name (TablePress)
+#: controllers/controller-admin.php:1365 controllers/controller-admin.php:1375
+#: views/class-all-tables-list-table.php:242 views/view-preview_table.php:61
+#: admin/js/build/edit.js:1 admin/js/edit/buttons.js:213
+msgid "Preview"
+msgstr "Esikatselu"
+
+#: controllers/controller-admin.php:1375
+msgid "The table could not be loaded."
+msgstr "Taulukkoa ei voitu ladata."
+
+#: controllers/controller-admin.php:1464
+msgid "TablePress was uninstalled successfully."
+msgstr "TablePress poistettiin onnistuneesti."
+
+#: controllers/controller-admin.php:1465
+msgid "All tables, data, and options were deleted."
+msgstr "Kaikki taulukot, data ja asetukset poistettiin."
+
+#: controllers/controller-admin.php:1484
+msgid "Go to Dashboard"
+msgstr "Mene Ohjausnäkymään"
+
+#: controllers/controller-admin.php:1486 views/view-options.php:227
+#: views/view-options.php:236
+msgid "Uninstall TablePress"
+msgstr "Poista TablePress"
+
+#: controllers/controller-admin_ajax.php:285 views/view-preview_table.php:69
+msgid "This is a preview of your table."
+msgstr "Tämä on esikatselu."
+
+#: controllers/controller-frontend.php:1005
+#: views/class-all-tables-list-table.php:306
+msgid "%s ago"
+msgstr "%s sitten"
+
+#: classes/class-elementor-widget-table.php:180
+#: controllers/controller-admin.php:237 models/model-table.php:411
+#: views/class-all-tables-list-table.php:173
+#: views/class-all-tables-list-table.php:218
+#: views/class-editor-button-thickbox-list-table.php:150
+#: admin/js/build/edit.js:1 admin/js/build/export.js:1
+#: admin/js/build/import.js:1 admin/js/edit/table-preview.js:34
+#: admin/js/export/screen.jsx:37 admin/js/import/screen.jsx:60
+msgid "(no name)"
+msgstr "(ei nimeä)"
+
+#: views/view-about.php:48
+msgid "Usage"
+msgstr "Käyttö"
+
+#: views/view-about.php:50
+msgid "Help and Support"
+msgstr "Apu ja tuki"
+
+#: views/view-about.php:51
+msgid "Author and License"
+msgstr "Lisenssitiedot"
+
+#: views/view-about.php:52
+msgid "Credits and Thanks"
+msgstr "Kiitokset"
+
+#: controllers/controller-admin_ajax.php:286 views/view-preview_table.php:69
+msgid "Because of CSS styling in your theme, the table might look different on your page!"
+msgstr "Teemasi CSS- tyylistä johtuen taulukko saattaa näyttää erilaiselta sivulla"
+
+#: views/view-about.php:79
+msgid "TablePress allows you to create and manage tables in the admin area of WordPress."
+msgstr "TablePressilla voit luoda ja hallita taulukoita WordPressin ylläpidosta."
+
+#: views/view-about.php:53
+msgid "Debug and Version Information"
+msgstr "Debuggaus- ja versiotiedot"
+
+#: views/view-about.php:49
+msgid "More Information and Documentation"
+msgstr "Lisää tietoja"
+
+#: views/view-about.php:47
+msgid "Plugin Purpose"
+msgstr "Lisäosan tarkoitus"
+
+#: models/model-table.php:413
+msgid "Copy of %s"
+msgstr "Kopio taulusta %s"
+
+#: controllers/controller-admin.php:1482
+msgid "Go to &#8220;Plugins&#8221; page"
+msgstr "Mene &#8220;Lisäosat&#8221;-sivulle"
+
+#: controllers/controller-admin.php:1477
+msgid "You may now also delete your TablePress &#8220;Custom CSS&#8221; files in the <code>wp-content</code> folder."
+msgstr "Voit nyt poistaa omat TablePressin CSS-kooditiedostosi <code>wp-content</code> kansiosta."
+
+#: controllers/controller-admin.php:1475
+msgid "Please also ask him to delete your TablePress &#8220;Custom CSS&#8221; files from the server."
+msgstr "Pyydä häntä myös poistamaan omat TablePressin CSS-tiedostosi palvelimelta."
+
+#: controllers/controller-admin.php:1472
+msgid "Your TablePress &#8220;Custom CSS&#8221; files have been deleted automatically."
+msgstr "Omat TablePressin CSS-tiedostosi on poistettu automaattisesti."
+
+#: controllers/controller-admin.php:1469
+msgid "You may now manually delete the plugin&#8217;s folder <code>tablepress</code> from the <code>plugins</code> directory on your server or use the &#8220;Delete&#8221; link for TablePress on the WordPress &#8220;Plugins&#8221; page."
+msgstr "Voit nyt poistaa lisäosan hakemiston <code>tablepress</code> palvelimelta <code>plugins</code>-hakemistosta tai käyttää &#8220;Poista&#8221;-linkkiä WordPressin &#8220;Lisäosat&#8221;-sivulta."
+
+#: controllers/controller-admin.php:1467
+msgid "You may now ask the network admin to delete the plugin&#8217;s folder <code>tablepress</code> from the server, if no other site in the network uses it."
+msgstr "Voit nyt pyytää verkon ylläpitäjää poistamaan lisäosan hakemiston <code>tablepress</code> palvelimelta, jos kukaan muu ei käytä lisäosaa verkostossasi."
+
+#: classes/class-import.php:180
+msgid "Imported from Manual Input"
+msgstr "Tuotu manuaalisesta syötteestä"
+
+#: controllers/controller-admin.php:436
+msgid "Documentation"
+msgstr "Ohjeet"
+
+#: controllers/controller-admin.php:419
+msgid "Plugin page"
+msgstr "Lisäosan sivu"
+
+#: classes/class-view.php:109 views/view-about.php:198
+msgid "Before asking for support, please carefully read the <a href=\"%s\">Frequently Asked Questions</a>, where you will find answers to the most common questions, and search through the forums."
+msgstr "Lue <a href=\"%s\">usein kysytyt kysymykset</a> huolellisesti ennen tukipyyntöjä. Niistä löytyy vastaus useimpiin kysymyksiin. Hae myös tukifoorumilta."
+
+#: classes/class-view.php:107 views/view-about.php:197
+msgid "<a href=\"%1$s\">Support</a> is provided through the <a href=\"%2$s\">WordPress Support Forums</a>."
+msgstr "<a href=\"%1$s\">Tukea</a> on saatavilla <a href=\"%2$s\">WordPressin tukifoorumeilla</a>."
+
+#: classes/class-view.php:116
+msgid "TablePress Help"
+msgstr "TablePressin tuki"

@@ -35,6 +35,10 @@ class Ai1wm_Status {
 		self::log( array( 'type' => 'error', 'title' => $title, 'message' => $message ) );
 	}
 
+	public static function left_error( $title, $message ) {
+		self::log( array( 'type' => 'error', 'title' => $title, 'message' => $message, 'leftAligned' => true ) );
+	}
+
 	public static function info( $message ) {
 		self::log( array( 'type' => 'info', 'message' => $message ) );
 	}

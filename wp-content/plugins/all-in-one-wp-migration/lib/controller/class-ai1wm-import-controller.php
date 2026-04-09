@@ -106,7 +106,12 @@ class Ai1wm_Import_Controller {
 								WP_CLI::error( sprintf( __( 'Import failed: %s', 'all-in-one-wp-migration' ), $e->getMessage() ) );
 							}
 
-							Ai1wm_Status::error( __( 'Import failed', 'all-in-one-wp-migration' ), $e->getMessage() );
+							if ( $e instanceof Ai1wm_CRC_Exception ) {
+								Ai1wm_Status::left_error( __( 'Import failed', 'all-in-one-wp-migration' ), $e->getMessage() );
+							} else {
+								Ai1wm_Status::error( __( 'Import failed', 'all-in-one-wp-migration' ), $e->getMessage() );
+							}
+
 							Ai1wm_Notification::error( __( 'Import failed', 'all-in-one-wp-migration' ), $e->getMessage() );
 							exit;
 						}

@@ -381,6 +381,11 @@ class Ai1wm_Backups_Controller {
 		$archive->close();
 
 		try {
+			// Validate file name and file path for directory traversal
+			if ( path_is_absolute( $file_name ) || validate_file( $file_name ) !== 0 ) {
+				exit;
+			}
+
 			// Download file
 			if ( ( $file_handle = ai1wm_open( ai1wm_storage_path( $params ) . DIRECTORY_SEPARATOR . $file_name, 'rb' ) ) ) {
 				while ( ! feof( $file_handle ) ) {

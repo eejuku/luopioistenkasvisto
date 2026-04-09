@@ -1,0 +1,9 @@
+/* Tekee kursorista sormen kaikissa TablePress-taulukoissa
+.tablepress tbody tr:hover {
+	cursor: pointer !important;
+}
+
+Lisää haalean harmaan korostusvärin riville, kun hiiri on päällä 
+.tablepress tbody tr:hover td {
+	background-color: #f5f5f5 !important;
+}*/

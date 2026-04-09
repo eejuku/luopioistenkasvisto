@@ -33,7 +33,7 @@ class Ai1wm_Import_Clean {
 
 	public static function execute( $params ) {
 		// Get database client
-		$db_client = Ai1wm_Database_Utility::create_client();
+		$db_client = Ai1wm_Database_Utility::get_client();
 
 		// Flush mainsite tables
 		$db_client->add_table_prefix_filter( ai1wm_table_prefix( 'mainsite' ) );

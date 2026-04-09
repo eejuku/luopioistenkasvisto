@@ -65,6 +65,29 @@ function ai1wm_storage_path( $params ) {
 }
 
 /**
+ * Resolve the backups path.
+ * If the stored option points to a stale path (e.g., from a server migration)
+ * where neither the path nor its parent directory exist, the option is deleted
+ * and the default path is returned.
+ *
+ * @return string
+ */
+function ai1wm_resolve_backups_path() {
+	$backups_path = get_option( AI1WM_BACKUPS_PATH_OPTION, false );
+	if ( $backups_path === false ) {
+		return AI1WM_DEFAULT_BACKUPS_PATH;
+	}
+
+	$parent_backups_path = dirname( $backups_path );
+	if ( ! is_dir( $parent_backups_path ) || ! is_writable( $parent_backups_path ) ) {
+		delete_option( AI1WM_BACKUPS_PATH_OPTION );
+		return AI1WM_DEFAULT_BACKUPS_PATH;
+	}
+
+	return $backups_path;
+}
+
+/**
  * Get backup absolute path
  *
  * @param  array  $params Request parameters
@@ -1879,8 +1902,8 @@ function ai1wm_is_filename_supported( $file, $extensions = array( 'wpress' ) ) {
  */
 function ai1wm_is_filedata_supported( $file ) {
 	if ( ( $file_handle = @fopen( $file, 'rb' ) ) ) {
-		if ( ( $file_buffer = @fread( $file_handle, 4377 ) ) ) {
-			if ( ( $file_data = @unpack( 'a255filename/a14size/a12mtime/a4096path', $file_buffer ) ) !== false ) {
+		if ( ( $file_buffer = @fread( $file_handle, Ai1wm_Archiver::HEADER_SIZE ) ) ) {
+			if ( ( $file_data = @unpack( 'a255filename/a14size/a12mtime/a4088path/a8crc32', $file_buffer ) ) !== false ) {
 				if ( AI1WM_PACKAGE_NAME === trim( $file_data['filename'] ) ) {
 					return true;
 				}
@@ -1901,8 +1924,8 @@ function ai1wm_is_filedata_supported( $file ) {
  */
 function ai1wm_is_gzipped_filedata_supported( $file ) {
 	if ( ( $file_handle = @gzopen( $file, 'rb' ) ) ) {
-		if ( ( $file_buffer = @gzread( $file_handle, 4377 ) ) ) {
-			if ( ( $file_data = @unpack( 'a255filename/a14size/a12mtime/a4096path', $file_buffer ) ) !== false ) {
+		if ( ( $file_buffer = @gzread( $file_handle, Ai1wm_Archiver::HEADER_SIZE ) ) ) {
+			if ( ( $file_data = @unpack( 'a255filename/a14size/a12mtime/a4088path/a8crc32', $file_buffer ) ) !== false ) {
 				if ( AI1WM_PACKAGE_NAME === trim( $file_data['filename'] ) ) {
 					return true;
 				}

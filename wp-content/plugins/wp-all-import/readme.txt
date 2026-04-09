@@ -1,12 +1,12 @@
-=== Import any XML, CSV or Excel File to WordPress ===
+=== WP All Import – Drag & Drop Import for CSV, XML, Excel & Google Sheets ===
 Contributors: soflyy, wpallimport
 Requires at least: 5.0
-Tested up to: 6.8
-Stable tag: 4.0.0
+Tested up to: 6.9
+Stable tag: 4.0.1
 Requires PHP: 7.4
-Tags: wordpress csv import, wordpress xml import, xml, csv, datafeed, import, migrate, import csv to wordpress, import xml to wordpress, advanced xml import, advanced csv import, bulk csv import, bulk xml import, bulk data import, xml to custom post type, csv to custom post type, woocommerce csv import, woocommerce xml import, csv import, import csv, xml import, import xml, csv importer
+Tags: wordpress csv import, wordpress xml import, xml, csv, datafeed
 
-WP All Import is an extremely powerful importer that makes it easy to import any XML, CSV or Excel file to WordPress.
+Easily import any file of any size into any plugin, post type, custom field, or taxonomy. Supports WooCommerce, ACF, images, galleries, users, real estate listings, and more.
 
 == Description ==
 
@@ -195,6 +195,10 @@ If you are using the free version of the plugin, you can obtain support through 
 4. Manage imports.
 
 == Changelog ==
+
+= 4.0.1 =
+* security improvement: fixes CVE-2026-2830
+* maintenance: update packages
 
 = 4.0.0 =
 * NOTE: inline PHP execution is disabled when both DISALLOW_FILE_EDIT and DISALLOW_FILE_MODS are set in wp-config.php

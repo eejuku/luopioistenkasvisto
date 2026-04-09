@@ -1,0 +1,500 @@
+/* ==========================================================================
+   1. YLEISET JA RESETOINTI
+   ========================================================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    margin: 0;
+}
+
+.kasvi-container, .kasvi-lista-container, .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+a { text-decoration: none; color: inherit; transition: 0.3s ease; }
+
+/* ==========================================================================
+   2. SITE HEADER & PAINIKEMAINEN NAVIGAATIO
+   ========================================================================== */
+.site-header {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.header-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-area {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #27ae60;
+    letter-spacing: -0.5px;
+}
+
+.site-nav { width: 100%; }
+
+.main-menu, .site-nav ul {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.main-menu li { list-style: none !important; }
+
+.main-menu li a, .site-nav ul li a {
+    display: inline-block;
+    padding: 6px 16px;
+    background-color: #f4f4f4;
+    color: #444;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 50px;
+    border: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+.main-menu li.current-menu-item a,
+.main-menu li.current_page_item a,
+.main-menu li.current-page-ancestor a,
+.main-menu li.current-menu-ancestor a,
+.main-menu li.current_page_ancestor a,
+.main-menu li a:hover {
+    background-color: #27ae60 !important;
+    color: #fff !important;
+    border-color: #27ae60 !important;
+}
+
+/* ==========================================================================
+   3. SIVUPALKKI & HAITARI-NAVIGAATIO
+   ========================================================================== */
+.page-layout {
+    display: flex;
+    gap: 30px;
+    margin-top: 25px;
+}
+
+.sidebar-left {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+.side-nav {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.side-nav h3 {
+    font-size: 0.95rem;
+    border-bottom: 2px solid #27ae60;
+    padding-bottom: 8px;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+}
+
+.side-nav ul, .side-nav li {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.side-nav li a {
+    display: block;
+    padding: 5px 0 5px 20px;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    font-size: 0.85rem;
+    position: relative;
+}
+
+.side-nav li.page_item_has_children > a::before,
+.side-nav li.menu-item-has-children > a::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    font-size: 0.7rem;
+    color: #999;
+    transition: transform 0.3s;
+}
+
+.side-nav li ul { display: none !important; }
+
+.side-nav li.current_page_item ul,
+.side-nav li.current_page_ancestor ul,
+.side-nav li.current-menu-item ul,
+.side-nav li.current-menu-ancestor ul {
+    display: block !important;
+}
+
+.side-nav li ul li a {
+    font-size: 0.8rem;
+    padding: 4px 0 4px 35px;
+    border-bottom: none;
+    font-weight: normal;
+    color: #666;
+}
+
+.side-nav li.current_page_item > a {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.side-nav li.current_page_item > a::before,
+.side-nav li.current_page_ancestor > a::before {
+    transform: rotate(90deg);
+    color: #27ae60;
+}
+
+/* ==========================================================================
+   4. ARKISTOSIVU (archive-kasvi.php) - RIVIPOHJAINEN LISTA
+   ========================================================================== */
+.lista-header-wrapper {
+    background: #fdfdfd;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.kasvi-nav { display: flex; gap: 8px; }
+
+.nav-btn {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 5px;
+}
+
+.nav-btn.active {
+    background: #27ae60;
+    color: #fff;
+    border-color: #27ae60;
+}
+
+.nav-btn .count { opacity: 0.7; font-weight: normal; }
+
+#kasvi-haku {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    width: 250px;
+}
+
+.aakkos-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.kirjain-linkki {
+    background: none;
+    border: none;
+    color: #27ae60;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 0.8rem;
+}
+
+.kirjain-linkki:hover { text-decoration: underline; }
+
+.lista-otsikot {
+    display: flex;
+    padding: 10px 20px;
+    background: #eee;
+    font-weight: bold;
+    border-radius: 6px 6px 0 0;
+}
+.kasvi-lista-rows {
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.kasvi-rivi { 
+    display: flex; 
+    padding: 12px 20px; 
+    border-bottom: 1px solid #eee; 
+    background: #fff; 
+    transition: background 0.2s; 
+    align-items: center;
+    text-decoration: none !important; /* Poistetaan alleviivaus rivistä */
+}
+
+.kasvi-rivi:hover { 
+    background: #f1fcf4; 
+}
+
+.sarake { 
+    flex: 1; 
+}
+
+.nimi-suomi { 
+    font-weight: 500; 
+    color: #27ae60; 
+    font-size: 0.9rem;
+}
+
+.nimi-latina { 
+    color: #666; 
+    font-style: italic; 
+    font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   5. SHORTCODE & LISÄRYHMÄT - KORTTIPOHJAINEN GRID
+   ========================================================================== */
+/* .kasvi-lista-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    gap: 20px !important;
+    margin: 20px 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.kasvi-kortti {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 12px !important;
+    padding: 18px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+    text-decoration: none !important;
+}
+
+.kasvi-kortti:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.08) !important;
+    border-color: #27ae60 !important;
+}
+
+.kasvi-kortti .kasvi-nimi {
+    font-weight: 700 !important;
+    color: #27ae60 !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 4px !important;
+    text-decoration: none !important;
+}
+
+.kasvi-kortti .kasvi-tieteellinen {
+    font-size: 0.9rem !important;
+    font-style: italic !important;
+    color: #666 !important;
+}*/
+
+
+
+
+/* ==========================================================================
+   6. YKSITTÄINEN KASVISIVU (Yksityiskohdat)
+   ========================================================================== */
+.content-area { flex-grow: 1; }
+.kasvi-header { margin-bottom: 30px; padding-top: 10px; }
+.kasvi-header h1 { font-size: 1.6rem; margin-bottom: 10px; }
+
+.kasvi-grid {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    gap: 30px;
+}
+
+.kasvi-info-block {
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.kasvi-info-block h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #27ae60;
+    display: inline-block;
+    padding-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+#lajifi-kartta { 
+    width: 100%; 
+    height: 450px; 
+    border-radius: 12px;
+    border: 1px solid #eee;
+    z-index: 1;
+}
+
+.kasvi-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.gallery-link img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.gallery-link img:hover { transform: scale(1.03); }
+
+/* ==========================================================================
+   7. TAULUKOT JA LINKIT (WP Oletus & Sisältö)
+   ========================================================================== */
+.wp-block-table, .wp-block-table table, .wp-block-table tr, .wp-block-table td, .wp-block-table th {
+    border: none !important;
+    border-collapse: collapse !important;
+}
+
+.wp-block-table td {
+    border-bottom: 1px solid #eee !important;
+    padding: 8px 15px;
+}
+
+.wp-block-table thead, .wp-block-table th {
+    background-color: #27ae60;
+    color: #ffffff;
+    text-align: left;
+    padding: 10px 15px;
+    font-weight: 600;
+}
+
+.wp-block-table tbody tr:nth-of-type(even) { background-color: #f9f9f9; }
+.wp-block-table tbody tr:last-of-type td { border-bottom: none !important; }
+
+/* Leipätekstin linkit */
+.content-area p a, .content-area li a, .wp-block-table td a {
+    color: #27ae60;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    font-weight: 500;
+}
+
+.content-area p a:hover { color: #1e8449; text-decoration-thickness: 2px; }
+
+/* ==========================================================================
+   8. RESPONSIIVISUUS
+   ========================================================================== */
+@media (max-width: 900px) {
+    .kasvi-grid, .page-layout { display: block; }
+    .sidebar-left { width: 100%; margin-bottom: 20px; }
+    .header-top-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    #kasvi-haku { width: 100%; }
+}
+
+/* ==========================================================================
+   9. ETUSIVU JA MUUT ERIKOISSIVUT - HERO, DYNAMIIKKA JA KORTIT
+   ========================================================================== */
+
+/* Etusivun Hero */
+.hero-banner {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero-banner h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+.hero-banner p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Sisältöalueen säädöt */
+.main-content {
+    margin-bottom: 60px;
+}
+
+.section-divider {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 50px 0;
+}
+
+/* Alaosan automaattiset kortit */
+.front-dynamic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.dynamic-card {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+}
+
+.dynamic-card h2 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #27ae60;
+    display: inline-block;
+}
+
+.latest-list, .quick-links {
+    list-style: none;
+    padding: 0;
+}
+
+.latest-list li, .quick-links li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.latest-list a, .quick-links a {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.latest-list a:hover, .quick-links a:hover {
+    color: #1e8449;
+}
