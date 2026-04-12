@@ -2,5 +2,8 @@
 # wp-content/
 .env
 
-#Ohita varmuuskopiot
+# Ohita varmuuskopiot
 wp-content/ai1wm-backups/
+
+# Ohita tietokannan varmuuskopiot
+*.sql

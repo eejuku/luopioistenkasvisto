@@ -1,0 +1,587 @@
+<?php defined( 'ABSPATH' ) || exit;
+
+if ( ! class_exists( 'WP_Sheet_Editor_Columns_Visibility' ) ) {
+
+	/**
+	 * Hide the columns of the spreadsheet editor that you don't need.
+	 */
+	class WP_Sheet_Editor_Columns_Visibility {
+
+		private static $instance       = false;
+		public $removed_columns_key    = 'vgse_removed_columns';
+		static $columns_visibility_key = 'vgse_columns_visibility';
+		static $unfiltered_columns     = array();
+
+		private function __construct() {
+		}
+
+		/**
+		 * Creates or returns an instance of this class.
+		 */
+		static function get_instance() {
+			if ( ! self::$instance ) {
+				self::$instance = new WP_Sheet_Editor_Columns_Visibility();
+				self::$instance->init();
+			}
+			return self::$instance;
+		}
+
+		public function init() {
+			add_action( 'admin_init', array( $this, 'migrate_old_settings' ) );
+			add_filter( 'vg_sheet_editor/columns/all_items', array( 'WP_Sheet_Editor_Columns_Visibility', 'filter_columns_for_visibility' ), 9999 );
+			add_action( 'vg_sheet_editor/editor/before_init', array( $this, 'register_toolbar_items' ) );
+			add_action( 'vg_sheet_editor/after_enqueue_assets', array( $this, 'enqueue_assets' ) );
+			add_action( 'wp_ajax_vgse_update_columns_visibility', array( $this, 'update_columns_settings' ) );
+			add_action( 'wp_ajax_vgse_remove_column', array( $this, 'remove_column' ) );
+			add_action( 'wp_ajax_vgse_restore_columns', array( $this, 'restore_columns' ) );
+			add_filter( 'vg_sheet_editor/columns/blacklisted_columns', array( $this, 'blacklist_removed_columns' ), 10, 2 );
+			add_action( 'vg_sheet_editor/save_rows/before_saving_rows', array( $this, 'track_used_columns' ), 10, 4 );
+		}
+
+		public function track_used_columns( $data, $post_type, $spreadsheet_columns, $settings ) {
+			$columns_being_saved = array();
+			foreach ( $data as $row_index => $item ) {
+				$columns_being_saved = array_merge( $columns_being_saved, array_keys( $item ) );
+			}
+
+			if ( ! empty( $columns_being_saved ) ) {
+				$columns_being_saved = array_unique( $columns_being_saved );
+				$usage_counter       = get_option( 'vgse_columns_used_counter', array() );
+
+				if ( ! isset( $usage_counter[ $post_type ] ) ) {
+					$usage_counter[ $post_type ] = array();
+				}
+
+				foreach ( $columns_being_saved as $column_key ) {
+					if ( ! isset( $usage_counter[ $post_type ][ $column_key ] ) ) {
+						$usage_counter[ $post_type ][ $column_key ] = 0;
+					}
+					++$usage_counter[ $post_type ][ $column_key ];
+				}
+				update_option( 'vgse_columns_used_counter', $usage_counter, false );
+			}
+		}
+
+		static function get_visibility_options( $post_type = null ) {
+			$options = apply_filters( 'vg_sheet_editor/columns_visibility/options', get_option( self::$columns_visibility_key, array() ), $post_type );
+
+			if ( $post_type ) {
+				$options = isset( $options[ $post_type ] ) ? $options[ $post_type ] : array();
+			}
+			if ( empty( $options ) ) {
+				$options = array();
+			}
+			return $options;
+		}
+
+		public function change_columns_status( $columns ) {
+			$options = self::get_visibility_options();
+
+			$changed = false;
+			foreach ( $columns as $column ) {
+				$status = ! empty( $column['status'] ) ? $column['status'] : 'enabled';
+				if ( is_string( $column['post_types'] ) ) {
+					$column['post_types'] = array( $column['post_types'] );
+				}
+
+				foreach ( $column['post_types'] as $post_type_key ) {
+					if ( isset( $options[ $post_type_key ] ) && ! isset( $options[ $post_type_key ]['disabled'][ $column['key'] ] ) && ! isset( $options[ $post_type_key ][ $status ][ $column['key'] ] ) ) {
+						$options[ $post_type_key ][ $status ][ $column['key'] ] = $column['name'];
+						$changed = true;
+					}
+				}
+			}
+
+			if ( $changed ) {
+				update_option( self::$columns_visibility_key, $options, false );
+			}
+		}
+
+		public function migrate_old_settings() {
+			if ( (int) get_option( self::$columns_visibility_key . '_migrated' ) ) {
+				return;
+			}
+
+			// Migrate frontend editors
+			if ( post_type_exists( 'vgse_editors' ) ) {
+				$frontend_editors = new WP_Query(
+					array(
+						'post_type'      => 'vgse_editors',
+						'posts_per_page' => -1,
+						'fields'         => 'ids',
+					)
+				);
+				foreach ( $frontend_editors->posts as $post_id ) {
+					$old_settings = get_post_meta( $post_id, 'vgse_columns', true );
+					$new_settings = $this->migrate_old_settings_raw( $old_settings );
+					update_post_meta( $post_id, 'vgse_columns', $new_settings );
+				}
+			}
+
+			// Migrate sheets
+			$old_settings = VGSE()->options;
+			$new_settings = $this->migrate_old_settings_raw( $old_settings );
+
+			update_option( self::$columns_visibility_key, $new_settings, false );
+			update_option( self::$columns_visibility_key . '_migrated', 1, false );
+		}
+
+		public function migrate_old_settings_raw( $old_settings ) {
+			$new_settings = array();
+
+			foreach ( $old_settings as $key => $value ) {
+				if ( strpos( $key, 'be_visibility_' ) !== false ) {
+					if ( isset( $value['enabled']['placebo'] ) ) {
+						unset( $value['enabled']['placebo'] );
+					}
+					if ( isset( $value['disabled']['placebo'] ) ) {
+						unset( $value['disabled']['placebo'] );
+					}
+					$new_settings[ str_replace( 'be_visibility_', '', $key ) ] = $value;
+				}
+			}
+			return $new_settings;
+		}
+
+		public function save_removed_columns( $columns, $post_type ) {
+			$removed_columns               = $this->get_removed_columns( $post_type );
+			$removed_columns[ $post_type ] = $columns;
+
+			$removed_columns[ $post_type ] = array_unique( array_filter( $removed_columns[ $post_type ] ) );
+			update_option( $this->removed_columns_key, $removed_columns, false );
+		}
+
+		public function get_removed_columns( $post_type ) {
+			$removed_columns = get_option( $this->removed_columns_key, array() );
+
+			if ( ! is_array( $removed_columns ) ) {
+				$removed_columns = array();
+			}
+			if ( ! isset( $removed_columns[ $post_type ] ) ) {
+				$removed_columns[ $post_type ] = array();
+			}
+			return $removed_columns;
+		}
+
+		public function blacklist_removed_columns( $blacklisted_columns, $post_type ) {
+			$removed_columns = $this->get_removed_columns( $post_type );
+			foreach ( $removed_columns[ $post_type ] as $removed_column_key ) {
+				$blacklisted_columns[] = '^' . preg_quote( $removed_column_key, '/' ) . '$';
+			}
+			return $blacklisted_columns;
+		}
+
+		/**
+		 * Remove column
+		 */
+		public function restore_columns() {
+			if ( empty( $_POST['post_type'] ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Missing parameters.', 'vg_sheet_editor' ) ) );
+			}
+
+			if ( ! VGSE()->helpers->verify_nonce_from_request() || ! VGSE()->helpers->user_can_manage_options() ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'You dont have enough permissions to execute this action.', 'vg_sheet_editor' ) ) );
+			}
+			$post_type = VGSE()->helpers->sanitize_table_key( $_POST['post_type'] );
+			$this->save_removed_columns( array(), $post_type );
+			wp_send_json_success( array( 'message' => esc_html__( 'Columns restored successfully, please reload the page to see the restored columns and enable them', 'vg_sheet_editor' ) ) );
+		}
+
+		public function remove_column() {
+			if ( empty( $_POST['post_type'] ) || empty( $_POST['column_key'] ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Missing parameters.', 'vg_sheet_editor' ) ) );
+			}
+
+			if ( ! VGSE()->helpers->verify_nonce_from_request() || ! VGSE()->helpers->user_can_manage_options() ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'You dont have enough permissions to execute this action.', 'vg_sheet_editor' ) ) );
+			}
+			$post_type = VGSE()->helpers->sanitize_table_key( $_POST['post_type'] );
+
+			$removed_columns = $this->get_removed_columns( $post_type );
+
+			if ( is_string( $_POST['column_key'] ) ) {
+				$column_keys = array( sanitize_text_field( wp_unslash( $_POST['column_key'] ) ) );
+			} else {
+				$column_keys = array_map( 'sanitize_text_field', $_POST['column_key'] );
+			}
+			foreach ( $column_keys as $column_key ) {
+				$removed_columns[ $post_type ][] = $column_key;
+			}
+
+			$this->save_removed_columns( $removed_columns[ $post_type ], $post_type );
+			wp_send_json_success();
+		}
+
+		/**
+		 * Save modified settings
+		 */
+		public function update_columns_settings() {
+			if ( ! empty( $_POST['extra_data'] ) ) {
+				// When we render the form in the spreadsheet editor, we send the form data as JSON in extra_data because some servers have low limits for form post fields
+				$extra_data = json_decode( html_entity_decode( wp_unslash( $_POST['extra_data'] ) ), true );
+				if ( ! is_array( $extra_data ) ) {
+					wp_send_json_error( array( 'message' => esc_html__( 'We received invalid column data. Please make sure that your column titles don\'t contain special characters.', 'vg_sheet_editor' ) ) );
+				}
+				$_POST = array_merge( $_POST, $extra_data );
+				unset( $_POST['extra_data'] );
+			}
+			// Sanitize every field
+			$post_type                = isset( $_POST['post_type'] ) ? VGSE()->helpers->sanitize_table_key( wp_unslash( $_POST['post_type'] ) ) : '';
+			$columns_keys             = isset( $_POST['columns'] ) ? array_map( 'sanitize_text_field', $_POST['columns'] ) : array();
+			$columns_names            = isset( $_POST['columns_names'] ) ? array_map( 'sanitize_text_field', $_POST['columns_names'] ) : array();
+			$disallowed_columns       = isset( $_POST['disallowed_columns'] ) ? array_map( 'sanitize_text_field', $_POST['disallowed_columns'] ) : array();
+			$disallowed_columns_names = isset( $_POST['disallowed_columns_names'] ) ? array_map( 'sanitize_text_field', $_POST['disallowed_columns_names'] ) : array();
+
+			if ( empty( $post_type ) || empty( $columns_keys ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Missing parameters.', 'vg_sheet_editor' ) ) );
+			}
+
+			if ( ! VGSE()->helpers->verify_nonce_from_request() || ! VGSE()->helpers->user_can_edit_post_type( $post_type ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'You dont have enough permissions to view this page.', 'vg_sheet_editor' ) ) );
+			}
+
+			$options = self::get_visibility_options();
+			remove_filter( 'vg_sheet_editor/columns/all_items', array( 'WP_Sheet_Editor_Columns_Visibility', 'filter_columns_for_visibility' ), 9999 );
+			$post_type_columns = VGSE()->helpers->get_unfiltered_provider_columns( $post_type );
+
+			add_filter( 'vg_sheet_editor/columns/all_items', array( 'WP_Sheet_Editor_Columns_Visibility', 'filter_columns_for_visibility' ), 9999 );
+
+			$new_columns = array(
+				'enabled'  => array(),
+				'disabled' => array(),
+			);
+
+			foreach ( $columns_keys as $column_index => $column_key ) {
+				$new_columns['enabled'][ $column_key ] = ( ! empty( $columns_names[ $column_index ] ) ) ? $columns_names[ $column_index ] : $column_key;
+			}
+			// Save all the registered columns not found in the enabled list as disabled
+			foreach ( $post_type_columns as $key => $existing_column ) {
+				if ( isset( $new_columns['enabled'][ $key ] ) ) {
+					continue;
+				}
+				$new_columns['disabled'][ $key ] = $existing_column['title'];
+			}
+			// Edge case. Sometimes get_provider_columns() doesn't show some columns
+			// so we save the disabled columns received from the request in addition to the above
+			if ( ! empty( $disallowed_columns ) ) {
+				foreach ( $disallowed_columns as $column_index => $column_key ) {
+					if ( ! isset( $new_columns['disabled'][ $column_key ] ) ) {
+						$new_columns['disabled'][ $column_key ] = ( ! empty( $disallowed_columns_names[ $column_index ] ) ) ? $disallowed_columns_names[ $column_index ] : $column_key;
+					}
+				}
+			}
+
+			$options[ $post_type ] = $new_columns;
+			update_option( self::$columns_visibility_key, $options, false );
+
+			do_action( 'vg_sheet_editor/columns_visibility/after_options_saved', $post_type, $options );
+
+			wp_send_json_success(
+				array(
+					'post_type_editor_url' => VGSE()->helpers->get_editor_url( $post_type ),
+				)
+			);
+		}
+
+		/**
+		 * Enqueue frontend assets
+		 */
+		public function enqueue_assets() {
+			wp_enqueue_script( 'wp-sheet-editor-sortable', plugins_url( '/assets/vendor/Sortable/Sortable.min.js', __FILE__ ), array( 'jquery' ), filemtime( __DIR__ . '/assets/vendor/Sortable/Sortable.min.js' ), true );
+			wp_enqueue_script( 'wp-sheet-editor-columns-visibility-modal', plugins_url( '/assets/js/init.js', __FILE__ ), array( 'wp-sheet-editor-sortable' ), filemtime( __DIR__ . '/assets/js/init.js' ), true );
+		}
+
+		public function render_settings_modal( $post_type, $partial_form = false, $options = null, $current_url = null, $visible_columns = null ) {
+
+			// disable columns visibility filter temporarily
+			$columns = VGSE()->helpers->get_unfiltered_provider_columns( $post_type );
+
+			$filtered_columns    = wp_list_filter(
+				$columns,
+				array(
+					'allow_to_hide' => true,
+				)
+			);
+			$not_allowed_columns = apply_filters(
+				'vg_sheet_editor/columns_visibility/not_allowed_columns',
+				array_keys(
+					wp_list_filter(
+						$columns,
+						array(
+							'allow_to_hide' => false,
+						)
+					)
+				)
+			);
+			if ( ! $visible_columns ) {
+				$visible_columns = VGSE()->helpers->get_provider_columns( $post_type );
+			}
+
+			if ( ! $options ) {
+				$options = self::get_visibility_options();
+			}
+
+			if ( empty( $options[ $post_type ] ) ) {
+				$options[ $post_type ] = array();
+			}
+			if ( empty( $options[ $post_type ]['enabled'] ) ) {
+				$options[ $post_type ]['enabled'] = wp_list_pluck( $filtered_columns, 'title', 'key' );
+			}
+
+			// When we use the columns manager and switch between groups,
+			// the saved columns might not include all the current columns so some columns
+			// might not appear in the enabled nor disabled lists. Force them to appear at least as disabled.
+			foreach ( $filtered_columns as $column_key => $column_settings ) {
+				if ( ! isset( $visible_columns[ $column_key ] ) ) {
+					$options[ $post_type ]['disabled'][ $column_key ] = $column_settings['title'];
+				}
+			}
+			$default_column_data = array(
+				'title'  => '',
+				'status' => 'enabled',
+				'key'    => '',
+			);
+			$prepared_columns    = array();
+
+			$index = 0;
+			foreach ( $visible_columns as $column_key => $column ) {
+				if ( is_numeric( $column_key ) || in_array( $column_key, $not_allowed_columns ) || ( isset( $options[ $post_type ]['disabled'] ) && isset( $options[ $post_type ]['disabled'][ $column_key ] ) ) || ! isset( $column['title'] ) ) {
+					unset( $visible_columns[ $column_key ] );
+					continue;
+				}
+				$prepared_columns[ $column_key ] = array(
+					'title'               => $column['title'],
+					'status'              => 'enabled',
+					'key'                 => $column_key,
+					'order'               => $index,
+					'allow_to_rename'     => $column['allow_to_rename'],
+					'allow_custom_format' => $column['allow_custom_format'],
+					'allow_readonly_option_in_columns_manager' => $column['allow_readonly_option_in_columns_manager'],
+					'allow_role_restrictions_in_columns_manager' => $column['allow_role_restrictions_in_columns_manager'],
+				);
+				++$index;
+			}
+
+			$editor            = VGSE()->helpers->get_provider_editor( $post_type );
+			$post_type_options = $options[ $post_type ];
+
+			$index = 0;
+			if ( isset( $post_type_options['disabled'] ) ) {
+				foreach ( $post_type_options['disabled'] as $column_key => $column_title ) {
+
+					if ( is_numeric( $column_key ) || in_array( $column_key, $not_allowed_columns, true ) ) {
+						unset( $post_type_options['disabled'][ $column_key ] );
+						continue;
+					}
+					$column = isset( $columns[ $column_key ] ) ? $columns[ $column_key ] : array();
+
+					$skip_blacklist = ! empty( $column['skip_blacklist'] );
+					if ( ! $skip_blacklist && is_object( $editor->args['columns'] ) && $editor->args['columns']->is_column_blacklisted( $column_key, $post_type ) ) {
+						unset( $post_type_options['disabled'][ $column_key ] );
+						continue;
+					}
+
+					if ( ! isset( $prepared_columns[ $column_key ] ) ) {
+						$prepared_columns[ $column_key ] = array(
+							'title'               => ! empty( $column['title'] ) ? $column['title'] : $column_title,
+							'status'              => 'disabled',
+							'key'                 => $column_key,
+							'order'               => $index,
+							'allow_to_rename'     => isset( $column['allow_to_rename'] ) ? $column['allow_to_rename'] : false,
+							'allow_custom_format' => isset( $column['allow_custom_format'] ) ? $column['allow_custom_format'] : false,
+							'allow_readonly_option_in_columns_manager' => isset( $column['allow_readonly_option_in_columns_manager'] ) ? $column['allow_readonly_option_in_columns_manager'] : false,
+							'allow_role_restrictions_in_columns_manager' => isset( $column['allow_role_restrictions_in_columns_manager'] ) ? $column['allow_role_restrictions_in_columns_manager'] : false,
+						);
+						++$index;
+					}
+				}
+			}
+			$used_columns_counters = get_option( 'vgse_columns_used_counter', array() );
+			$used_columns          = isset( $used_columns_counters[ $post_type ] ) ? array_keys( $used_columns_counters[ $post_type ] ) : array();
+
+			?>						
+			<script>
+			var vgseColumnsManager =
+				<?php echo wp_json_encode( apply_filters( 'vg_sheet_editor/columns_visibility/js/columns_manager', compact( 'prepared_columns', 'not_allowed_columns', 'default_column_data', 'used_columns' ), $post_type ) ); ?>;
+			</script>
+			<?php
+			require_once __DIR__ . '/views/form.php';
+		}
+
+		/**
+		 * Register toolbar item to edit columns visibility live on the spreadsheet
+		 */
+		public function register_toolbar_items( $editor ) {
+			if ( ! is_admin() ) {
+				return;
+			}
+			$post_types = $editor->args['enabled_post_types'];
+			foreach ( $post_types as $post_type ) {
+				$editor->args['toolbars']->register_item(
+					'columns_manager',
+					array(
+						'type'                  => 'button',
+						'allow_in_frontend'     => false,
+						'content'               => esc_html__( 'Columns manager', 'vg_sheet_editor' ),
+						'toolbar_key'           => 'secondary',
+						'extra_html_attributes' => 'data-remodal-target="modal-columns-visibility"',
+						'footer_callback'       => array( $this, 'render_settings_modal' ),
+						'footer_callback_cache' => true,
+					),
+					$post_type
+				);
+			}
+		}
+
+		/**
+		 * Filter columns, remove the columns that were marked as hidden in the options page.
+		 * @param array $columns
+		 * @return array
+		 */
+		static function filter_columns_for_visibility( $columns, $options = null ) {
+			if ( VGSE()->helpers->is_settings_page() ) {
+				return $columns;
+			}
+			// Filter by required capabilities before they're added to the $unfiltered_columns
+			if ( method_exists( 'WP_Sheet_Editor_Columns', '_filter_by_require_capabilities' ) ) {
+				$columns = WP_Sheet_Editor_Columns::_filter_by_require_capabilities( $columns );
+			}
+			self::$unfiltered_columns = array_merge( $columns, self::$unfiltered_columns );
+
+			if ( ! defined( 'WPSE_ONLY_EXPLICITLY_ENABLED_COLUMNS' ) && ! empty( VGSE()->options['dont_auto_enable_new_fields'] ) ) {
+				define( 'WPSE_ONLY_EXPLICITLY_ENABLED_COLUMNS', true );
+			}
+
+			if ( ! $options ) {
+				$options = self::get_visibility_options();
+			}
+			$current_post_type           = VGSE()->helpers->get_provider_from_query_string();
+			$custom_enabled_columns_keys = ( ! empty( $_REQUEST['custom_enabled_columns'] ) ) ? array_filter( array_map( 'sanitize_text_field', explode( ',', $_REQUEST['custom_enabled_columns'] ) ) ) : array();
+
+			$sorted_columns      = array();
+			$new_columns_to_save = array();
+			foreach ( $columns as $post_type_key => $post_type_columns ) {
+				if ( ! isset( $new_columns_to_save[ $post_type_key ] ) ) {
+					$new_columns_to_save[ $post_type_key ] = array();
+				}
+				$settings = array();
+
+				if ( isset( $options[ $post_type_key ] ) ) {
+					$settings = $options[ $post_type_key ];
+				}
+
+				if ( ! isset( $sorted_columns[ $post_type_key ] ) ) {
+					$sorted_columns[ $post_type_key ] = array();
+				}
+
+				// If zero columns are enabled, enable all
+				if ( empty( $settings ) || empty( $settings['enabled'] ) ) {
+					$sorted_columns[ $post_type_key ] = $post_type_columns;
+				}
+
+				if ( empty( $settings['enabled'] ) ) {
+					$settings['enabled'] = array();
+				}
+				if ( empty( $settings['disabled'] ) ) {
+					$settings['disabled'] = array();
+				}
+
+				// If the request contains the parameter "custom_enabled_columns" and "post type", we use that
+				// instead of the saved settings
+				if ( $post_type_key === $current_post_type && ! empty( $custom_enabled_columns_keys ) ) {
+
+					// If the user is not administrator, he can send "custom enabled columns" parameter in the URL
+					// but only to hide columns, not enable hidden columns.
+					if ( ! VGSE()->helpers->user_can_manage_options() ) {
+						$all_enabled_columns = ( ! empty( $settings['enabled'] ) ) ? $settings['enabled'] : wp_list_pluck( $post_type_columns, 'key', 'key' );
+
+						$custom_enabled_columns_keys = array_intersect( $custom_enabled_columns_keys, array_keys( $all_enabled_columns ) );
+					}
+					// If we received custom columns but zero columns are allowed, just use the ID to avoid returning all columns
+					if ( empty( $custom_enabled_columns_keys ) ) {
+						$custom_enabled_columns_keys = array( 'ID' );
+					}
+
+					$sorted_columns[ $post_type_key ] = array();
+					$all_settings_columns             = ( empty( $settings['enabled'] ) && empty( $settings['disabled'] ) ) ? wp_list_pluck( $post_type_columns, 'key', 'key' ) : array_merge( $settings['enabled'], $settings['disabled'] );
+					$settings['enabled']              = array_combine( $custom_enabled_columns_keys, $custom_enabled_columns_keys );
+					$settings['disabled']             = array_diff( $all_settings_columns, $settings['enabled'] );
+				}
+
+				foreach ( $settings['enabled'] as $key => $enabled_column_label ) {
+
+					if ( ! isset( $post_type_columns[ $key ] ) ) {
+
+						continue;
+					}
+					$sorted_columns[ $post_type_key ][ $key ] = $post_type_columns[ $key ];
+				}
+
+				$disallow_to_hide = wp_list_filter(
+					$post_type_columns,
+					array(
+						'allow_to_hide' => false,
+					)
+				);
+
+				$sorted_columns[ $post_type_key ] = array_merge( $disallow_to_hide, $sorted_columns[ $post_type_key ] );
+
+				// Show columns that were added after the
+				// columns visibility was saved, we hide columns that were
+				// hidden explicitly only
+				if ( ! defined( 'WPSE_ONLY_EXPLICITLY_ENABLED_COLUMNS' ) || ! WPSE_ONLY_EXPLICITLY_ENABLED_COLUMNS ) {
+					$saved_in_columns_manager = ( count( $settings ) > 1 ) ? array_merge( $settings['enabled'], $settings['disabled'] ) : current( $settings );
+
+					foreach ( $post_type_columns as $key => $column ) {
+						if ( ! isset( $saved_in_columns_manager[ $key ] ) ) {
+							$sorted_columns[ $post_type_key ][ $key ]      = $column;
+							$new_columns_to_save[ $post_type_key ][ $key ] = $column['title'];
+						}
+					}
+				}
+			}
+
+			self::insert_newly_detected_columns_into_columns_manager( $new_columns_to_save );
+
+			return $sorted_columns;
+		}
+
+		public static function insert_newly_detected_columns_into_columns_manager( $new_columns_to_save ) {
+			$new_columns_to_save = array_filter( $new_columns_to_save );
+			if ( empty( $new_columns_to_save ) ) {
+				return;
+			}
+
+			$visibility_options = get_option( self::$columns_visibility_key, array() );
+			if ( ! is_array( $visibility_options ) ) {
+				$visibility_options = array();
+			}
+			foreach ( $new_columns_to_save as $post_type_key => $columns ) {
+				if ( isset( $visibility_options[ $post_type_key ] ) && isset( $visibility_options[ $post_type_key ]['enabled'] ) ) {
+					$visibility_options[ $post_type_key ]['enabled'] = array_merge( $visibility_options[ $post_type_key ]['enabled'], $columns );
+				} else {
+					VGSE()->helpers->set_with_dot_notation( $visibility_options, $post_type_key . '.enabled', $columns );
+				}
+			}
+
+			update_option( self::$columns_visibility_key, $visibility_options, false );
+
+			do_action( 'vg_sheet_editor/columns_visibility/after_saving_newly_detected_columns', $new_columns_to_save );
+		}
+
+		public function __set( $name, $value ) {
+			$this->$name = $value;
+		}
+
+		public function __get( $name ) {
+			return $this->$name;
+		}
+
+	}
+
+	add_action( 'vg_sheet_editor/initialized', 'vgse_columns_visibility_init' );
+
+	function vgse_columns_visibility_init() {
+		WP_Sheet_Editor_Columns_Visibility::get_instance();
+	}
+}

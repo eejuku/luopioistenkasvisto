@@ -10,7 +10,7 @@
 
         // Tulostetaan listaus kaikista tämän "perheen" sivuista
         echo '<nav class="side-nav">';
-        echo '<h3>' . get_the_title($top_level) . '</h3>';
+        echo '<h3><a href="' . get_permalink($top_level) . '">' . get_the_title($top_level) . '</a></h3>';
         echo '<ul>';
         wp_list_pages(array(
             'child_of' => $top_level,
@@ -25,6 +25,16 @@
     <article class="content-area">
         <h1><?php the_title(); ?></h1>
         <?php the_content(); ?>
+    
+<div class="content-section">
+    <small>
+        Sivu luotu: <?php echo get_the_date(); ?>.
+        <?php if (get_the_modified_time() != get_the_time()) : ?>
+            Päivitetty viimeksi: <?php the_modified_date(); ?>.
+        <?php endif; ?>
+    </small>
+</div>
+
     </article>
 </main>
 
