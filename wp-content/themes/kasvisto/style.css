@@ -489,14 +489,23 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .badge-ryhma {
     display: inline-block;
-    background: #eafaf1;
-    color: #27ae60;
+    background: #77a464;
+    color: #ffffff;
     padding: 4px 12px;
     border-radius: 50px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.8rem;
     text-transform: uppercase;
 }
+
+
+.badge-ryhma.badge-sub {
+    background-color: #4a6341 !important; /* Tummempi sammalen vihreä */
+    border: 1px solid rgba(255,255,255,0.2);
+    font-weight: 600;
+}
+
+
 
 /* Grid asettelu */
 .kasvi-main-grid {

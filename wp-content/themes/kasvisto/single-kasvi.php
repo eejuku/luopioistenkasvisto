@@ -3,17 +3,33 @@
 <main class="kasvi-clean-layout">
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
         
-        <header class="kasvi-clean-header">
-            <h1><?php the_title(); ?></h1>
-            <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
-            <?php if($tieteellinen): ?>
-                <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
-            <?php endif; ?>
+<header class="kasvi-clean-header">
+    <h1><?php the_title(); ?></h1>
+    
+    <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
+    <?php if($tieteellinen): ?>
+        <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
+    <?php endif; ?>
 
-                <?php $ryhma = get_field('ryhma'); if($ryhma): ?>
-                   <br/>  <span class="badge-ryhma"><?php echo esc_html($ryhma); ?></span>
-                <?php endif; ?>
-        </header>
+    <div class="badge-row" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <?php // Pääryhmä (Sammalet) ?>
+        <?php $ryhma = get_field('ryhma'); if($ryhma): ?>
+            <span class="badge-ryhma"><?php echo esc_html($ryhma); ?></span>
+        <?php endif; ?>
+
+        <?php 
+        // Sammalryhmä (Lehtisammalet jne.)
+        $s_obj = get_field_object('sammalryhma');
+        $s_val = get_field('sammalryhma');
+        
+        if($s_val): 
+            $val = is_array($s_val) ? $s_val[0] : $s_val;
+            $label = $s_obj['choices'][$val] ?? $val;
+            ?>
+            <span class="badge-ryhma badge-sub"><?php echo esc_html($label); ?></span>
+        <?php endif; ?>
+    </div>
+</header>
 
         <div class="kasvi-flex-grid">
             
