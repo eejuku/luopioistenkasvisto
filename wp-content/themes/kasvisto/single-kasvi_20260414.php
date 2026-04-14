@@ -4,47 +4,7 @@
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
         
         <header class="kasvi-clean-header">
-
-        <!-- murupolku -->
-<!-- <?php 
-$ryhma = get_field('ryhma');
-if ($ryhma) : 
-    // Luodaan linkki ryhmän nimellä. 
-    // Oletetaan että sinulla on sivu nimeltään "Sammalet", jonka slug on "sammalet"
-    $ryhma_slug = sanitize_title($ryhma); 
-    $ryhma_url = home_url('/' . $ryhma_slug . '/');
-?>
-    <nav class="breadcrumb">
-        <a href="<?php echo esc_url(home_url('/')); ?>">Etusivu</a> &raquo; 
-        <a href="<?php echo esc_url($ryhma_url); ?>"><?php echo esc_html($ryhma); ?></a>
-    </nav>
-<?php endif; ?> --> 
-
-<!-- paluulinkki -->
-<?php 
-$ryhma = get_field('ryhma');
-
-if ($ryhma) :
-    $ryhmat_linkit = array(
-        'Putkilokasvit' => 'kasvilajit-putkilokasvit',
-        'Sammalet'      => 'sammallajit',
-        'Jäkälät'       => 'jakalalakit',
-        'Piensienet'    => 'piensienilajit'
-    );
-
-    // Haetaan slug taulukosta, jos ei löydy, käytetään oletuksena ryhmän nimeä
-    $slug = $ryhmat_linkit[$ryhma] ?? sanitize_title($ryhma);
-    $paluu_url = home_url('/' . $slug . '/');
-?>
-    <div class="back-link-container" style="margin-bottom: 20px;">
-        <a href="<?php echo esc_url($paluu_url); ?>" class="back-link">
-            << Takaisin <?php echo esc_html($ryhma); ?>-listaukseen
-        </a>
-    </div>
-<?php endif; ?>
-
-
-        <h1><?php the_title(); ?></h1>
+            <h1><?php the_title(); ?></h1>
             <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
             <?php if($tieteellinen): ?>
                 <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
@@ -161,6 +121,8 @@ endforeach; ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const lightbox = GLightbox({ selector: '.glightbox' });

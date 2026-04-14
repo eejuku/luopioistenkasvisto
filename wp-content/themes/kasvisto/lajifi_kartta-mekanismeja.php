@@ -15,13 +15,15 @@
 
 
 <script>
-// (Sama JS-logiikka kuin aiemmin kartalle ja lightboxille)
 document.addEventListener('DOMContentLoaded', function() {
     const lightbox = GLightbox({ selector: '.glightbox' });
     const karttaElement = document.getElementById('lajifi-kartta');
     if (!karttaElement) return;
-    
-    const kartta = L.map('lajifi-kartta').setView([61.36, 24.85], 11);
+    });
+
+
+
+const kartta = L.map('lajifi-kartta').setView([61.36, 24.85], 11);
     L.tileLayer('https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wmts/1.0.0/maastokartta/default/WGS84_Pseudo-Mercator/{z}/{y}/{x}.png?api-key=API-AVAIMESI', {
         attribution: '&copy; MML'
     }).addTo(kartta);

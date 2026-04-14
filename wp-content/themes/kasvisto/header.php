@@ -16,19 +16,20 @@
                 <span class="logo-text">Luopioisten Kasvisto</span>
             </a>
         </div>
-        
+
 <nav class="site-nav">
     <?php
     wp_nav_menu(array(
         'theme_location' => 'primary',
         'container'      => false,
         'menu_class'     => 'main-menu',
-        'depth'          => 1, // Vain 1. taso ylös
-        'fallback_cb'    => 'wp_page_menu', // Jos valikkoa ei ole luotu, näytetään sivut
+        'depth'          => 1,
+        'fallback_cb'    => 'wp_page_menu',
         'items_wrap'     => '<ul id="%1$s" class="%2$s">%3$s</ul>',
     ));
     ?>
 </nav>
+
 
     </div>
 </header>

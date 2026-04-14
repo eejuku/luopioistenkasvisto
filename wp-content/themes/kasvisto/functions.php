@@ -166,6 +166,29 @@ function hae_laji_fi_havainnot($tieteellinen_nimi) {
 }
 
 /**
+ * Lisää aktiivinen luokka valikkoon ACF-ryhmän perusteella
+ */
+function korosta_kasviryhma_valikossa($classes, $item, $args) {
+    // Tarkistetaan, että ollaan yksittäisellä sivulla ja käytössä on oikea valikko (primary)
+    if ( is_singular() && $args->theme_location == 'primary' ) {
+        
+        $ryhma = get_field('ryhma'); // Haetaan ACF-kentän arvo
+
+        if ( $ryhma ) {
+            // Jos valikkokohdan teksti täsmää ACF-ryhmän nimeen
+            // Huom: strtolower ja trim varmistavat, että vertailu ei kaadu pieniin kirjoituseroihin
+            if ( strtolower(trim($item->title)) == strtolower(trim($ryhma)) ) {
+                $classes[] = 'current-menu-item';
+            }
+        }
+    }
+    return $classes;
+}
+add_filter('nav_menu_css_class', 'korosta_kasviryhma_valikossa', 10, 3);
+
+
+
+/**
  * Shortcode kasvilistausten upottamiseen rivipohjaisena (kuten arkisto)
  * Käyttö: [kasvilista ryhma="Vieraslajit"]
  */

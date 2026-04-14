@@ -214,6 +214,19 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     width: 250px;
 }
 
+/*Tämä on hakukenttä, joka näytetään erillisillä listaussivuilla */
+.kasvi-haku-input {
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    width: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
 .aakkos-nav {
     display: flex;
     flex-wrap: wrap;
@@ -464,6 +477,24 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     padding: 30px 20px;
     min-height: 100vh;
 }
+
+/* Paluu listaukseen -nappi */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    color: #4a7c44;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0px 0;
+    transition: transform 0.2s ease;
+}
+
+.back-link:hover {
+    color: #2d5a27;
+    transform: translateX(-3px); /* Pieni liike vasemmalle korostaa "takaisin"-vaikutelmaa */
+}
+
 
 /* Header */
 .kasvi-header-compact {
