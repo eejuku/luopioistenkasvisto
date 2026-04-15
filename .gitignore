@@ -7,3 +7,6 @@ wp-content/ai1wm-backups/
 
 # Ohita tietokannan varmuuskopiot
 *.sql
+
+# Ohita skriptit
+*.sh
