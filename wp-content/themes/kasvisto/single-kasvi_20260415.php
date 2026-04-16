@@ -3,40 +3,15 @@
 <main class="kasvi-clean-layout">
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
         
-        <header class="kasvi-clean-header">
+<header class="kasvi-clean-header">
+    <h1><?php the_title(); ?></h1>
+    
+    <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
+    <?php if($tieteellinen): ?>
+        <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
+    <?php endif; ?>
 
-        <!-- murupolku -->
-<!-- <?php 
-$ryhma = get_field('ryhma');
-if ($ryhma) : 
-    // Luodaan linkki ryhmän nimellä. 
-    // Oletetaan että sinulla on sivu nimeltään "Sammalet", jonka slug on "sammalet"
-    $ryhma_slug = sanitize_title($ryhma); 
-    $ryhma_url = home_url('/' . $ryhma_slug . '/');
-?>
-    <nav class="breadcrumb">
-        <a href="<?php echo esc_url(home_url('/')); ?>">Etusivu</a> &raquo; 
-        <a href="<?php echo esc_url($ryhma_url); ?>"><?php echo esc_html($ryhma); ?></a>
-    </nav>
-<?php endif; ?> --> 
-
-<!-- paluulinkki -->
-
-<div class="back-link-container" style="margin-bottom: 20px;">
-    <a href="javascript:history.back()" class="back-link">
-        << Takaisin listaukseen
-    </a>
-</div>
-
-
-
-        <h1><?php the_title(); ?></h1>
-            <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
-            <?php if($tieteellinen): ?>
-                <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
-            <?php endif; ?>
-
- <div class="badge-row" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+    <div class="badge-row" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
         <?php // Pääryhmä (Sammalet) ?>
         <?php $ryhma = get_field('ryhma'); if($ryhma): ?>
             <span class="badge-ryhma"><?php echo esc_html($ryhma); ?></span>
@@ -54,12 +29,7 @@ if ($ryhma) :
             <span class="badge-ryhma badge-sub"><?php echo esc_html($label); ?></span>
         <?php endif; ?>
     </div>
-
-
-
-
-
-        </header>
+</header>
 
         <div class="kasvi-flex-grid">
             
@@ -140,7 +110,7 @@ endforeach; ?>
                             $url = get_field("kuva_{$i}_url");
                             if ($url) {
                                 echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
-                                echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '" >';
+                                echo '<img src="' . esc_url($url) . '" alt="">';
                                 echo '</a>';
                             }
                         }
@@ -167,6 +137,8 @@ endforeach; ?>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const lightbox = GLightbox({ selector: '.glightbox' });
