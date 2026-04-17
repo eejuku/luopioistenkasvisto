@@ -234,3 +234,16 @@ function lista_yleisimmat_kasvit_shortcode() {
     return $output;
 }
 add_shortcode('yleisimmat_kasvit', 'lista_yleisimmat_kasvit_shortcode');
+
+
+// Lisätään esikatselukuva ACF Relationship -kentän listaukseen
+add_filter('acf/fields/relationship/result', 'lisaa_esikatselukuva_acf_suhteeseen', 10, 4);
+function lisaa_esikatselukuva_acf_suhteeseen($text, $post, $field, $post_id) {
+    if ($post->post_type === 'attachment' && wp_attachment_is_image($post->ID)) {
+        $thumb = wp_get_attachment_image_src($post->ID, array(40, 40));
+        if ($thumb) {
+            $text = '<img src="' . $thumb[0] . '" style="width:15px; height:15px; margin-right:10px; vertical-align:middle;" />' . $text;
+        }
+    }
+    return $text;
+}
