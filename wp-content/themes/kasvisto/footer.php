@@ -2,7 +2,6 @@
     <div class="kasvi-container footer-inner">
         <div class="footer-info">
             <p>&copy; <?php echo date('Y'); ?> Luopioisten Kasvisto</p>
-            <p>Teksti ja kuvat: Tuomo Kuitunen</p>
         </div>
         <div class="footer-links">
             </div>

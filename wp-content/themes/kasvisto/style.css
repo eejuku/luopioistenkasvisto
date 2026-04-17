@@ -42,7 +42,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 .logo-text {
     font-size: 1.25rem;
     font-weight: 800;
-    color: #27ae60;
+    color: ##77a464;
     letter-spacing: -0.5px;
 }
 
@@ -79,9 +79,9 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 .main-menu li.current-menu-ancestor a,
 .main-menu li.current_page_ancestor a,
 .main-menu li a:hover {
-    background-color: #27ae60 !important;
+    background-color: #77a464 !important;
     color: #fff !important;
-    border-color: #27ae60 !important;
+    border-color: #77a464 !important;
 }
 
 /* ==========================================================================
@@ -220,9 +220,6 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     border-radius: 6px;
     border: 1px solid #ddd;
     width: 250px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 
@@ -665,7 +662,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 .wp-block-table thead, .wp-block-table th {
-    background-color: #27ae60;
+    background-color: #77a464;
     color: #ffffff;
     text-align: left;
     padding: 10px 15px;
@@ -677,7 +674,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 /* Leipätekstin linkit */
 .content-area p a, .content-area li a, .wp-block-table td a {
-    color: #27ae60;
+    color: #77a464;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
@@ -702,7 +699,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 /* Etusivun Hero */
 .hero-banner {
-    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    background: linear-gradient(135deg, #77a464 0%, #1e8449 100%);
     color: white;
     padding: 80px 20px;
     text-align: center;

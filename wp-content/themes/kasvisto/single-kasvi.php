@@ -56,9 +56,6 @@ if ($ryhma) :
     </div>
 
 
-
-
-
         </header>
 
         <div class="kasvi-flex-grid">
@@ -80,12 +77,12 @@ if ($ryhma) :
                     'Kasvupaikka' => 'kasvupaikka',
                     'Levinneisyys' => 'levinneisyys',
                     'Maastotuntomerkit' => 'maastotuntomerkit',
+                    'Mikrosienet' => 'mikrosienet',
+                    'Muuta' => 'muuta',
                     'Kemia' => 'kemia',
                     'Vertaa' => 'vertaa',
                     'Löytöpaikat Luopioisissa' => 'loytopaikat',
-                    'Kirjallisuus' => 'kirjallisuus',
-                    'Mikrosienet' => 'mikrosienet',
-                    'Muuta' => 'muuta',
+                    'Kirjallisuus' => 'kirjallisuus', 
                     'Löydettyjä isäntäkasveja' => 'isantakasvit',
                     'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
                 ];
