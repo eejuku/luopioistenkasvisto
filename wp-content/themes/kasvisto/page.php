@@ -30,7 +30,7 @@
     <small>
         Sivu luotu: <?php echo get_the_date(); ?>.
         <?php if (get_the_modified_time() != get_the_time()) : ?>
-            Päivitetty viimeksi: <?php the_modified_date(); ?>.
+            Päivitetty viimeksi asdlkaj lskaj : <?php the_modified_date(); ?>.
         <?php endif; ?>
     </small>
 </div>
