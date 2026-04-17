@@ -155,7 +155,7 @@ endforeach; ?>
     <div class="clean-gallery">
         <?php 
         // 1. VANHAT URL-KENTÄT (Säilytetään tuki)
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 9; $i++) {
             $url = get_field("kuva_{$i}_url");
             if ($url) {
                 echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
