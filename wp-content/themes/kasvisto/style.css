@@ -106,7 +106,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .side-nav h3 {
     font-size: 0.95rem;
-    border-bottom: 2px solid #27ae60;
+    border-bottom: 2px solid #77a464;
     padding-bottom: 8px;
     margin: 0 0 8px 0;
     text-transform: uppercase;
@@ -126,6 +126,10 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-weight: 500;
     font-size: 0.85rem;
     position: relative;
+}
+.side-nav li a:hover {
+    color: #444;
+    font-weight: 550;
 }
 
 .side-nav li.page_item_has_children > a::before,
@@ -152,19 +156,19 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-size: 0.8rem;
     padding: 4px 0 4px 35px;
     border-bottom: none;
-    font-weight: normal;
+    font-weight: medium;
     color: #666;
 }
 
 .side-nav li.current_page_item > a {
-    color: #27ae60;
+    color: #2d5a27;
     font-weight: bold;
 }
 
 .side-nav li.current_page_item > a::before,
 .side-nav li.current_page_ancestor > a::before {
     transform: rotate(90deg);
-    color: #27ae60;
+    color: #77a464;
 }
 
 /* ==========================================================================
@@ -581,7 +585,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 /* Galleriasäätö */
-.kasvi-gallery-grid-compact {
+/*.kasvi-gallery-grid-compact {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
@@ -597,7 +601,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .kasvi-gallery-grid-compact img:hover {
     transform: scale(1.05);
-}
+} */ 
 
 /* Kartta ja nappi 
 .map-status {
@@ -728,6 +732,19 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     margin: 50px 0;
 }
 
+.entry-content a {
+    color: #77a464;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    font-weight: 500;
+}
+
+.entry-content a:hover {
+    color: #2d5a27;
+    text-decoration-thickness: 2px;
+}
+
 /* Alaosan automaattiset kortit */
 .front-dynamic-grid {
     display: grid;
@@ -747,7 +764,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-size: 1.4rem;
     margin-top: 0;
     margin-bottom: 20px;
-    border-bottom: 3px solid #27ae60;
+    border-bottom: 3px solid #77a464;
     display: inline-block;
 }
 
@@ -762,10 +779,20 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 .latest-list a, .quick-links a {
-    color: #27ae60;
+    color: #77a464;
     font-weight: 600;
 }
 
 .latest-list a:hover, .quick-links a:hover {
     color: #1e8449;
+}
+
+/* Footer */
+.footer-info p {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    background: #fff;
 }
