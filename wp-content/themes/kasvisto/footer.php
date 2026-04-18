@@ -32,6 +32,27 @@
         border-radius: 4px;
         max-width: 95vw !important;
     }
+    .gslide-inline iframe {
+        width: 100% !important;
+        height: 70vh !important; /* Puhelimella hieman matalampi, jotta sulkupainike mahtuu */
+        border: none;
+    }
+
+    @media (min-width: 768px) {
+        .gslide-inline iframe {
+            height: 85vh !important; /* Tietokoneella korkeampi */
+        }
+    }
+    /* Estetään sivun skrollaus kartan alla kun se on auki */
+    .glightbox-open {
+        overflow: hidden;
+    }
+    .glightbox-clean .gclose {
+        background: rgba(0,0,0,0.5) !important;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+    }
 </style>
 
 <script>
