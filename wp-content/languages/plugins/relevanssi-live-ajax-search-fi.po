@@ -1,0 +1,69 @@
+# Translation of Plugins - Relevanssi Live Ajax Search - Stable (latest release) in Finnish
+# This file is distributed under the same license as the Plugins - Relevanssi Live Ajax Search - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2022-10-08 03:52:18+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.1\n"
+"Language: fi\n"
+"Project-Id-Version: Plugins - Relevanssi Live Ajax Search - Stable (latest release)\n"
+
+#: templates/search-results.php:31
+msgid "Press enter to see all the results."
+msgstr "Näet kaikki tulokset painamalla enteriä."
+
+#: templates/search-results-query.php:81 templates/search-results.php:85
+msgid "Did you mean"
+msgstr "Tarkoititko"
+
+#. Translators: %s is the number of results found.
+#: templates/search-results-query.php:28 templates/search-results-query.php:47
+#: templates/search-results.php:29 templates/search-results.php:51
+msgid "%d result found."
+msgid_plural "%d results found."
+msgstr[0] "%d tulos löytyi."
+msgstr[1] "%d tulosta löytyi."
+
+#: includes/class-relevanssi-live-search-form.php:153
+msgid "Loading search results."
+msgstr "Ladataan hakutuloksia."
+
+#: templates/search-results-query.php:74 templates/search-results.php:78
+msgid "No results found."
+msgstr "Ei tuloksia."
+
+#: includes/class-relevanssi-live-search-form.php:236
+msgid "When autocomplete results are available use up and down arrows to review and enter to go to the desired page. Touch device users, explore by touch or with swipe gestures."
+msgstr "Kun tuloksia tulee, voit selata niitä nuolinäppäimillä ylös ja alas ja siirtyä halutulle sivulle enterin painalluksella. Kosketusnäytöllisten laitteiden käyttäjät voivat selata tuloksia koskettamalla ja pyyhkäisemällä."
+
+#: includes/class-relevanssi-live-search-form.php:152
+msgid "No valid Relevanssi Live Search configuration found!"
+msgstr "Kelvollisia Relevanssi Live Searchin asetuksia ei löytynyt!"
+
+#. Author URI of the plugin
+#: relevanssi-live-ajax-search.php
+msgid "https://www.mikkosaari.fi/"
+msgstr "https://www.mikkosaari.fi/"
+
+#. Author of the plugin
+#: relevanssi-live-ajax-search.php
+msgid "Mikko Saari"
+msgstr "Mikko Saari"
+
+#. Description of the plugin
+#: relevanssi-live-ajax-search.php
+msgid "Enhance your search forms with live search."
+msgstr "Paranna hakulomakkeitasi live-haulla."
+
+#. Plugin URI of the plugin
+#: relevanssi-live-ajax-search.php
+msgid "https://www.relevanssi.com/live-ajax-search/"
+msgstr "https://www.relevanssi.com/live-ajax-search/"
+
+#. Plugin Name of the plugin
+#: relevanssi-live-ajax-search.php
+msgid "Relevanssi Live Ajax Search"
+msgstr "Relevanssi Live Ajax Search"

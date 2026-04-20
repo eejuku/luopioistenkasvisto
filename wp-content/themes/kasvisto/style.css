@@ -835,3 +835,64 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     text-decoration: none !important;
     flex-shrink: 0;
 }
+
+
+/* ==========================================================================
+   RELEVANSSI LIVE SEARCH -STYLET
+   ========================================================================== */
+/* Live-hakutulosten säiliö */
+.relevanssi-live-search-results {
+    border: 1px solid #ddd !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin-top: 5px !important;
+}
+
+/* Yksittäinen tulosrivi */
+.live-search-result-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.live-search-result-item:hover {
+    background-color: #f9fbf9;
+}
+
+.live-result-meta {
+    display: block;
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #999;
+    font-weight: bold;
+}
+
+.live-result-title {
+    color: #2d5a27;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.live-result-scientific {
+    font-style: italic;
+    color: #666;
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+/* "Näytä kaikki" -linkki alareunassa */
+.live-search-show-all {
+    padding: 12px;
+    text-align: center;
+    background: #f4f4f4;
+}
+
+.live-search-show-all a {
+    color: #2d5a27;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+}
+

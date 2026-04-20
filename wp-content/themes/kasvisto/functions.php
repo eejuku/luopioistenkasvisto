@@ -234,3 +234,25 @@ function lista_yleisimmat_kasvit_shortcode() {
     return $output;
 }
 add_shortcode('yleisimmat_kasvit', 'lista_yleisimmat_kasvit_shortcode');
+
+// Varmistetaan että haku hakee vain olennaisista tyypeistä
+function muokkaa_hakua($query) {
+    if ($query->is_search && !is_admin()) {
+        // Voit rajoittaa haun vain kasveihin ja sivuihin, jos haluat jättää esim. uutiset pois
+        $query->set('post_type', array('page', 'kasvi'));
+    }
+    return $query;
+}
+add_filter('pre_get_posts', 'muokkaa_hakua');
+
+/**
+ * Muuttaa hakutulosten määrän per sivu
+ */
+function kasvisto_muokkaa_haun_maaraa( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+        // Muuta tästä haluamasi määrä (esim. 30 tulosta kerralla)
+        $query->set( 'posts_per_page', 30 );
+    }
+}
+add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
+

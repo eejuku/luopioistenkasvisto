@@ -6,19 +6,7 @@
         <header class="kasvi-clean-header">
 
         <!-- murupolku -->
-<!-- <?php 
-$ryhma = get_field('ryhma');
-if ($ryhma) : 
-    // Luodaan linkki ryhmän nimellä. 
-    // Oletetaan että sinulla on sivu nimeltään "Sammalet", jonka slug on "sammalet"
-    $ryhma_slug = sanitize_title($ryhma); 
-    $ryhma_url = home_url('/' . $ryhma_slug . '/');
-?>
-    <nav class="breadcrumb">
-        <a href="<?php echo esc_url(home_url('/')); ?>">Etusivu</a> &raquo; 
-        <a href="<?php echo esc_url($ryhma_url); ?>"><?php echo esc_html($ryhma); ?></a>
-    </nav>
-<?php endif; ?> --> 
+
 
 <!-- paluulinkki -->
 
@@ -128,77 +116,9 @@ endforeach; ?>
             </div>
 
             <div class="kasvi-media-sidebar">
-            <!--    
-                <div class="media-group">
-                    <h3>Kuvat</h3>
-                    <div class="clean-gallery">
-                        <?php 
-                        for ($i = 1; $i <= 9; $i++) {
-                            $url = get_field("kuva_{$i}_url");
-                            if ($url) {
-                                echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
-                                echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '" >';
-                                echo '</a>';
-                            }
-                        }
-                        ?>
-                    </div>
-                </div>
-        -->
 
-        <!--
-<div class="media-group">
-    <h3>Kuvat</h3>
-    <div class="clean-gallery">
-        <?php 
-        // 1. VANHAT URL-KENTÄT (Säilytetään tuki)
-        for ($i = 1; $i <= 9; $i++) {
-            $url = get_field("kuva_{$i}_url");
-            if ($url) {
-                echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
-                echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
-                echo '</a>';
-            }
-        }
 
-        // 2. POIMITAAN KUVAT WYSIWYG-EDITORISTA
-        $editori_sisalto = get_field('galleria_editori');
-
-        if ($editori_sisalto) {
-            /**
-             * Parannettu regex:
-             * - i: case-insensitive
-             * - U: ungreedy (ei hotki liikaa kerralla)
-             * - s: käsittelee koko sisällön yhtenä merkkijonona (vaikka olisi rivinvaihtoja)
-             */
-            $pattern = '/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i';
-            
-            if (preg_match_all($pattern, $editori_sisalto, $matches)) {
-                foreach ($matches[1] as $img_url) {
-                    
-                    // Putsataan URL mahdollisista HTML-entiteeteistä (kuten &amp;)
-                    $img_url = htmlspecialchars_decode($img_url);
-
-                    // Haetaan alkuperäinen kuva (poistetaan koon lisäys, esim -300x200)
-                    // Tämä kattaa myös S3:n mahdolliset variaatiot paremmin
-                    $full_url = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif|webp))/i', '', $img_url);
-                    
-                    ?>
-                    <a href="<?php echo esc_url($full_url); ?>" 
-                       class="glightbox" 
-                       data-glightbox="title: <?php echo esc_attr(get_the_title()); ?>">
-                        <img src="<?php echo esc_url($img_url); ?>" 
-                             alt="<?php echo esc_attr(get_the_title()); ?>" 
-                             loading="lazy">
-                    </a>
-                    <?php
-                }
-            }
-        }
-        ?>
-    </div>
-</div>
-        -->
+        
 <div class="media-group">
     <h3>Kuvat</h3>
     <div class="clean-gallery">
