@@ -53,7 +53,9 @@
                 <?php if(get_the_content()): ?>
                     <div class="content-section">
                         <h3>Yleiskuvaus</h3>
-                        <?php the_content(); ?>
+                        <div class="field-value">
+                            <?php the_content(); ?>
+                        </div>
                     </div>
                 <?php endif; ?>
 

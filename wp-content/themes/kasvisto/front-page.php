@@ -2,8 +2,8 @@
 
 <section class="hero-banner">
     <div class="container">
-        <h1>Tervetuloa Luopioisten kasvisivuille!</h1>
-      <!--  <p>Tutki alueen rikasta luontoa ja havaintoja.</p> -->
+        <h1>Tervetuloa Luopioisten kasvistoon!</h1>
+      
     </div>
 </section>
 
