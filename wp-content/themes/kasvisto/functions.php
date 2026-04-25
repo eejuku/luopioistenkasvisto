@@ -256,3 +256,23 @@ function kasvisto_muokkaa_haun_maaraa( $query ) {
 }
 add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
 
+add_action('init', function() {
+    // Aja vain jos olet kirjautunut adminina ja lisäät osoitteen perään ?korjaa_jakalat=1
+    if (is_admin() && isset($_GET['korjaa_jakalat'])) {
+        $args = [
+            'post_type'      => 'kasvi',
+            'posts_per_page' => -1,
+            'meta_query'     => [['key' => 'ryhma', 'value' => 'Jäkälät']]
+        ];
+        $posts = get_posts($args);
+        foreach ($posts as $p) {
+            $val = get_post_meta($p->ID, 'uhanalaisuus', true);
+            // Jos tieto on tallennettu tekstinä eikä arrayna, korjataan se
+            if (!empty($val) && !is_array($val)) {
+                update_field('uhanalaisuus', array($val), $p->ID);
+            }
+        }
+        echo "Valmista! 200+ jäkälää korjattu hallintaystävälliseksi.";
+        exit;
+    }
+});
