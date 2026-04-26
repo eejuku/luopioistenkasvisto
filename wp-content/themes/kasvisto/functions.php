@@ -255,24 +255,58 @@ function kasvisto_muokkaa_haun_maaraa( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
-
-add_action('init', function() {
-    // Aja vain jos olet kirjautunut adminina ja lisäät osoitteen perään ?korjaa_jakalat=1
-    if (is_admin() && isset($_GET['korjaa_jakalat'])) {
-        $args = [
-            'post_type'      => 'kasvi',
-            'posts_per_page' => -1,
-            'meta_query'     => [['key' => 'ryhma', 'value' => 'Jäkälät']]
-        ];
+add_action('wp_loaded', function() {
+    if (isset($_GET['korjaa_jakalat'])) {
+        $uhanalaisuus_avain = 'field_69d8c5765636b'; 
+        $args = ['post_type' => 'kasvi', 'posts_per_page' => -1];
         $posts = get_posts($args);
+        $count = 0;
+
+        // TÄRKEÄÄ: Tässä käytetään \t -merkkiä, joka on tabulaattori
+        $koodi_kartta = [
+            'NE' => "NE\tArvioimatta jätetyt (Not Evaluated)",
+            'DD' => "DD\tPuutteellisesti tunnetut (Data Deficient)",
+            'RE' => "RE\tHävinneet (Regionally Extinct)",
+            'EW' => "EW\tLuonnosta hävinneet (Extict in the Wild)",
+            'CR' => "CR\tÄärimmäisen uhanalaiset (Critically Endangered)",
+            'EN' => "EN\tErittäin uhanalaiset (Endangered)",
+            'VU' => "VU\tVaarantuneet (Vulnerable)",
+            'NT' => "NT\tSilmälläpidettävät (Near Threatened)",
+            'LC' => "LC\tElinvoimaiset (Least Concern)",
+            'RT' => "RT\tAlueellisesti uhanalaiset (Regionally Threatened)"
+        ];
+
         foreach ($posts as $p) {
             $val = get_post_meta($p->ID, 'uhanalaisuus', true);
-            // Jos tieto on tallennettu tekstinä eikä arrayna, korjataan se
-            if (!empty($val) && !is_array($val)) {
-                update_field('uhanalaisuus', array($val), $p->ID);
+            $clean_val = maybe_unserialize($val);
+            if (is_array($clean_val)) $clean_val = reset($clean_val);
+
+            if (!empty($clean_val)) {
+                // Napataan koodi (esim. "LC")
+                $koodi = trim(substr($clean_val, 0, 2));
+
+                if (isset($koodi_kartta[$koodi])) {
+                    $oikea_arvo = $koodi_kartta[$koodi];
+                    
+                    // Tallennetaan arrayna ja käytetään field keytä
+                    update_field($uhanalaisuus_avain, array($oikea_arvo), $p->ID);
+                    $count++;
+                }
             }
         }
-        echo "Valmista! 200+ jäkälää korjattu hallintaystävälliseksi.";
-        exit;
+        
+        wp_cache_flush();
+        die("Valmista! Korjattu $count jäkälää käyttäen tabulaattori-muotoilua. Nyt ruksien on PAKKO näkyä.");
+    }
+});
+
+add_action('wp_footer', function() {
+    if (isset($_GET['tarkista_id'])) {
+        $id = intval($_GET['tarkista_id']);
+        $meta = get_post_meta($id, 'uhanalaisuus', true);
+        echo '<pre style="background:#eee;padding:20px;margin-top:50px;z-index:9999;position:relative;">';
+        echo "Post ID $id uhanalaisuus-data:\n";
+        var_dump($meta);
+        echo '</pre>';
     }
 });
