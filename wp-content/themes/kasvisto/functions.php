@@ -255,58 +255,69 @@ function kasvisto_muokkaa_haun_maaraa( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
-add_action('wp_loaded', function() {
-    if (isset($_GET['korjaa_jakalat'])) {
-        $uhanalaisuus_avain = 'field_69d8c5765636b'; 
-        $args = ['post_type' => 'kasvi', 'posts_per_page' => -1];
-        $posts = get_posts($args);
-        $count = 0;
 
-        // TÄRKEÄÄ: Tässä käytetään \t -merkkiä, joka on tabulaattori
-        $koodi_kartta = [
-            'NE' => "NE\tArvioimatta jätetyt (Not Evaluated)",
-            'DD' => "DD\tPuutteellisesti tunnetut (Data Deficient)",
-            'RE' => "RE\tHävinneet (Regionally Extinct)",
-            'EW' => "EW\tLuonnosta hävinneet (Extict in the Wild)",
-            'CR' => "CR\tÄärimmäisen uhanalaiset (Critically Endangered)",
-            'EN' => "EN\tErittäin uhanalaiset (Endangered)",
-            'VU' => "VU\tVaarantuneet (Vulnerable)",
-            'NT' => "NT\tSilmälläpidettävät (Near Threatened)",
-            'LC' => "LC\tElinvoimaiset (Least Concern)",
-            'RT' => "RT\tAlueellisesti uhanalaiset (Regionally Threatened)"
-        ];
 
-        foreach ($posts as $p) {
-            $val = get_post_meta($p->ID, 'uhanalaisuus', true);
-            $clean_val = maybe_unserialize($val);
-            if (is_array($clean_val)) $clean_val = reset($clean_val);
+function hae_kasvi_maara_optimoitu($ryhma_slug, $lisa_slug = '') {
+    $debug_mode = true; // Muuta true, kun testailet. Muuta false, kun valmis.
+    
+    $transient_key = 'kasvi_count_' . md5($ryhma_slug . $lisa_slug);
+    $count = get_transient($transient_key);
 
-            if (!empty($clean_val)) {
-                // Napataan koodi (esim. "LC")
-                $koodi = trim(substr($clean_val, 0, 2));
-
-                if (isset($koodi_kartta[$koodi])) {
-                    $oikea_arvo = $koodi_kartta[$koodi];
-                    
-                    // Tallennetaan arrayna ja käytetään field keytä
-                    update_field($uhanalaisuus_avain, array($oikea_arvo), $p->ID);
-                    $count++;
-                }
-            }
-        }
+    // Jos ollaan debug-tilassa tai välimuistia ei ole
+    if ($debug_mode || $count === false) {
         
-        wp_cache_flush();
-        die("Valmista! Korjattu $count jäkälää käyttäen tabulaattori-muotoilua. Nyt ruksien on PAKKO näkyä.");
+        $args = array(
+            'post_type'      => 'kasvi',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'meta_query'     => array('relation' => 'AND')
+        );
+
+        // Pääryhmä
+        if (!empty($ryhma_slug)) {
+            $args['meta_query'][] = array(
+                'key'     => 'ryhma', // Käytetään nyt tätä, joka toimi
+                'value'   => $ryhma_slug,
+                'compare' => '='
+            );
+        }
+
+        // Lisäryhmä (Checkbox)
+        if (!empty($lisa_slug)) {
+            $args['meta_query'][] = array(
+                'relation' => 'OR',
+                array('key' => 'putkilokasvien_lisaryhmat', 'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
+                array('key' => 'sammalten_lisaryhmat',      'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
+                array('key' => 'jakalien_lisaryhmat',       'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
+                array('key' => 'piensienten_lisaryhmat',    'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $count = (int)$query->post_count;
+
+        // Tallennetaan välimuistiin vain, jos ei olla debug-tilassa
+        if (!$debug_mode) {
+            set_transient($transient_key, $count, 3600);
+        }
     }
+
+    return $count;
+}
+
+// Luodaan lyhytkoodi, joka käyttää tätä optimoitua funktiota
+add_shortcode('laji_laskuri', function($atts) {
+    $a = shortcode_atts(array('ryhma' => '', 'lisa' => ''), $atts);
+    return hae_kasvi_maara_optimoitu($a['ryhma'], $a['lisa']);
 });
 
-add_action('wp_footer', function() {
-    if (isset($_GET['tarkista_id'])) {
-        $id = intval($_GET['tarkista_id']);
-        $meta = get_post_meta($id, 'uhanalaisuus', true);
-        echo '<pre style="background:#eee;padding:20px;margin-top:50px;z-index:9999;position:relative;">';
-        echo "Post ID $id uhanalaisuus-data:\n";
-        var_dump($meta);
-        echo '</pre>';
+
+// Tämä tyhjentää laskurit aina kun MIKÄ TAHANSA sivu tai postaus tallennetaan
+add_action('save_post', function($post_id) {
+    if (get_post_type($post_id) === 'kasvikortti') {
+        global $wpdb;
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_kasvi_count_%'");
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_kasvi_count_%'");
     }
 });
