@@ -896,3 +896,109 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     text-decoration: none;
 }
 
+/* ==========================================================================
+   HEADER - STYLET
+   ========================================================================== */
+/* Päärakenteen asettelu */
+.header-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Pitää logon ja oikean pinon keskitettynä korkeussuunnassa */
+    padding: 20px 0;
+}
+
+.header-actions-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Pakottaa sisällön oikeaan reunaan */
+    gap: 12px;
+}
+
+/* Pikkunavigaatio */
+.secondary-nav {
+    display: flex;
+    gap: 15px;
+}
+
+.secondary-nav a {
+    color: #777;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.secondary-nav a:hover {
+    color: #2d5a27;
+}
+
+/* Moderni Hakukenttä */
+.header-search .search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 30px;
+    padding: 4px 6px 4px 16px;
+    transition: all 0.3s ease;
+    width: 280px; /* Säädä leveys sopivaksi */
+}
+
+.header-search .search-form:focus-within {
+    background: #fff;
+    border-color: #2d5a27;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    width: 320px; /* Hieman levennysefektiä fokusoidessa */
+}
+
+.search-field {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    width: 100%;
+    color: #333;
+}
+
+.search-submit {
+    background: #2d5a27;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0;
+}
+
+.search-submit:hover {
+    background: #1e3d1a;
+}
+
+/* Päänavigaatiopalkki */
+.main-nav-bar {
+    background: #fff;
+    border-top: 1px solid #eee;
+    border-bottom: 3px solid #2d5a27;
+}
+
+.main-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 12px 0;
+    gap: 25px;
+}
+
+.main-menu a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}

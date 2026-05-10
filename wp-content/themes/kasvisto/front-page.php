@@ -1,12 +1,12 @@
 <?php get_header(); ?>
-
+<!--
 <section class="hero-banner">
     <div class="container">
         <h1>Tervetuloa Luopioisten kasvistoon!</h1>
       
     </div>
 </section>
-
+-->
 <main class="container main-content">
     
     <div class="entry-content">
@@ -48,7 +48,7 @@
         <div class="dynamic-card">
             <h2>Pikalinkit</h2>
             <ul class="quick-links">
-                <li><a href="/kasvit/">Selaa kaikkia kasveja →</a></li>
+                <li><a href="archive-kasvi.php">Selaa kaikkia kasveja →</a></li>
                 <li><a href="/vieraslajit/">Vieraslajit Luopioisissa →</a></li>
                 <li><a href="/tietoa-projektista/">Lue lisää hankkeesta →</a></li>
             </ul>

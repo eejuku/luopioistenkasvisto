@@ -191,19 +191,153 @@ endforeach; ?>
     </div>
 </div>
 
+<?php // 1. VANHA STAATTINEN KARTTA (jos olemassa) ?>
                 <?php $karttakuva = get_field('karttakuva'); ?>
                 <?php if($karttakuva): ?>
-                      
                     <div class="media-group">
-                        <h3>Kartta</h3>
+                        <h3>Kartta (kuva)</h3>
                         <div class="static-map-img">
                             <img src="<?php echo esc_url($karttakuva['url'] ?? $karttakuva); ?>" alt="Levinneisyyskartta">
                         </div>
                     </div>
                 <?php endif; ?>
 
+<?php 
+$pisteet_json = get_field('karttapisteet_json');
+$uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png'; 
+
+if ($pisteet_json) : 
+    $pisteet = json_decode($pisteet_json, true);
+    if (!empty($pisteet)) : ?>
+        
+        <style>
+            /* Kapselointi: Varmistetaan etteivät teeman tyylit vaikuta */
+            .kasvikartta-wrapper {
+                all: initial; /* Nollaa perityt tyylit */
+                display: block;
+                position: relative;
+                width: 100%;
+                max-width: 600px; /* Tai kartan todellinen leveys */
+                margin: 20px 0;
+                font-family: sans-serif;
+            }
+            .kasvikartta-container {
+                position: relative;
+                width: 100%;
+                line-height: 0;
+            }
+            .kasvikartta-container img {
+                width: 100%;
+                height: auto;
+                display: block;
+                border: none;
+            }
+            .kartta-piste {
+                position: absolute;
+                width: 13px;  /* Vastaa työkalun ctx.arc(x, y, 6...) */
+                height: 13px;
+                background-color: black;
+                border: 1px solid white;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                box-sizing: border-box;
+                z-index: 10;
+            }
+        </style>
+
+        <div class="media-group">
+            <h3>Löytöpaikat kartalla</h3>
+            <div class="kasvikartta-wrapper">
+                <div class="kasvikartta-container">
+                    <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Kartta">
+                    
+                    <?php 
+                    // TYÖKALUN VAKIOARVOT (Pikseleinä alkuperäisestä kuvasta)
+                    // Nämä on otettava suoraan antamastasi lähdekoodista
+                    $L = 42; $T = 7; $R = 535; $B = 500;
+                    
+                    // Alkuperäisen kuvan koko (Canvasin koko työkalussa)
+                    // Jos tyhjän kartan leveys on eri, muuta nämä:
+                    $img_w = 577; // Oletusleveys, tarkista karttapohja.png leveys!
+                    $img_h = 516; // Oletuskorkeus, tarkista karttapohja.png korkeus!
+
+                    foreach ($pisteet as $p) : 
+                        // Lasketaan sijainti työkalun kaavalla:
+                        // x_px = L + (p.x * (R - L))
+                        // Tämän jälkeen muutetaan se prosenteiksi koko kuvan leveydestä
+                        $x_px = $L + (floatval($p['x']) * ($R - $L));
+                        $y_px = $T + (floatval($p['y']) * ($B - $T));
+                        
+                        $left_pct = ($x_px / $img_w) * 100;
+                        $top_pct  = ($y_px / $img_h) * 100;
+                    ?>
+                        <div class="kartta-piste" style="
+                            left: <?php echo $left_pct; ?>%;
+                            top: <?php echo $top_pct; ?>%;
+                        "></div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
+    <?php endif; 
+endif; ?>
+
+<!--
+
+<?php 
+// 2. UUSI DYNAAMINEN PISTEKARTTA
+$pisteet_json = get_field('karttapisteet_json');
+$uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png'; 
+
+if ($pisteet_json) : 
+    $pisteet = json_decode($pisteet_json, true);
+    if (!empty($pisteet)) : ?>
+        <div class="media-group">
+            <h3>Levinneisyys (pisteet)</h3>
+            <div class="uusi-kasvikartta-container" style="
+                position: relative; 
+                width: 100%; 
+                aspect-ratio: 577 / 516; /* PÄIVITÄ TÄHÄN KUVAN LEVEYS / KORKEUS */
+                background: #fff; 
+                border: 1px solid #ddd; 
+                padding: 0; 
+                box-sizing: border-box;
+            ">
+                <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Levinneisyyskartta" style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%; 
+                    height: 100%; 
+                    display: block; 
+                    opacity: 0.9;
+                    object-fit: contain;
+                ">
+                
+                <?php foreach ($pisteet as $p) : 
+                    // Varmistetaan että koordinaatit ovat numeroita (0.0 - 1.0)
+                    $left = floatval($p['x']) * 100;
+                    $top  = floatval($p['y']) * 100;
+                ?>
+                    <div class="kartta-piste" style="
+                        position: absolute;
+                        left: <?php echo $left; ?>%;
+                        top: <?php echo $top; ?>%;
+                        width: 10px;
+                        height: 10px;
+                        background-color: #000;
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%);
+                        pointer-events: none;
+                        z-index: 10;
+                    "></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; 
+endif; ?>
+-->
 
     <?php endwhile; endif; ?>
 </main>
@@ -221,5 +355,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 </script>
-
 <?php get_footer(); ?>
