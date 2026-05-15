@@ -321,3 +321,89 @@ add_action('save_post', function($post_id) {
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_kasvi_count_%'");
     }
 });
+
+
+function tulosta_isantakasvi_taulukko() {
+    // 1. Hae ACF-kentän sisältö (vaihda 'isantakasvit' kenttäsi nimeksi)
+    $teksti = get_field('isantakasvit');
+    
+    if (empty($teksti)) return '';
+
+    // Aloitetaan taulukon rakennus
+    $html = '<div class="isantakasvit-wrap">';
+    $html .= '<table class="isanta-taulukko">';
+    $html .= '<thead><tr><th>Suomenkielinen nimi</th><th>Tieteellinen nimi</th><th style="text-align:center;">Luopioinen</th><th>Sienen yleisyys</th></tr></thead>';
+    $html .= '<tbody>';
+
+    // 2. Siivotaan WYSIWYG-editorin mahdolliset tagit ja pilkotaan riveiksi
+    $rivit = explode("\n", str_replace(['<ul>', '</ul>', '<li>', '</li>', '<p>', '</p>'], "\n", $teksti));
+
+    foreach ($rivit as $rivi) {
+        $rivi = trim(strip_tags($rivi));
+        if (empty($rivi)) continue;
+
+        // Pilkotaan rivi pystyviivasta: Nimi | Luopioinen | Yleisyys
+        $osat = explode('|', $rivi);
+        
+        // Luetaan perusosat talteen
+        $alkuperainen_nimi = isset($osat[0]) ? trim($osat[0]) : '';
+        $luopioinen_merkki = isset($osat[1]) ? trim($osat[1]) : '';
+        $yleisyys_teksti = isset($osat[2]) ? trim($osat[2]) : '';
+
+        // Jätetään rivi väliin, jos nimi on tyhjä
+        if (empty($alkuperainen_nimi)) continue;
+
+        // --- SULKU-LOGIIKKA ---
+        $haku_nimi = $alkuperainen_nimi;
+        $naytettava_nimi = $alkuperainen_nimi;
+
+        // Etsitään sulkuja, esim. "Erikoismansikka (Metsämansikka)"
+        if (preg_match('/\((.*?)\)/', $alkuperainen_nimi, $osuma)) {
+            $haku_nimi = trim($osuma[1]); // Hakunimi sulkujen sisältä
+            $naytettava_nimi = trim(str_replace($osuma[0], '', $alkuperainen_nimi)); // Poistetaan sulut näytöstä
+        }
+
+        // 3. Etsitään kasvin sivu haku_nimen perusteella
+        $kasvi_query = new WP_Query([
+            'post_type'      => 'kasvi', // VARMISTA: 'kasvi' tai 'post'
+            'title'          => $haku_nimi,
+            'posts_per_page' => 1,
+            'post_status'    => 'publish'
+        ]);
+
+        $linkki_sarake = $naytettava_nimi; // Oletuksena pelkkä nimi ilman linkkiä
+        $tieteellinen_sarake = '—';
+
+        if ($kasvi_query->have_posts()) {
+            while ($kasvi_query->have_posts()) {
+                $kasvi_query->the_post();
+                $linkki_sarake = '<a href="' . get_permalink() . '">' . $naytettava_nimi . '</a>';
+                
+                $tiet_nimi_kentta = get_field('tieteellinen_nimi', get_the_ID());
+                if ($tiet_nimi_kentta) {
+                    $tieteellinen_sarake = '<i>' . $tiet_nimi_kentta . '</i>';
+                }
+            }
+            wp_reset_postdata();
+        }
+
+        // 4. Luodaan taulukkorivi
+        $html .= '<tr>';
+        $html .= '<td>' . $linkki_sarake . '</td>';
+        $html .= '<td>' . $tieteellinen_sarake . '</td>';
+        
+        // Luopioinen-sarake: Näytetään X vain jos kentässä on x tai X
+        $luopioinen_sisalto = (strtoupper($luopioinen_merkki) === 'X') ? 'X' : '—';
+        $html .= '<td style="text-align:center;">' . $luopioinen_sisalto . '</td>';
+        
+        // Yleisyys-sarake
+        $html .= '<td>' . ($yleisyys_teksti ?: '—') . '</td>';
+        $html .= '</tr>';
+    }
+
+    $html .= '</tbody></table></div>';
+    return $html;
+}
+
+// Rekisteröidään shortcode [isäntäkasvit]
+add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');

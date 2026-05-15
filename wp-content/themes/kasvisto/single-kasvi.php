@@ -58,7 +58,7 @@
                         </div>
                     </div>
                 <?php endif; ?>
-
+<!--
                 <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
                 $fields = [
@@ -95,10 +95,61 @@ foreach ($fields as $label => $slug):
                     echo wpautop($value);
                 }
                 ?>
+                
             </div>
         </div>
     <?php endif; 
 endforeach; ?>
+--> 
+
+<?php 
+// Listaus kentistä: Otsikko => ACF-slug
+$fields = [
+    'Uhanalaisuus' => 'uhanalaisuus',
+    'Koko' => 'koko',
+    'Kasvupaikka' => 'kasvupaikka',
+    'Levinneisyys' => 'levinneisyys',
+    'Maastotuntomerkit' => 'maastotuntomerkit',
+    'Mikrosienet' => 'mikrosienet',
+    'Muuta' => 'muuta',
+    'Kemia' => 'kemia',
+    'Vertaa' => 'vertaa',
+    'Löytöpaikat Luopioisissa' => 'loytopaikat',
+    'Kirjallisuus' => 'kirjallisuus', 
+    'Löydettyjä isäntäkasveja' => 'isantakasvit',
+    'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
+];
+
+foreach ($fields as $label => $slug): 
+    $value = get_field($slug);
+    
+    // Näytetään osio vain, jos kentässä on sisältöä
+    if ($value): ?>
+        <div class="content-section">
+            <h3><?php echo esc_html($label); ?></h3>
+            <div class="field-value">
+                <?php 
+                // ERIKOISKÄSITTELY: Isäntäkasvit-taulukko
+                if ($slug === 'isantakasvit') {
+                    // Käytetään aiemmin luotua shortcodea taulukon luomiseen
+                    echo do_shortcode('[isäntäkasvit]');
+                } 
+                // NORMAALI KÄSITTELY muille kentille
+                else {
+                    if (is_array($value)) {
+                        $display_value = isset($value['label']) ? $value['label'] : implode(', ', $value);
+                        echo wpautop(esc_html($display_value));
+                    } else {
+                        // Käytetään koodia, joka sallii HTML:n (kuten WYSIWYG)
+                        echo wpautop($value);
+                    }
+                }
+                ?>
+            </div>
+        </div>
+    <?php endif; 
+endforeach; ?>
+
 <!--
 <div class="content-section metadata-section" style="margin-top: 40px; opacity: 0.7; font-size: 0.9em;">
     <p>

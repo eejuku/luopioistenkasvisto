@@ -1,8 +1,12 @@
 /* ==========================================================================
    1. YLEISET JA RESETOINTI
    ========================================================================== */
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Finlandica+Text:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 14px;
     line-height: 1.4;
     color: #333;
@@ -67,7 +71,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     background-color: #f4f4f4;
     color: #444;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 50px;
     border: 1px solid #e0e0e0;
     white-space: nowrap;
@@ -120,7 +124,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .side-nav li a {
     display: block;
-    padding: 5px 0 5px 20px;
+    padding: 5px 0 5px 10px;
     color: #444;
     border-bottom: 1px solid #eee;
     font-weight: 500;
@@ -128,8 +132,8 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     position: relative;
 }
 .side-nav li a:hover {
-    color: #444;
-    font-weight: 550;
+    color: #2d5a27;
+    font-weight: 700;
 }
 
 .side-nav li.page_item_has_children > a::before,
@@ -138,8 +142,8 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     position: absolute;
     left: 0;
     top: 5px;
-    font-size: 0.7rem;
-    color: #999;
+    font-size: 0.8rem;
+    color: #444;
     transition: transform 0.3s;
 }
 
@@ -154,21 +158,21 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .side-nav li ul li a {
     font-size: 0.8rem;
-    padding: 4px 0 4px 35px;
+    padding: 4px 0 4px 25px;
     border-bottom: none;
-    font-weight: medium;
+    font-weight: 500;
     color: #666;
 }
 
 .side-nav li.current_page_item > a {
     color: #2d5a27;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .side-nav li.current_page_item > a::before,
 .side-nav li.current_page_ancestor > a::before {
     transform: rotate(90deg);
-    color: #77a464;
+    color: #2d5a27;
 }
 
 /* ==========================================================================
@@ -239,7 +243,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 .kirjain-linkki {
     background: none;
     border: none;
-    color: #27ae60;
+    color: #77a464;
     font-weight: bold;
     cursor: pointer;
     padding: 5px;
@@ -271,7 +275,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 .kasvi-rivi:hover { 
-    background: #f1fcf4; 
+    background: #f5f5f5; 
 }
 
 .sarake { 
@@ -280,116 +284,15 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .nimi-suomi { 
     font-weight: 500; 
-    color: #27ae60; 
+    color: #77a464; 
     font-size: 0.9rem;
 }
 
 .nimi-latina { 
     color: #666; 
     font-style: italic; 
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
-
-/* ==========================================================================
-   5. SHORTCODE & LISÄRYHMÄT - KORTTIPOHJAINEN GRID
-   ========================================================================== */
-/* .kasvi-lista-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-    gap: 20px !important;
-    margin: 20px 0 !important;
-    padding: 0 !important;
-    list-style: none !important;
-}
-
-.kasvi-kortti {
-    background: #ffffff !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 12px !important;
-    padding: 18px !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    flex-direction: column !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
-    text-decoration: none !important;
-}
-
-.kasvi-kortti:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.08) !important;
-    border-color: #27ae60 !important;
-}
-
-.kasvi-kortti .kasvi-nimi {
-    font-weight: 700 !important;
-    color: #27ae60 !important;
-    font-size: 1.1rem !important;
-    margin-bottom: 4px !important;
-    text-decoration: none !important;
-}
-
-.kasvi-kortti .kasvi-tieteellinen {
-    font-size: 0.9rem !important;
-    font-style: italic !important;
-    color: #666 !important;
-}*/
-
-
-
-
-/* ==========================================================================
-   6. YKSITTÄINEN KASVISIVU (Yksityiskohdat)
-   ========================================================================== */
-/* .content-area { flex-grow: 1; }
-.kasvi-header { margin-bottom: 30px; padding-top: 10px; }
-.kasvi-header h1 { font-size: 1.6rem; margin-bottom: 10px; }
-
-.kasvi-grid {
-    display: grid;
-    grid-template-columns: 2.5fr 1fr;
-    gap: 30px;
-}
-
-.kasvi-info-block {
-    background: #fdfdfd;
-    border: 1px solid #f0f0f0;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.kasvi-info-block h3 {
-    margin-top: 0;
-    color: #2c3e50;
-    border-bottom: 2px solid #27ae60;
-    display: inline-block;
-    padding-bottom: 5px;
-    font-size: 1.1rem;
-}
-
-#lajifi-kartta { 
-    width: 100%; 
-    height: 450px; 
-    border-radius: 12px;
-    border: 1px solid #eee;
-    z-index: 1;
-}
-
-.kasvi-gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
-}
-
-.gallery-link img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.2s ease;
-}
-
-.gallery-link img:hover { transform: scale(1.03); } */
 
 /* ==========================================================================
    KASVIKORTTI (Single Page)
@@ -397,7 +300,8 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 
 .kasvi-clean-layout {
     max-width: 1200px;
-    margin: 40px auto;
+    margin: 30px auto;
+    padding: 0 20px; /* mobiiilissa hieman tilaa reunoille */
     background: #fff;
 }
 
@@ -584,53 +488,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     border-left: 4px solid #f1c40f;
 }
 
-/* Galleriasäätö */
-/*.kasvi-gallery-grid-compact {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
 
-.kasvi-gallery-grid-compact img {
-    width: 100%;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 6px;
-    transition: 0.2s;
-}
-
-.kasvi-gallery-grid-compact img:hover {
-    transform: scale(1.05);
-} */ 
-
-/* Kartta ja nappi 
-.map-status {
-    font-size: 0.75rem;
-    margin-top: 5px;
-    color: #95a5a6;
-}
-
-.compact-btn {
-    width: 100%;
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    margin-top: 10px;
-}
-
-.compact-table {
-    width: 100%;
-    font-size: 0.8rem;
-    margin-top: 10px;
-    border-collapse: collapse;
-}
-
-.compact-table th { text-align: left; background: #f4f4f4; padding: 5px; }
-.compact-table td { padding: 5px; border-bottom: 1px solid #eee; }
-*/
 
 /* Footer */
 .kasvi-card-footer {
@@ -702,6 +560,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
    ========================================================================== */
 
 /* Etusivun Hero */
+/*
 .hero-banner {
     background: linear-gradient(135deg, #77a464 0%, #1e8449 100%);
     color: white;
@@ -720,6 +579,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-size: 1.2rem;
     opacity: 0.9;
 }
+*/
 
 /* Sisältöalueen säädöt */
 .main-content {
@@ -796,6 +656,10 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     color: #7f8c8d;
     background: #fff;
 }
+
+/* ==========================================================================
+  KARTTALINKKI JA IKONI
+   ========================================================================== */ 
 
 /* Perustyyli linkille */
 .karttalinkki {
@@ -897,7 +761,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 /* ==========================================================================
-   HEADER - STYLET
+   HEADER - STYLET - NÄMÄ EIVÄT OLE KÄYTÖSSÄ, MUTTA SÄILYTETÄÄN TÄSSÄ VARMUUDEN VUOKSI
    ========================================================================== */
 /* Päärakenteen asettelu */
 .header-main-row {
@@ -1001,4 +865,41 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-weight: 700;
     font-size: 0.9rem;
     text-transform: uppercase;
+}
+/* ===============================
+ISÄNTÄKASVIT-TAULUKON STYLET
+================================= */
+
+.isanta-taulukko {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 5px 0 25px 0;
+    font-size: 0.9em;
+}
+
+.isanta-taulukko th {
+    background-color: #f8f8f8;
+    border-bottom: 2px solid #eee;
+    padding: 7px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.isanta-taulukko td {
+    padding: 7px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.isanta-taulukko tr:hover {
+    background-color: #fcfcfc;
+}
+
+.isanta-taulukko a {
+    text-decoration: underline;
+}
+
+/* Mobiilioptimointi: sallii vaakasuuntaisen skrollauksen jos taulukko on liian leveä */
+.isantakasvit-wrap {
+    overflow-x: auto;
 }
