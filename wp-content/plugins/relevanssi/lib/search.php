@@ -65,7 +65,7 @@ function relevanssi_query( $posts, $query = false ) {
 	 * no search term available.
 	 *
 	 * @param boolean  True, if Relevanssi can be allowed to run.
-	 * @param WP_Query The current query object.
+	 * @param WP_Query $query The current query object.
 	 */
 	$search_ok = apply_filters( 'relevanssi_search_ok', $search_ok, $query );
 
@@ -82,7 +82,7 @@ function relevanssi_query( $posts, $query = false ) {
 		 * only affects Relevanssi searches, and nothing else. Do note that this is
 		 * a filter and needs to return the modified query object.
 		 *
-		 * @param WP_Query The WP_Query object.
+		 * @param WP_Query $query The WP_Query object.
 		 */
 		$query = apply_filters( 'relevanssi_modify_wp_query', $query );
 		$posts = relevanssi_do_query( $query );
@@ -120,7 +120,7 @@ function relevanssi_search( $args ) {
 	/**
 	 * Filters the search parameters.
 	 *
-	 * @param array The search parameters.
+	 * @param array $args The search parameters.
 	 */
 	$filtered_args = apply_filters( 'relevanssi_search_filters', $args );
 	$meta_query    = $filtered_args['meta_query'];
@@ -147,7 +147,7 @@ function relevanssi_search( $args ) {
 	/**
 	 * Filters whether stopwords are removed from titles.
 	 *
-	 * @param boolean If true, remove stopwords from titles.
+	 * @param boolean $filter If true, remove stopwords from titles.
 	 */
 	$remove_stopwords = apply_filters( 'relevanssi_remove_stopwords_in_titles', true );
 
@@ -185,7 +185,7 @@ function relevanssi_search( $args ) {
 	 *
 	 * @author Charles St-Pierre
 	 *
-	 * @param string The MySQL code that restricts the query.
+	 * @param string $query_restrictions The MySQL code that restricts the query.
 	 */
 	$query_restrictions = apply_filters( 'relevanssi_where', $query_restrictions );
 	if ( ! $query_restrictions ) {
@@ -197,7 +197,7 @@ function relevanssi_search( $args ) {
 	 *
 	 * Somewhat equivalent to the 'posts_join' filter.
 	 *
-	 * @param string The JOINed query.
+	 * @param string $query_join The JOINed query.
 	 */
 	$query_join = apply_filters( 'relevanssi_join', $query_join );
 
@@ -216,6 +216,7 @@ function relevanssi_search( $args ) {
 	$include_these_posts = array();
 	$include_these_items = array();
 	$doc_weight          = array();
+	$doc_terms           = array();
 	$total_hits          = 0;
 	$no_matches          = true;
 	$search_again        = false;
@@ -317,8 +318,8 @@ function relevanssi_search( $args ) {
 				 * If you want to add support for more membership plugins, this is
 				 * the filter hook to use.
 				 *
-				 * @param boolean True, if the post can be shown to the current user.
-				 * @param int     The post ID.
+				 * @param boolean $post_ok    True, if the post can be shown to the current user.
+				 * @param int     $match->doc The post ID.
 				 */
 				$post_ok = apply_filters( 'relevanssi_post_ok', $post_ok, $match->doc );
 				if ( $post_ok ) {
@@ -364,7 +365,7 @@ function relevanssi_search( $args ) {
 		 * parameters, you can use this filter hook to adjust the parameters.
 		 * Set $params['search_again'] to true to make Relevanssi do a new search.
 		 *
-		 * @param array The search parameters.
+		 * @param array $params The search parameters.
 		 */
 		$params             = apply_filters( 'relevanssi_search_again', $params );
 		$doc_weight         = $params['doc_weight'];
@@ -506,7 +507,7 @@ function relevanssi_search( $args ) {
 		 * parameters, do something with them, then return a proper return value
 		 * array in $param['return'].
 		 *
-		 * @param array Search parameters.
+		 * @param array $params Search parameters.
 		 */
 		$params = apply_filters( 'relevanssi_fallback', $params );
 		$args   = $params['args'];
@@ -581,9 +582,16 @@ function relevanssi_do_query( &$query ) {
 	global $relevanssi_active, $relevanssi_test_admin;
 	$relevanssi_active = true;
 
-	$posts = array();
+	$posts  = array();
+	$return = array();
 
 	$q = trim( stripslashes( relevanssi_strtolower( $query->query_vars['s'] ) ) );
+
+	$limit = (int) apply_filters( 'relevanssi_truncate_search_queries', 0 );
+
+	if ( $limit > 0 ) {
+		$q = substr( $q, 0, $limit );
+	}
 
 	$did_multisite_search = false;
 	if ( is_multisite() ) {
@@ -717,7 +725,7 @@ function relevanssi_do_query( &$query ) {
 	 * If true, Relevanssi adds a list of all post IDs found in the query
 	 * object in $query->relevanssi_all_results.
 	 *
-	 * @param boolean If true, enable the feature. Default false.
+	 * @param boolean $add_all If true, enable the feature. Default false.
 	 */
 	if ( apply_filters( 'relevanssi_add_all_results', false ) ) {
 		$query->relevanssi_all_results = wp_list_pluck( $hits, 'ID' );
@@ -843,8 +851,8 @@ function relevanssi_generate_term_where( $term, $force_fuzzy = false, $no_terms 
 	 * words. If you want it to match inside words, add a function to this
 	 * hook that returns '(relevanssi.term LIKE '%#term#%')'.
 	 *
-	 * @param string The partial matching query.
-	 * @param string $term The search term.
+	 * @param string $query The partial matching query.
+	 * @param string $term  The search term.
 	 */
 	$fuzzy_query = apply_filters(
 		'relevanssi_fuzzy_query',
@@ -944,7 +952,7 @@ function relevanssi_compile_search_args( $query, $q ) {
 	/**
 	 * Filters the default tax_query relation.
 	 *
-	 * @param string The default relation, default 'AND'.
+	 * @param string $args The default relation, default 'AND'.
 	 */
 	$tax_query_relation = apply_filters( 'relevanssi_default_tax_query_relation', 'AND' );
 	$terms_found        = false;
@@ -1232,6 +1240,18 @@ function relevanssi_meta_query_from_query_vars( $query ) {
 	$meta_query = array();
 	if ( ! empty( $query->query_vars['meta_query'] ) ) {
 		$meta_query = $query->query_vars['meta_query'];
+		if ( in_array( strtolower( $meta_query[0]['compare'] ), array( 'regexp', 'not regexp' ), true ) &&
+			/**
+			 * Filters whether meta query can use REGEXP or NOT REGEXP
+			 * comparison. This is a potential blind oracle attack, so it's
+			 * behind bars by default.
+			 *
+			 * @param bool Whether REGEXP or NOT REGEXP is allowed, default
+			 * false.
+			 */
+			apply_filters( 'relevanssi_allow_meta_query_regexp', false ) ) {
+			$meta_query[0]['compare'] = '=';
+		}
 	}
 
 	if ( isset( $query->query_vars['customfield_key'] ) ) {
@@ -1277,7 +1297,20 @@ function relevanssi_meta_query_from_query_vars( $query ) {
 		// Set meta compare.
 		$build_meta_query['compare'] = '=';
 		if ( ! empty( $query->query_vars['meta_compare'] ) ) {
-			$build_meta_query['compare'] = $query->query_vars['meta_compare'];
+			if ( ! in_array( strtolower( $query->query_vars['meta_compare'] ), array( 'regexp', 'not regexp' ), true ) ) {
+				$build_meta_query['compare'] = $query->query_vars['meta_compare'];
+			} elseif ( in_array( strtolower( $query->query_vars['meta_compare'] ), array( 'regexp', 'not regexp' ), true )
+			/**
+			 * Filters whether meta query can use REGEXP or NOT REGEXP
+			 * comparison. This is a potential blind oracle attack, so it's
+			 * behind bars by default.
+			 *
+			 * @param bool Whether REGEXP or NOT REGEXP is allowed, default
+			 * false.
+			 */
+				&& apply_filters( 'relevanssi_allow_meta_query_regexp', false ) ) {
+				$build_meta_query['compare'] = $query->query_vars['meta_compare'];
+			}
 		}
 
 		$meta_query[] = $build_meta_query;
@@ -1432,9 +1465,12 @@ function relevanssi_calculate_weight( $match_object, $idf, $post_type_weights ) 
  * @param array    $match_arrays The matches array (passed as reference).
  * @param stdClass $match_object The match object.
  * @param string   $term         The search term.
+ * @param int      $blog_id      The blog ID, if this is a multisite search.
  */
-function relevanssi_update_term_hits( &$term_hits, &$match_arrays, $match_object, $term ) {
-	$term_hits[ $match_object->doc ][ $term ] =
+function relevanssi_update_term_hits( &$term_hits, &$match_arrays, $match_object, $term, $blog_id = 0 ) {
+	$object_id = $blog_id ? $blog_id . '|' . $match_object->doc : $match_object->doc;
+
+	$term_hits[ $object_id ][ $term ] =
 		$match_object->title +
 		$match_object->content +
 		$match_object->comment +
@@ -1446,16 +1482,16 @@ function relevanssi_update_term_hits( &$term_hits, &$match_arrays, $match_object
 		$match_object->taxonomy +
 		$match_object->customfield;
 
-	relevanssi_increase_value( $match_arrays['body'][ $match_object->doc ], $match_object->content );
-	relevanssi_increase_value( $match_arrays['title'][ $match_object->doc ], $match_object->title );
-	relevanssi_increase_value( $match_arrays['link'][ $match_object->doc ], $match_object->link );
-	relevanssi_increase_value( $match_arrays['tag'][ $match_object->doc ], $match_object->tag );
-	relevanssi_increase_value( $match_arrays['category'][ $match_object->doc ], $match_object->category );
-	relevanssi_increase_value( $match_arrays['taxonomy'][ $match_object->doc ], $match_object->taxonomy );
-	relevanssi_increase_value( $match_arrays['comment'][ $match_object->doc ], $match_object->comment );
-	relevanssi_increase_value( $match_arrays['customfield'][ $match_object->doc ], $match_object->customfield );
-	relevanssi_increase_value( $match_arrays['author'][ $match_object->doc ], $match_object->author );
-	relevanssi_increase_value( $match_arrays['excerpt'][ $match_object->doc ], $match_object->excerpt );
+	relevanssi_increase_value( $match_arrays['body'][ $object_id ], $match_object->content );
+	relevanssi_increase_value( $match_arrays['title'][ $object_id ], $match_object->title );
+	relevanssi_increase_value( $match_arrays['link'][ $object_id ], $match_object->link );
+	relevanssi_increase_value( $match_arrays['tag'][ $object_id ], $match_object->tag );
+	relevanssi_increase_value( $match_arrays['category'][ $object_id ], $match_object->category );
+	relevanssi_increase_value( $match_arrays['taxonomy'][ $object_id ], $match_object->taxonomy );
+	relevanssi_increase_value( $match_arrays['comment'][ $object_id ], $match_object->comment );
+	relevanssi_increase_value( $match_arrays['customfield'][ $object_id ], $match_object->customfield );
+	relevanssi_increase_value( $match_arrays['author'][ $object_id ], $match_object->author );
+	relevanssi_increase_value( $match_arrays['excerpt'][ $object_id ], $match_object->excerpt );
 
 	if ( function_exists( 'relevanssi_premium_update_term_hits' ) ) {
 		relevanssi_premium_update_term_hits( $term_hits, $match_arrays, $match_object, $term );
@@ -1523,7 +1559,7 @@ function relevanssi_generate_df_counts( array $terms, array $args ): array {
 		 *
 		 * This query is used to calculate the df for the tf * idf calculations.
 		 *
-		 * @param string MySQL query to filter.
+		 * @param string $query MySQL query to filter.
 		 */
 		$query = apply_filters( 'relevanssi_df_query_filter', $query );
 
@@ -1732,6 +1768,13 @@ function relevanssi_compile_common_args( $query ) {
 
 	$meta_query = relevanssi_meta_query_from_query_vars( $query );
 	$date_query = relevanssi_wp_date_query_from_query_vars( $query );
+
+	$ignore_theme_post_types = get_option( 'relevanssi_ignore_theme_post_type' );
+	if ( 'on' === $ignore_theme_post_types ) {
+		if ( isset( $query->query_vars['post_type'] ) ) {
+			unset( $query->query_vars['post_type'] );
+		}
+	}
 
 	$post_type = false;
 	if ( isset( $query->query_vars['post_type'] ) && 'any' !== $query->query_vars['post_type'] ) {
@@ -2011,8 +2054,8 @@ function relevanssi_add_exact_match_boost( $doc_weight, $query ) {
 	/**
 	 * Filters the exact match bonus.
 	 *
-	 * @param array The title bonus under 'title' (default 5) and the content
-	 * bonus under 'content' (default 2).
+	 * @param array $bonus The title bonus under 'title' (default 5) and the
+	 * content bonus under 'content' (default 2).
 	 */
 	$exact_match_boost = apply_filters(
 		'relevanssi_exact_match_bonus',

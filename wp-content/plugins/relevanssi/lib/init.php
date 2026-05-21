@@ -102,20 +102,6 @@ function relevanssi_init() {
 		}
 	}
 
-	$restriction_notice = relevanssi_check_indexing_restriction();
-	if ( $restriction_notice ) {
-		if ( 'options-general.php' === $pagenow && $on_relevanssi_page ) {
-			if ( 'indexing' === $_GET['tab'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-				add_action(
-					'admin_notices',
-					function () use ( $restriction_notice ) {
-						echo $restriction_notice; // phpcs:ignore WordPress.Security.EscapeOutput
-					}
-				);
-			}
-		}
-	}
-
 	if ( 'done' !== get_option( 'relevanssi_indexed' ) ) {
 		if ( 'options-general.php' === $pagenow && $on_relevanssi_page ) {
 			add_action(
@@ -500,7 +486,7 @@ function relevanssi_export_log_check() {
 		/**
 		 * Filters the capability required to access Relevanssi options.
 		 *
-		 * @param string The capability required. Default 'manage_options'.
+		 * @param string $capability The capability required. Default 'manage_options'.
 		 */
 		if ( current_user_can( apply_filters( 'relevanssi_options_capability', 'manage_options' ) ) ) {
 			check_admin_referer( 'relevanssi_export_logs', '_relevanssi_export_nonce' );
@@ -511,7 +497,7 @@ function relevanssi_export_log_check() {
 		/**
 		 * Filters the capability required to access Relevanssi options.
 		 *
-		 * @param string The capability required. Default 'manage_options'.
+		 * @param string $capability The capability required. Default 'manage_options'.
 		 */
 		if ( current_user_can( apply_filters( 'relevanssi_options_capability', 'manage_options' ) ) ) {
 			check_admin_referer( 'relevanssi_export_logs', '_relevanssi_export_nonce' );

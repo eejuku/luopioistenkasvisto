@@ -5,9 +5,6 @@
         
         <header class="kasvi-clean-header">
 
-        <!-- murupolku -->
-
-
 <!-- paluulinkki -->
 
 <div class="back-link-container" style="margin-bottom: 20px;">
@@ -150,19 +147,12 @@ foreach ($fields as $label => $slug):
     <?php endif; 
 endforeach; ?>
 
-<!--
-<div class="content-section metadata-section" style="margin-top: 40px; opacity: 0.7; font-size: 0.9em;">
-    <p>
-        <strong>Kortti luotu:</strong> <?php echo get_the_date(); ?><br>
-        <strong>Viimeksi päivitetty:</strong> <?php echo get_the_modified_date(); ?> klo <?php echo get_the_modified_time(); ?>
-    </p>
-</div>
--->
+<!-- Luomis- ja päivityspvm -->
 <div class="content-section">
     <small>
         Kortti luotu: <?php the_date(); ?>.
         <?php if (get_the_modified_time() != get_the_time()) : ?>
-            Päivitetty viimeksi: <?php the_modified_date(); ?>.
+            Päivitetty: <?php the_modified_date(); ?>.
         <?php endif; ?>
     </small>
 </div>
@@ -269,7 +259,7 @@ if ($pisteet_json) :
                 position: relative;
                 width: 100%;
                 max-width: 600px; /* Tai kartan todellinen leveys */
-                margin: 20px 0;
+                margin: 10px 0;
                 font-family: sans-serif;
             }
             .kasvikartta-container {
