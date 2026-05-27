@@ -251,6 +251,7 @@ add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 
 /**
  * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella
+ * TEstataan toimivutta 14.47
  */
 function aja_maakuntapaivitys_raportilla() {
     if (isset($_GET['aja_paivitys']) && current_user_can('manage_options') && function_exists('update_field')) {
