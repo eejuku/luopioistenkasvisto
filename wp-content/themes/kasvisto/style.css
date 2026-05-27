@@ -916,3 +916,81 @@ ISÄNTÄKASVIT-TAULUKON STYLET
 .isantakasvit-wrap {
     overflow-x: auto;
 }
+
+/* ===============================
+KARTTOJEN NÄYTTÄMISEEN LIITTYVÄT TYYLIT
+================================= */
+
+    /* VÄLILEHTIEN PERUSTYYLIT */
+    .kartta-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: -1px;
+    }
+    .kartta-tab-button {
+        padding: 8px 16px;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        cursor: pointer;
+        font-size: 0.85em;
+        font-weight: bold;
+        border-radius: 4px 4px 0 0;
+        color: #666;
+        transition: 0.2s;
+    }
+    .kartta-tab-button.active {
+        background: #fff;
+        color: #2d5a27;
+        border-bottom: 1px solid #fff;
+    }
+    .kartta-tab-content {
+        display: none;
+        border: 1px solid #ccc;
+        background: #fff;
+        border-radius: 0 4px 4px 4px;
+        overflow: hidden; /* Varmistaa ettei sisältö karkaa */
+    }
+    .kartta-tab-content.active {
+        display: block !important; /* Näkyvissä kun active-luokka on päällä */
+    }
+
+    /* LUOPIOISTEN KARTAN TÄSMÄLLEEN ALKUPERÄISET TYYLIT */
+    .kasvikartta-wrapper {
+        all: initial; 
+        display: block;
+        position: relative;
+        width: 100%;
+        max-width: 600px; /* Alkuperäinen maksimileveys */
+        margin: 20px auto; /* Keskitys välilehden sisällä */
+        font-family: sans-serif;
+    }
+    .kasvikartta-container {
+        position: relative;
+        width: 100%;
+        line-height: 0;
+    }
+    .kasvikartta-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: none;
+    }
+
+    /* SUOMI-KARTAN ERITYISTYYLIT */
+    .maakuntakartta-inner {
+      padding: 10px;
+      max-width: 250px;
+      margin: 0 auto;
+    }
+    #suomi-svg {
+        width: 100%;
+        height: auto;
+        max-height: 350px;  /* Pakotetaan maksimikorkeus */
+        display: block;
+    }
+    #suomi-svg path, #suomi-svg polygon, #suomi-svg polyline {
+        fill: #ffffff;
+        stroke: #282727;
+        stroke-width: 3px;
+    }

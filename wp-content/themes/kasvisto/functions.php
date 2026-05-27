@@ -250,11 +250,105 @@ function tulosta_isantakasvi_taulukko() {
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 
 /**
- * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella vielä vähän korjausta, ja vielä uusi koe 22.20
+ * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella
  */
 function aja_maakuntapaivitys_raportilla() {
     if (isset($_GET['aja_paivitys']) && current_user_can('manage_options') && function_exists('update_field')) {
-        // (Tämä funktio on pitkä, pidetään se turvallisena mutta vain jos ACF on päällä)
+        
+        $json_polku = get_template_directory() . '/data/sammaldata_pro.json';
+        
+        if (!file_exists($json_polku)) {
+            die("Virhe: Tiedostoa ei löydy polusta: " . $json_polku);
+        }
+
+        $json_sisalto = file_get_contents($json_polku);
+        $laji_data = json_decode($json_sisalto, true);
+
+        echo "<h2>Maakuntatietojen päivitysraportti (ACF Tieteellinen nimi & Kasvin nimi -haku)</h2><hr>";
+
+        $paivitetty = 0;
+        $ei_loytynyt = [];
+
+        foreach ($laji_data as $tieteellinen_raw => $sisalto) {
+            // Nollataan post_id jokaisen kierroksen alussa, ettei vanha ID jää muistiin
+            $post_id = false;
+
+            // 1. SIISTITÄÄN TIETEELLINEN NIMI (Poistetaan sulut ja auktorit)
+            $tieteellinen_siisti = trim(explode('(', $tieteellinen_raw)[0]);
+            
+            $maakunta_objekti = $sisalto['maakunnat'];
+            // Haetaan suomenkielinen nimi oikealla avaimella
+            $kasvin_nimi = isset($sisalto['nimi_fi']) ? trim($sisalto['nimi_fi']) : ''; 
+
+            // VAIHE 1: HAETAAN POSTAUS ACF-KENTÄN "tieteellinen_nimi" PERUSTEELLA
+            $args = [
+                'post_type'      => 'kasvi',
+                'posts_per_page' => 1,
+                'post_status'    => 'any',
+                'meta_query'     => [
+                    [
+                        'key'     => 'tieteellinen_nimi',
+                        'value'   => $tieteellinen_siisti,
+                        'compare' => '=',
+                    ]
+                ],
+            ];
+            
+            $query = new WP_Query($args);
+
+            if ($query->have_posts()) {
+                $query->the_post();
+                $post_id = get_the_ID();
+                echo "<span style='color: green;'>✅ Päivitetty (ACF):</span> <strong>$tieteellinen_siisti</strong> (ID: $post_id)<br>";
+            } else {
+                // VAIHE 2: Joskus tieteellinen nimi saattaa olla suoraan otsikkona
+                $args_title = [
+                    'post_type'      => 'kasvi',
+                    'title'          => $tieteellinen_siisti,
+                    'posts_per_page' => 1,
+                    'post_status'    => 'any',
+                ];
+                $query_title = new WP_Query($args_title);
+                
+                if ($query_title->have_posts()) {
+                    $query_title->the_post();
+                    $post_id = get_the_ID();
+                    echo "<span style='color: blue;'>ℹ️ Löytyi tieteellisen otsikon perusteella:</span> <strong>$tieteellinen_siisti</strong> (ID: $post_id)<br>";
+                } 
+                // VAIHE 3: VARASUUNNITELMA – Haetaan suomenkielisen kasvin nimen perusteella (KORJATTU MUUTTUJA)
+                elseif (!empty($kasvin_nimi)) {
+                    $args_kasvi_title = [
+                        'post_type'      => 'kasvi',
+                        'title'          => $kasvin_nimi, // Nyt muuttujan nimi on täsmälleen oikein!
+                        'posts_per_page' => 1,
+                        'post_status'    => 'any',
+                    ];
+                    $query_kasvi_title = new WP_Query($args_kasvi_title);
+
+                    if ($query_kasvi_title->have_posts()) {
+                        $query_kasvi_title->the_post();
+                        $post_id = get_the_ID();
+                        echo "<span style='color: purple;'>🌿 Löytyi kasvin nimen perusteella:</span> <strong>$kasvin_nimi</strong> (Tieteellinen: $tieteellinen_siisti) (ID: $post_id)<br>";
+                    }
+                }
+            }
+
+            // Jos postaus löytyi ja ID on voimassa, ajetaan päivitys
+            if ($post_id) {
+                update_field('eliomaakunnat', wp_json_encode($maakunta_objekti), $post_id);
+                $paivitetty++;
+            } else {
+                echo "<span style='color: red;'>❌ EI LÖYTYNYT:</span> Tieteellinen: <code>$tieteellinen_siisti</code>" . ($kasvin_nimi ? " / Nimi: <code>$kasvin_nimi</code>" : "") . "<br>";
+                $ei_loytynyt[] = $tieteellinen_siisti;
+            }
+
+            // Varmistetaan WordPressin globaalien muuttujien nollaus kierroksen päätteeksi
+            wp_reset_postdata();
+        }
+
+        echo "<hr><h3>Yhteenveto:</h3>";
+        echo "Päivitetty yhteensä: $paivitetty kpl. Epäonnistuneet: " . count($ei_loytynyt) . " kpl.";
+        exit;
     }
 }
 add_action('init', 'aja_maakuntapaivitys_raportilla');
