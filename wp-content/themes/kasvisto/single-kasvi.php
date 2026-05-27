@@ -59,6 +59,7 @@
                 <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
                 $fields = [
+                    'Synonyymi' => 'synonyymi',
                     'Uhanalaisuus' => 'uhanalaisuus',
                     'Koko' => 'koko',
                     'Kasvupaikka' => 'kasvupaikka',
@@ -102,6 +103,7 @@ endforeach; ?>
 <?php 
 // Listaus kentistä: Otsikko => ACF-slug
 $fields = [
+    'Synonyymi' => 'synonyymi',
     'Uhanalaisuus' => 'uhanalaisuus',
     'Koko' => 'koko',
     'Kasvupaikka' => 'kasvupaikka',
@@ -236,7 +238,7 @@ endforeach; ?>
                 <?php $karttakuva = get_field('karttakuva'); ?>
                 <?php if($karttakuva): ?>
                     <div class="media-group">
-                        <h3>Kartta (kuva)</h3>
+                        <h3>Luopioisten löytöpaikat</h3>
                         <div class="static-map-img">
                             <img src="<?php echo esc_url($karttakuva['url'] ?? $karttakuva); ?>" alt="Levinneisyyskartta">
                         </div>
@@ -244,111 +246,121 @@ endforeach; ?>
                 <?php endif; ?>
 
 <?php 
+/**
+ * DATAN VALMISTELU (Sama kuin edellä)
+ */
 $pisteet_json = get_field('karttapisteet_json');
-$uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png'; 
+$maakunta_data = get_field('eliomaakunnat'); 
 
-if ($pisteet_json) : 
-    $pisteet = json_decode($pisteet_json, true);
-    if (!empty($pisteet)) : ?>
-        
-        <style>
-            /* Kapselointi: Varmistetaan etteivät teeman tyylit vaikuta */
-            .kasvikartta-wrapper {
-                all: initial; /* Nollaa perityt tyylit */
-                display: block;
-                position: relative;
-                width: 100%;
-                max-width: 600px; /* Tai kartan todellinen leveys */
-                margin: 10px 0;
-                font-family: sans-serif;
-            }
-            .kasvikartta-container {
-                position: relative;
-                width: 100%;
-                line-height: 0;
-            }
-            .kasvikartta-container img {
-                width: 100%;
-                height: auto;
-                display: block;
-                border: none;
-            }
-        </style>
+$on_luopioinen = false;
+if ($pisteet_json) {
+    $pisteet_decoded = json_decode($pisteet_json, true);
+    if (!empty($pisteet_decoded)) $on_luopioinen = true;
+}
 
-<div class="media-group">
-    <h3>Löytöpaikat kartalla</h3>
-    <div class="kasvikartta-wrapper">
-        <div class="kasvikartta-container" style="position: relative;">
-            <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Kartta" style="width: 100%; height: auto; display: block;">
-            
-            <?php 
-            // 1. HAETAAN DATA
-            $raw_data = get_field('karttapisteet_json');
-            $data = is_string($raw_data) ? json_decode($raw_data, true) : $raw_data;
+$on_maakunta = false;
+$json_maakunta_final = '{}';
+if (!empty($maakunta_data) && $maakunta_data !== '{}') {
+    $maakunta_decoded = json_decode($maakunta_data, true);
+    if ($maakunta_decoded && count($maakunta_decoded) > 0) {
+        $on_maakunta = true;
+        $json_maakunta_final = wp_json_encode($maakunta_decoded);
+    }
+}
 
-            // 2. TUNNISTETAAN RAKENNE (Vanhassa pelkkä taulukko, uudessa objekti)
-            $pisteet = [];
-            $pistekoko = 15; // Oletuskoko jos ei määritetty
+if (!$on_luopioinen && !$on_maakunta) return;
+$nayta_valilehdet = ($on_luopioinen && $on_maakunta);
+?>
 
-            if (isset($data['points'])) {
-                $pisteet = $data['points'];
-                $pistekoko = isset($data['size']) ? intval($data['size']) : 15;
-            } elseif (is_array($data)) {
-                $pisteet = $data; // Vanha muoto
-            }
-
-            // 3. VAKIOARVOT (Samat kuin editorissa ja vanhassa koodissasi)
-            $L = 42; $T = 7; $R = 535; $B = 500;
-            
-            // HUOM: Jos pohjakarttasi koko on eri, tarkista nämä:
-            $img_w = 577; 
-            $img_h = 516; 
-
-            if (!empty($pisteet)) :
-                foreach ($pisteet as $p) : 
-                    // Lasketaan sijainti POHJA-alueen mukaan
-                    $x_px = $L + (floatval($p['x']) * ($R - $L));
-                    $y_px = $T + (floatval($p['y']) * ($B - $T));
-                    
-                    $left_pct = ($x_px / $img_w) * 100;
-                    $top_pct  = ($y_px / $img_h) * 100;
-
-                    // Haetaan väri: katsotaan 'c' (uusi) tai 'v' (vanha)
-                    $vari = isset($p['c']) ? $p['c'] : (isset($p['v']) ? $p['v'] : 'black');
-
-                    // KÄÄNTÄJÄ: Korjataan suomenkielinen väri englanniksi CSS:ää varten
-                    if ($vari === 'musta') {
-                        $vari = 'black';
-                    }
-                    
-                    // Muunnetaan koko prosentiksi kuvan leveydestä, jotta se skaalautuu
-                    // (Pisteen koko suhteessa 577px leveään kuvaan)
-                    $koko_pct = ($pistekoko / $img_w) * 100;
-                    ?>
-<div class="kartta-piste" style="
-    position: absolute;
-    left: <?php echo $left_pct; ?>%;
-    top: <?php echo $top_pct; ?>%;
-    width: <?php echo $koko_pct; ?>%;
-    height: auto;
-    aspect-ratio: 1 / 1; /* Varmistaa että on täydellinen ympyrä */
-    background-color: <?php echo $vari; ?> !important; /* Pakotetaan väri */
-    border: 1.5px solid #ffffff;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 4px rgba(0,0,0,0.4);
-    z-index: 10;
-"></div>
-                <?php endforeach; 
-            endif; ?>
+<div class="media-group kartta-osio">
+    <h3>Kartat</h3>
+    <?php if ($nayta_valilehdet) : ?>
+        <div class="kartta-tabs">
+            <button class="kartta-tab-button active" onclick="openKarttaTab(event, 'tab-luopioinen')">Luopioisten löytöpaikat</button>
+            <button class="kartta-tab-button" onclick="openKarttaTab(event, 'tab-suomi')">Löytöpaikat Suomessa</button>
         </div>
-    </div>
-</div>
-    <?php endif; 
-endif; ?>
+    <?php endif; ?>
 
-<!--
--->
+    <?php if ($on_luopioinen) : 
+        $uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png';
+        $pisteet = isset($pisteet_decoded['points']) ? $pisteet_decoded['points'] : $pisteet_decoded;
+        $pistekoko = isset($pisteet_decoded['size']) ? intval($pisteet_decoded['size']) : 15;
+    ?>
+        <div id="tab-luopioinen" class="kartta-tab-content active">
+            <div class="kasvikartta-wrapper">
+                <div class="kasvikartta-container">
+                    <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Kartta">
+                    <?php 
+                    $L = 42; $T = 7; $R = 535; $B = 500; $img_w = 577; $img_h = 516; 
+                    foreach ($pisteet as $p) : 
+                        $x_px = $L + (floatval($p['x']) * ($R - $L));
+                        $y_px = $T + (floatval($p['y']) * ($B - $T));
+                        $left_pct = ($x_px / $img_w) * 100;
+                        $top_pct  = ($y_px / $img_h) * 100;
+                        $vari = isset($p['c']) ? $p['c'] : (isset($p['v']) ? $p['v'] : 'black');
+                        if ($vari === 'musta') $vari = 'black';
+                        $koko_pct = ($pistekoko / $img_w) * 100;
+                    ?>
+                        <div class="kartta-piste" style="position: absolute; left: <?php echo $left_pct; ?>%; top: <?php echo $top_pct; ?>%; width: <?php echo $koko_pct; ?>%; aspect-ratio: 1/1; background-color: <?php echo $vari; ?> !important; border: 1.5px solid #ffffff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($on_maakunta) : ?>
+        <div id="tab-suomi" class="kartta-tab-content <?php echo (!$on_luopioinen) ? 'active' : ''; ?>">
+            <div class="maakuntakartta-inner">
+                <?php include(get_template_directory() . '/parts/suomi-kartta.php'); ?>
+                <div class="legend" style="display: flex; justify-content: center; margin-top: 15px; font-size: 0.7em; gap: 15px;">
+                    <span><span style="display:inline-block; width:10px; height:10px; background:#2d5a27; border:1px solid #333;"></span> Nykyhavainto</span>
+                    <span><span style="display:inline-block; width:10px; height:10px; background:#a8c69f; border:1px solid #333;"></span> Vanha havainto</span>
+                    <span><span style="display:inline-block; width:10px; height:10px; background:#c64b4b; border:1px solid #333;"></span> Hävinnyt</span>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
+<script>
+function openKarttaTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("kartta-tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        tabcontent[i].classList.remove("active");
+    }
+    tablinks = document.getElementsByClassName("kartta-tab-button");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+<?php if ($on_maakunta) : ?>
+document.addEventListener("DOMContentLoaded", function() {
+    const data = <?php echo $json_maakunta_final; ?>;
+    const svg = document.getElementById('suomi-svg');
+    if (!svg) return;
+    for (const [id, status] of Object.entries(data)) {
+        const el = document.getElementById(id);
+        if (el) {
+            let color = "#ffffff";
+            if (status === 'current') color = "#2d5a27";
+            else if (status === 'old') color = "#a8c69f";
+            else if (status === 'extinct') color = "#c64b4b";
+            if (el.tagName.toLowerCase() === 'g') {
+                el.querySelectorAll('path, polygon, polyline').forEach(p => p.style.fill = color);
+            } else {
+                el.style.fill = color;
+            }
+        }
+    }
+});
+<?php endif; ?>
+</script>
 
     <?php endwhile; endif; ?>
 </main>

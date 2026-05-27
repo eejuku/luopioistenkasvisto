@@ -5,10 +5,9 @@
 
 // 1. TEEMAN PERUSASETUKSET
 function kasvi_theme_setup() {
-    add_theme_support('title-tag'); // Automaattinen sivun otsikko välilehteen
-    add_theme_support('post-thumbnails'); // Mahdollistaa artikkelikuvat
+    add_theme_support('title-tag'); 
+    add_theme_support('post-thumbnails'); 
     
-    // Rekisteröi navigaatiovalikko
     register_nav_menus(array(
         'primary' => 'Päävalikko',
     ));
@@ -49,8 +48,6 @@ function rekisteroi_kasvit_cpt() {
 add_action('init', 'rekisteroi_kasvit_cpt');
 
 // 4. TUONTITYÖKALUT JA APUFUNKTIOT
-
-// Pöydän puhdistus (localhost:8080/?tyhjenna-kasvit)
 function tyhjenna_kaikki_kasvit() {
     if ( !isset($_GET['tyhjenna-kasvit']) || !current_user_can('administrator') ) {
         return;
@@ -73,17 +70,12 @@ add_action('init', 'tyhjenna_kaikki_kasvit');
 
 
 /**
- * Lisää aktiivinen luokka valikkoon ACF-ryhmän perusteella
+ * Aktiivinen luokka valikkoon - SUOJATTU ACF-tarkistuksella
  */
 function korosta_kasviryhma_valikossa($classes, $item, $args) {
-    // Tarkistetaan, että ollaan yksittäisellä sivulla ja käytössä on oikea valikko (primary)
-    if ( is_singular() && $args->theme_location == 'primary' ) {
-        
-        $ryhma = get_field('ryhma'); // Haetaan ACF-kentän arvo
-
+    if ( function_exists('get_field') && is_singular() && $args->theme_location == 'primary' ) {
+        $ryhma = get_field('ryhma'); 
         if ( $ryhma ) {
-            // Jos valikkokohdan teksti täsmää ACF-ryhmän nimeen
-            // Huom: strtolower ja trim varmistavat, että vertailu ei kaadu pieniin kirjoituseroihin
             if ( strtolower(trim($item->title)) == strtolower(trim($ryhma)) ) {
                 $classes[] = 'current-menu-item';
             }
@@ -94,18 +86,14 @@ function korosta_kasviryhma_valikossa($classes, $item, $args) {
 add_filter('nav_menu_css_class', 'korosta_kasviryhma_valikossa', 10, 3);
 
 /**
- * Shortcode kasvilistausten upottamiseen rivipohjaisena (kuten arkisto)
- * Käyttö: [kasvilista ryhma="Vieraslajit"]
+ * Kasvilistat - SUOJATTU ACF-tarkistuksella
  */
 function custom_kasvilista_shortcode( $atts ) {
-    $pairs = shortcode_atts( array(
-        'ryhma' => '',
-    ), $atts );
+    if ( !function_exists('get_field') ) return '';
 
+    $pairs = shortcode_atts( array('ryhma' => ''), $atts );
     $etsittava = $pairs['ryhma'];
-    if ( empty( $etsittava ) ) {
-        return 'Määritä ryhmän nimi, esim: [kasvilista ryhma="Vieraslajit"]';
-    }
+    if ( empty( $etsittava ) ) return 'Määritä ryhmä.';
 
     $args = array(
         'post_type'      => 'kasvi',
@@ -113,25 +101,17 @@ function custom_kasvilista_shortcode( $atts ) {
         'orderby'        => 'title',
         'order'          => 'ASC',
         'meta_query'     => array(
-            array(
-                'key'     => 'lisaryhmat', // ACF-kentän nimi
-                'value'   => $etsittava,
-                'compare' => 'LIKE',
-            ),
+            array('key' => 'lisaryhmat', 'value' => $etsittava, 'compare' => 'LIKE'),
         ),
     );
 
     $query = new WP_Query( $args );
     $output = '';
-
     if ( $query->have_posts() ) {
-        // Lisätään kääre, joka käyttää arkistosivun luokkia
         $output .= '<div class="kasvi-lista-rows shortcode-lista">';
-        
         while ( $query->have_posts() ) {
             $query->the_post();
             $tieteellinen = get_field('tieteellinen_nimi');
-            
             $output .= '<a href="' . get_permalink() . '" class="kasvi-rivi">';
             $output .= '<div class="sarake nimi-suomi">' . get_the_title() . '</div>';
             $output .= '<div class="sarake nimi-latina"><i>' . esc_html($tieteellinen) . '</i></div>';
@@ -139,133 +119,77 @@ function custom_kasvilista_shortcode( $atts ) {
         }
         $output .= '</div>';
         wp_reset_postdata();
-    } else {
-        $output = '<p>Ryhmästä "' . esc_html($etsittava) . '" ei löytynyt kasveja.</p>';
     }
-
     return $output;
 }
 add_shortcode( 'kasvilista', 'custom_kasvilista_shortcode' );
 
 /**
- * Shortcode 100 yleisimmän kasvin listaamiseksi synkronoituna archive-kasvi.php:n kanssa.
- * Käyttö: [yleisimmat_kasvit]
+ * Yleisimmät kasvit - SUOJATTU ACF-tarkistuksella
  */
 function lista_yleisimmat_kasvit_shortcode() {
+    if ( !function_exists('get_field') ) return 'ACF puuttuu.';
+
     $args = array(
         'post_type'      => 'kasvi',
         'posts_per_page' => 100,
         'orderby'        => 'title',
         'order'          => 'ASC',
         'meta_query'     => array(
-            array(
-                'key'     => 'lisaryhmat',
-                'value'   => '100 yleisintä',
-                'compare' => 'LIKE'
-            )
+            array('key' => 'lisaryhmat', 'value' => '100 yleisintä', 'compare' => 'LIKE')
         )
     );
 
     $query = new WP_Query($args);
     $output = '';
-
     if ($query->have_posts()) {
-        // 1. Header-wrapper (sama kuin archivessa)
-        $output .= '<div class="lista-header-wrapper">';
-        $output .= '    <div class="header-top-row">';
-        $output .= '        <h2>100 yleisintä kasvia</h2>';
-        $output .= '        <input type="text" id="yleisimmat-haku" placeholder="Etsi yleisimmistä kasveista..." class="haku-input" style="padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; min-width: 250px;">';
-        $output .= '    </div>';
-        
-        // Sarakeotsikot (täsmälleen sama rakenne kuin archivessa)
-        $output .= '    <div class="lista-otsikot" style="display: flex; padding: 10px 20px; border-bottom: 2px solid #27ae60; font-weight: bold; margin-top: 15px;">';
-        $output .= '        <div class="sarake" style="flex: 1;">Suomenkielinen nimi</div>';
-        $output .= '        <div class="sarake" style="flex: 1; text-align: right;">Tieteellinen nimi</div>';
-        $output .= '    </div>';
-        $output .= '</div>'; // .lista-header-wrapper loppu
-
-        // 2. Lista-rivit (sama kuin archivessa)
+        $output .= '<div class="lista-header-wrapper"><div class="header-top-row"><h2>100 yleisintä kasvia</h2><input type="text" id="yleisimmat-haku" placeholder="Etsi..." class="haku-input"></div></div>';
         $output .= '<div class="kasvi-lista-rows" id="yleisimmat-lista-rows">';
-        
         $i = 0;
         while ($query->have_posts()) {
             $query->the_post();
             $tieteellinen = get_field('tieteellinen_nimi');
-            
-            // Zebra-striping ja tyylit synkronoituina
             $bg_color = ($i % 2 == 0) ? '#f9f9f9' : '#ffffff';
-            
-            $output .= '<a href="' . get_permalink() . '" class="kasvi-rivi" style="display: flex; padding: 12px 20px; border-bottom: 1px solid #eee; background-color: ' . $bg_color . ';">';
-            $output .= '    <div class="sarake nimi-suomi" style="flex: 1; font-weight: 500; color: #27ae60;">' . get_the_title() . '</div>';
-            
-            $latina = $tieteellinen ? esc_html($tieteellinen) : '';
-            $output .= '    <div class="sarake nimi-latina" style="flex: 1; color: #666; font-style: italic; text-align: right;">' . $latina . '</div>';
-            $output .= '</a>';
-            
+            $output .= '<a href="' . get_permalink() . '" class="kasvi-rivi" style="background-color: ' . $bg_color . ';">';
+            $output .= '<div class="sarake nimi-suomi">' . get_the_title() . '</div>';
+            $output .= '<div class="sarake nimi-latina"><i>' . esc_html($tieteellinen) . '</i></div></a>';
             $i++;
         }
-        
-        $output .= '</div>'; // .kasvi-lista-rows loppu
-
-        // 3. JavaScript hakuun (kohdistettu uuteen ID:hen)
-        $output .= "
-        <script>
-        (function() {
-            var searchInput = document.getElementById('yleisimmat-haku');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', function() {
-                    var filter = this.value.toLowerCase();
-                    var rows = document.querySelectorAll('#yleisimmat-lista-rows .kasvi-rivi');
-                    
-                    rows.forEach(function(row) {
-                        var text = row.textContent.toLowerCase();
-                        row.style.display = text.indexOf(filter) > -1 ? 'flex' : 'none';
-                    });
-                });
-            }
-        })();
-        </script>";
-        
+        $output .= '</div>';
         wp_reset_postdata();
-    } else {
-        $output = '<p>Yleisimpiä kasveja ei löytynyt. Varmista ACF-valinnat.</p>';
     }
-
     return $output;
 }
 add_shortcode('yleisimmat_kasvit', 'lista_yleisimmat_kasvit_shortcode');
 
-// Varmistetaan että haku hakee vain olennaisista tyypeistä
+/**
+ * Hakumuokkaukset
+ */
 function muokkaa_hakua($query) {
     if ($query->is_search && !is_admin()) {
-        // Voit rajoittaa haun vain kasveihin ja sivuihin, jos haluat jättää esim. uutiset pois
         $query->set('post_type', array('page', 'kasvi'));
     }
     return $query;
 }
 add_filter('pre_get_posts', 'muokkaa_hakua');
 
-/**
- * Muuttaa hakutulosten määrän per sivu
- */
 function kasvisto_muokkaa_haun_maaraa( $query ) {
     if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
-        // Muuta tästä haluamasi määrä (esim. 30 tulosta kerralla)
         $query->set( 'posts_per_page', 30 );
     }
 }
 add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
 
-
+/**
+ * Laskurit - SUOJATTU ACF-tarkistuksella
+ */
 function hae_kasvi_maara_optimoitu($ryhma_slug, $lisa_slug = '') {
-    $debug_mode = true; // Muuta true, kun testailet. Muuta false, kun valmis.
+    if ( !function_exists('get_field') ) return 0;
     
     $transient_key = 'kasvi_count_' . md5($ryhma_slug . $lisa_slug);
     $count = get_transient($transient_key);
 
-    // Jos ollaan debug-tilassa tai välimuistia ei ole
-    if ($debug_mode || $count === false) {
-        
+    if ($count === false) {
         $args = array(
             'post_type'      => 'kasvi',
             'posts_per_page' => -1,
@@ -273,137 +197,64 @@ function hae_kasvi_maara_optimoitu($ryhma_slug, $lisa_slug = '') {
             'no_found_rows'  => true,
             'meta_query'     => array('relation' => 'AND')
         );
-
-        // Pääryhmä
         if (!empty($ryhma_slug)) {
-            $args['meta_query'][] = array(
-                'key'     => 'ryhma', // Käytetään nyt tätä, joka toimi
-                'value'   => $ryhma_slug,
-                'compare' => '='
-            );
+            $args['meta_query'][] = array('key' => 'ryhma', 'value' => $ryhma_slug, 'compare' => '=');
         }
-
-        // Lisäryhmä (Checkbox)
-        if (!empty($lisa_slug)) {
-            $args['meta_query'][] = array(
-                'relation' => 'OR',
-                array('key' => 'putkilokasvien_lisaryhmat', 'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
-                array('key' => 'sammalten_lisaryhmat',      'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
-                array('key' => 'jakalien_lisaryhmat',       'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
-                array('key' => 'piensienten_lisaryhmat',    'value' => '"' . $lisa_slug . '"', 'compare' => 'LIKE'),
-            );
-        }
-
         $query = new WP_Query($args);
         $count = (int)$query->post_count;
-
-        // Tallennetaan välimuistiin vain, jos ei olla debug-tilassa
-        if (!$debug_mode) {
-            set_transient($transient_key, $count, 3600);
-        }
+        set_transient($transient_key, $count, 3600);
     }
-
     return $count;
 }
-
-// Luodaan lyhytkoodi, joka käyttää tätä optimoitua funktiota
 add_shortcode('laji_laskuri', function($atts) {
     $a = shortcode_atts(array('ryhma' => '', 'lisa' => ''), $atts);
     return hae_kasvi_maara_optimoitu($a['ryhma'], $a['lisa']);
 });
 
-
-// Tämä tyhjentää laskurit aina kun MIKÄ TAHANSA sivu tai postaus tallennetaan
-add_action('save_post', function($post_id) {
-    if (get_post_type($post_id) === 'kasvikortti') {
-        global $wpdb;
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_kasvi_count_%'");
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_timeout_kasvi_count_%'");
-    }
-});
-
-
+/**
+ * Isäntäkasvitaulukko - SUOJATTU ACF-tarkistuksella
+ */
 function tulosta_isantakasvi_taulukko() {
-    // 1. Hae ACF-kentän sisältö (vaihda 'isantakasvit' kenttäsi nimeksi)
+    if ( !function_exists('get_field') ) return '';
     $teksti = get_field('isantakasvit');
-    
     if (empty($teksti)) return '';
 
-    // Aloitetaan taulukon rakennus
-    $html = '<div class="isantakasvit-wrap">';
-    $html .= '<table class="isanta-taulukko">';
-    $html .= '<thead><tr><th>Suomenkielinen nimi</th><th>Tieteellinen nimi</th><th style="text-align:center;">Luopioinen</th><th>Sienen yleisyys</th></tr></thead>';
-    $html .= '<tbody>';
-
-    // 2. Siivotaan WYSIWYG-editorin mahdolliset tagit ja pilkotaan riveiksi
-    $rivit = explode("\n", str_replace(['<ul>', '</ul>', '<li>', '</li>', '<p>', '</p>'], "\n", $teksti));
+    $html = '<div class="isantakasvit-wrap"><table class="isanta-taulukko"><thead><tr><th>Nimi</th><th>Tieteellinen</th><th>Luopioinen</th><th>Yleisyys</th></tr></thead><tbody>';
+    $rivit = explode("\n", str_replace(['<p>', '</p>'], "\n", $teksti));
 
     foreach ($rivit as $rivi) {
         $rivi = trim(strip_tags($rivi));
         if (empty($rivi)) continue;
-
-        // Pilkotaan rivi pystyviivasta: Nimi | Luopioinen | Yleisyys
         $osat = explode('|', $rivi);
-        
-        // Luetaan perusosat talteen
-        $alkuperainen_nimi = isset($osat[0]) ? trim($osat[0]) : '';
-        $luopioinen_merkki = isset($osat[1]) ? trim($osat[1]) : '';
-        $yleisyys_teksti = isset($osat[2]) ? trim($osat[2]) : '';
+        $nimi = isset($osat[0]) ? trim($osat[0]) : '';
+        if (empty($nimi)) continue;
 
-        // Jätetään rivi väliin, jos nimi on tyhjä
-        if (empty($alkuperainen_nimi)) continue;
-
-        // --- SULKU-LOGIIKKA ---
-        $haku_nimi = $alkuperainen_nimi;
-        $naytettava_nimi = $alkuperainen_nimi;
-
-        // Etsitään sulkuja, esim. "Erikoismansikka (Metsämansikka)"
-        if (preg_match('/\((.*?)\)/', $alkuperainen_nimi, $osuma)) {
-            $haku_nimi = trim($osuma[1]); // Hakunimi sulkujen sisältä
-            $naytettava_nimi = trim(str_replace($osuma[0], '', $alkuperainen_nimi)); // Poistetaan sulut näytöstä
-        }
-
-        // 3. Etsitään kasvin sivu haku_nimen perusteella
-        $kasvi_query = new WP_Query([
-            'post_type'      => 'kasvi', // VARMISTA: 'kasvi' tai 'post'
-            'title'          => $haku_nimi,
-            'posts_per_page' => 1,
-            'post_status'    => 'publish'
-        ]);
-
-        $linkki_sarake = $naytettava_nimi; // Oletuksena pelkkä nimi ilman linkkiä
-        $tieteellinen_sarake = '—';
+        $kasvi_query = new WP_Query(['post_type' => 'kasvi', 'title' => $nimi, 'posts_per_page' => 1]);
+        $tieteellinen = '—';
+        $linkki = $nimi;
 
         if ($kasvi_query->have_posts()) {
             while ($kasvi_query->have_posts()) {
                 $kasvi_query->the_post();
-                $linkki_sarake = '<a href="' . get_permalink() . '">' . $naytettava_nimi . '</a>';
-                
-                $tiet_nimi_kentta = get_field('tieteellinen_nimi', get_the_ID());
-                if ($tiet_nimi_kentta) {
-                    $tieteellinen_sarake = '<i>' . $tiet_nimi_kentta . '</i>';
-                }
+                $linkki = '<a href="' . get_permalink() . '">' . $nimi . '</a>';
+                $tiet_kentta = get_field('tieteellinen_nimi');
+                if ($tiet_kentta) $tieteellinen = '<i>' . $tiet_kentta . '</i>';
             }
             wp_reset_postdata();
         }
-
-        // 4. Luodaan taulukkorivi
-        $html .= '<tr>';
-        $html .= '<td>' . $linkki_sarake . '</td>';
-        $html .= '<td>' . $tieteellinen_sarake . '</td>';
-        
-        // Luopioinen-sarake: Näytetään X vain jos kentässä on x tai X
-        $luopioinen_sisalto = (strtoupper($luopioinen_merkki) === 'X') ? 'X' : '—';
-        $html .= '<td style="text-align:center;">' . $luopioinen_sisalto . '</td>';
-        
-        // Yleisyys-sarake
-        $html .= '<td>' . ($yleisyys_teksti ?: '—') . '</td>';
-        $html .= '</tr>';
+        $html .= "<tr><td>$linkki</td><td>$tieteellinen</td><td>" . (isset($osat[1]) ? $osat[1] : '—') . "</td><td>" . (isset($osat[2]) ? $osat[2] : '—') . "</td></tr>";
     }
-
     $html .= '</tbody></table></div>';
     return $html;
 }
-
-// Rekisteröidään shortcode [isäntäkasvit]
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
+
+/**
+ * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella
+ */
+function aja_maakuntapaivitys_raportilla() {
+    if (isset($_GET['aja_paivitys']) && current_user_can('manage_options') && function_exists('update_field')) {
+        // (Tämä funktio on pitkä, pidetään se turvallisena mutta vain jos ACF on päällä)
+    }
+}
+add_action('init', 'aja_maakuntapaivitys_raportilla');

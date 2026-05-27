@@ -1,0 +1,34 @@
+# Älä lataa tietokannan raakadataa tai WordPressin ytimen muuttuvia osia
+# wp-content/
+.env
+
+# WordPress Core
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/cache/
+wp-content/plugins/
+wp-content/languages/
+
+# Ohita varmuuskopiot
+wp-content/ai1wm-backups/
+
+# Ohita tietokannan varmuuskopiot
+*.sql
+
+# Ignore Mac DS_Store files
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Lokitiedostot
+*.log
+npm-debug.log*
+
+# Gitin oma välimuisti (jos tarpeen)
+.eslintcache
+
+pull.sh
+push.sh
+
