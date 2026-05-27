@@ -250,7 +250,7 @@ function tulosta_isantakasvi_taulukko() {
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 
 /**
- * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella vielä vähän korjausta
+ * Maakuntapäivitys - SUOJATTU ACF-tarkistuksella vielä vähän korjausta, ja vielä uusi koe 22.20
  */
 function aja_maakuntapaivitys_raportilla() {
     if (isset($_GET['aja_paivitys']) && current_user_can('manage_options') && function_exists('update_field')) {
