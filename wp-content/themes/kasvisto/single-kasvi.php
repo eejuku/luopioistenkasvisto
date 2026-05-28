@@ -4,43 +4,36 @@
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
         
         <header class="kasvi-clean-header">
+            <div class="back-link-container" style="margin-bottom: 20px;">
+                <a href="javascript:history.back()" class="back-link">
+                    &lt;&lt; Takaisin listaukseen
+                </a>
+            </div>
 
-<!-- paluulinkki -->
-
-<div class="back-link-container" style="margin-bottom: 20px;">
-    <a href="javascript:history.back()" class="back-link">
-        << Takaisin listaukseen
-    </a>
-</div>
-
-
-
-        <h1><?php the_title(); ?></h1>
+            <h1><?php the_title(); ?></h1>
             <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
             <?php if($tieteellinen): ?>
                 <div class="latina-sub"><i><?php echo esc_html($tieteellinen); ?></i></div>
             <?php endif; ?>
 
- <div class="badge-row" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-        <?php // Pääryhmä (Sammalet) ?>
-        <?php $ryhma = get_field('ryhma'); if($ryhma): ?>
-            <span class="badge-ryhma"><?php echo esc_html($ryhma); ?></span>
-        <?php endif; ?>
+            <div class="badge-row" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <?php // Pääryhmä (Sammalet) ?>
+                <?php $ryhma = get_field('ryhma'); if($ryhma): ?>
+                    <span class="badge-ryhma"><?php echo esc_html($ryhma); ?></span>
+                <?php endif; ?>
 
-        <?php 
-        // Sammalryhmä (Lehtisammalet jne.)
-        $s_obj = get_field_object('sammalryhma');
-        $s_val = get_field('sammalryhma');
-        
-        if($s_val): 
-            $val = is_array($s_val) ? $s_val[0] : $s_val;
-            $label = $s_obj['choices'][$val] ?? $val;
-            ?>
-            <span class="badge-ryhma badge-sub"><?php echo esc_html($label); ?></span>
-        <?php endif; ?>
-    </div>
-
-
+                <?php 
+                // Sammalryhmä (Lehtisammalet jne.)
+                $s_obj = get_field_object('sammalryhma');
+                $s_val = get_field('sammalryhma');
+                
+                if($s_val): 
+                    $val = is_array($s_val) ? $s_val[0] : $s_val;
+                    $label = $s_obj['choices'][$val] ?? $val;
+                    ?>
+                    <span class="badge-ryhma badge-sub"><?php echo esc_html($label); ?></span>
+                <?php endif; ?>
+            </div>
         </header>
 
         <div class="kasvi-flex-grid">
@@ -55,7 +48,7 @@
                         </div>
                     </div>
                 <?php endif; ?>
-<!--
+
                 <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
                 $fields = [
@@ -75,166 +68,110 @@
                     'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
                 ];
 
-foreach ($fields as $label => $slug): 
-    $value = get_field($slug);
-    
-    if ($value): ?>
-        <div class="content-section">
-            <h3><?php echo esc_html($label); ?></h3>
-            <div class="field-value">
-                <?php 
-                if (is_array($value)) {
-                    // Jos ACF palauttaa useita valintoja (esim. [label, value])
-                    // tai useita rivejä, yhdistetään ne pilkulla
-                    $display_value = isset($value['label']) ? $value['label'] : implode(', ', $value);
-                    echo wpautop(esc_html($display_value));
-                } else {
-                    // Normaali tekstikenttä
-                    echo wpautop($value);
-                }
-                ?>
-                
-            </div>
-        </div>
-    <?php endif; 
-endforeach; ?>
---> 
+                foreach ($fields as $label => $slug): 
+                    $value = get_field($slug);
+                    
+                    // Näytetään osio vain, jos kentässä on sisältöä
+                    if ($value): ?>
+                        <div class="content-section">
+                            <h3><?php echo esc_html($label); ?></h3>
+                            <div class="field-value">
+                                <?php 
+                                // ERIKOISKÄSITTELY: Isäntäkasvit-taulukko
+                                if ($slug === 'isantakasvit') {
+                                    echo do_shortcode('[isäntäkasvit]');
+                                } 
+                                // NORMAALI KÄSITTELY muille kentille
+                                else {
+                                    if (is_array($value)) {
+                                        $display_value = isset($value['label']) ? $value['label'] : implode(', ', $value);
+                                        echo wpautop(esc_html($display_value));
+                                    } else {
+                                        echo wpautop($value);
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    <?php endif; 
+                endforeach; ?>
 
-<?php 
-// Listaus kentistä: Otsikko => ACF-slug
-$fields = [
-    'Synonyymi' => 'synonyymi',
-    'Uhanalaisuus' => 'uhanalaisuus',
-    'Koko' => 'koko',
-    'Kasvupaikka' => 'kasvupaikka',
-    'Levinneisyys' => 'levinneisyys',
-    'Maastotuntomerkit' => 'maastotuntomerkit',
-    'Mikrosienet' => 'mikrosienet',
-    'Muuta' => 'muuta',
-    'Kemia' => 'kemia',
-    'Vertaa' => 'vertaa',
-    'Löytöpaikat Luopioisissa' => 'loytopaikat',
-    'Kirjallisuus' => 'kirjallisuus', 
-    'Löydettyjä isäntäkasveja' => 'isantakasvit',
-    'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
-];
-
-foreach ($fields as $label => $slug): 
-    $value = get_field($slug);
-    
-    // Näytetään osio vain, jos kentässä on sisältöä
-    if ($value): ?>
-        <div class="content-section">
-            <h3><?php echo esc_html($label); ?></h3>
-            <div class="field-value">
-                <?php 
-                // ERIKOISKÄSITTELY: Isäntäkasvit-taulukko
-                if ($slug === 'isantakasvit') {
-                    // Käytetään aiemmin luotua shortcodea taulukon luomiseen
-                    echo do_shortcode('[isäntäkasvit]');
-                } 
-                // NORMAALI KÄSITTELY muille kentille
-                else {
-                    if (is_array($value)) {
-                        $display_value = isset($value['label']) ? $value['label'] : implode(', ', $value);
-                        echo wpautop(esc_html($display_value));
-                    } else {
-                        // Käytetään koodia, joka sallii HTML:n (kuten WYSIWYG)
-                        echo wpautop($value);
-                    }
-                }
-                ?>
-            </div>
-        </div>
-    <?php endif; 
-endforeach; ?>
-
-<!-- Luomis- ja päivityspvm -->
-<div class="content-section">
-    <small>
-        Kortti luotu: <?php the_date(); ?>.
-        <?php if (get_the_modified_time() != get_the_time()) : ?>
-            Päivitetty: <?php the_modified_date(); ?>.
-        <?php endif; ?>
-    </small>
-</div>
+                <div class="content-section">
+                    <small>
+                        Kortti luotu: <?php the_date(); ?>.
+                        <?php if (get_the_modified_time() != get_the_time()) : ?>
+                            Päivitetty: <?php the_modified_date(); ?>.
+                        <?php endif; ?>
+                    </small>
+                </div>
             </div>
 
             <div class="kasvi-media-sidebar">
-
-
-        
-<div class="media-group">
-    <h3>Kuvat</h3>
-    <div class="clean-gallery">
-        <?php 
-        // 1. VANHAT URL-KENTÄT
-        for ($i = 1; $i <= 10; $i++) {
-            $url = get_field("kuva_{$i}_url");
-            if ($url) {
-                echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
-                echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
-                echo '</a>';
-            }
-        }
-
-        // 2. POIMITAAN KUVAT WYSIWYG-EDITORISTA
-        $editori_sisalto = get_field('galleria_editori');
-
-        if ($editori_sisalto) {
-            $pattern = '/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i';
-            
-            if (preg_match_all($pattern, $editori_sisalto, $matches)) {
-                foreach ($matches[1] as $img_url) {
-                    $img_url = htmlspecialchars_decode($img_url);
-                    $full_url = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif|webp))/i', '', $img_url);
-                    
-                    // Oletusarvot
-                    $display_title = get_the_title();
-                    $caption = '';
-
-                    // Yritetään hakea kuvan ID URL-osoitteen perusteella
-                    $attachment_id = attachment_url_to_postid($full_url);
-
-                    if ($attachment_id) {
-                        // Haetaan kuvan oma otsikko mediakirjastosta
-                        $media_title = get_the_title($attachment_id);
-                        // Haetaan kuvateksti (caption / excerpt)
-                        $media_caption = wp_get_attachment_caption($attachment_id);
-
-                        // Jos kuvalla on muu kuin tiedostonimeltä näyttävä otsikko, käytetään sitä
-                        if ($media_title && !preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $media_title)) {
-                            $display_title = $media_title;
+                
+                <div class="media-group">
+                    <h3>Kuvat</h3>
+                    <div class="clean-gallery">
+                        <?php 
+                        // 1. VANHAT URL-KENTÄT
+                        for ($i = 1; $i <= 10; $i++) {
+                            $url = get_field("kuva_{$i}_url");
+                            if ($url) {
+                                echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
+                                echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
+                                echo '</a>';
+                            }
                         }
-                        
-                        if ($media_caption) {
-                            $caption = $media_caption;
+
+                        // 2. POIMITAAN KUVAT WYSIWYG-EDITORISTA
+                        $editori_sisalto = get_field('galleria_editori');
+
+                        if ($editori_sisalto) {
+                            $pattern = '/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i';
+                            
+                            if (preg_match_all($pattern, $editori_sisalto, $matches)) {
+                                foreach ($matches[1] as $img_url) {
+                                    $img_url = htmlspecialchars_decode($img_url);
+                                    $full_url = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif|webp))/i', '', $img_url);
+                                    
+                                    $display_title = get_the_title();
+                                    $caption = '';
+
+                                    $attachment_id = attachment_url_to_postid($full_url);
+
+                                    if ($attachment_id) {
+                                        $media_title = get_the_title($attachment_id);
+                                        $media_caption = wp_get_attachment_caption($attachment_id);
+
+                                        if ($media_title && !preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $media_title)) {
+                                            $display_title = $media_title;
+                                        }
+                                        
+                                        if ($media_caption) {
+                                            $caption = $media_caption;
+                                        }
+                                    }
+
+                                    $lightbox_meta = 'title: ' . esc_attr($display_title) . ';';
+                                    if ($caption) {
+                                        $lightbox_meta .= ' description: ' . esc_attr($caption) . ';';
+                                    }
+                                    ?>
+                                    <a href="<?php echo esc_url($full_url); ?>" 
+                                       class="glightbox" 
+                                       data-glightbox="<?php echo $lightbox_meta; ?>">
+                                        <img src="<?php echo esc_url($img_url); ?>" 
+                                             alt="<?php echo esc_attr($display_title); ?>" 
+                                             loading="lazy">
+                                    </a>
+                                    <?php
+                                }
+                            }
                         }
-                    }
+                        ?>
+                    </div>
+                </div>
 
-                    // Rakennetaan GLightboxin kuvausmääre
-                    // title = ylärivi, description = alarivi (kuvateksti)
-                    $lightbox_meta = 'title: ' . esc_attr($display_title) . ';';
-                    if ($caption) {
-                        $lightbox_meta .= ' description: ' . esc_attr($caption) . ';';
-                    }
-                    ?>
-                    <a href="<?php echo esc_url($full_url); ?>" 
-                       class="glightbox" 
-                       data-glightbox="<?php echo $lightbox_meta; ?>">
-                        <img src="<?php echo esc_url($img_url); ?>" 
-                             alt="<?php echo esc_attr($display_title); ?>" 
-                             loading="lazy">
-                    </a>
-                    <?php
-                }
-            }
-        }
-        ?>
-    </div>
-</div>
-
-<?php // 1. VANHA STAATTINEN KARTTA (jos olemassa) ?>
+                <?php // 1. VANHA STAATTINEN KARTTA (jos olemassa) ?>
                 <?php $karttakuva = get_field('karttakuva'); ?>
                 <?php if($karttakuva): ?>
                     <div class="media-group">
@@ -245,122 +182,142 @@ endforeach; ?>
                     </div>
                 <?php endif; ?>
 
-<?php 
-/**
- * DATAN VALMISTELU (Sama kuin edellä)
- */
-$pisteet_json = get_field('karttapisteet_json');
-$maakunta_data = get_field('eliomaakunnat'); 
+                <?php 
+                /**
+                 * DATAN VALMISTELU KARTTOJA VARTEN
+                 */
+                $pisteet_json = get_field('karttapisteet_json');
+                $maakunta_data = get_field('eliomaakunnat'); 
 
-$on_luopioinen = false;
-if ($pisteet_json) {
-    $pisteet_decoded = json_decode($pisteet_json, true);
-    if (!empty($pisteet_decoded)) $on_luopioinen = true;
-}
+                $on_luopioinen = false;
+                if ($pisteet_json) {
+                    $pisteet_decoded = json_decode($pisteet_json, true);
+                    if (!empty($pisteet_decoded)) $on_luopioinen = true;
+                }
 
-$on_maakunta = false;
-$json_maakunta_final = '{}';
-if (!empty($maakunta_data) && $maakunta_data !== '{}') {
-    $maakunta_decoded = json_decode($maakunta_data, true);
-    if ($maakunta_decoded && count($maakunta_decoded) > 0) {
-        $on_maakunta = true;
-        $json_maakunta_final = wp_json_encode($maakunta_decoded);
-    }
-}
+                $on_maakunta = false;
+                $json_maakunta_final = '{}';
+                if (!empty($maakunta_data) && $maakunta_data !== '{}') {
+                    $maakunta_decoded = json_decode($maakunta_data, true);
+                    if ($maakunta_decoded && count($maakunta_decoded) > 0) {
+                        $on_maakunta = true;
+                        $json_maakunta_final = wp_json_encode($maakunta_decoded);
+                    }
+                }
 
-if (!$on_luopioinen && !$on_maakunta) return;
-$nayta_valilehdet = ($on_luopioinen && $on_maakunta);
-?>
+                // Jos kumpaakaan dataa ei ole, ei piirretä koko kartta-osiota
+                if ($on_luopioinen || $on_maakunta) : 
+                    
+                    // Päätetään kumpi välilehti on automaattisesti auki ladattaessa.
+                    // Ensisijaisesti Luopioinen, mutta jos sitä ei ole, avataan Suomi-kartta suoraan.
+                    $default_tab = $on_luopioinen ? 'tab-luopioinen' : 'tab-suomi';
+                ?>
+                    <div class="media-group kartta-osio">
+                        <h3>Kartat</h3>
+                        
+                        <div class="kartta-tabs">
+                            <?php if ($on_luopioinen) : ?>
+                                <button class="kartta-tab-button <?php echo ($default_tab === 'tab-luopioinen') ? 'active' : ''; ?>" 
+                                        onclick="openKarttaTab(event, 'tab-luopioinen')">
+                                    Luopioisten löytöpaikat
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if ($on_maakunta) : ?>
+                                <button class="kartta-tab-button <?php echo ($default_tab === 'tab-suomi') ? 'active' : ''; ?>" 
+                                        onclick="openKarttaTab(event, 'tab-suomi')">
+                                    Löytöpaikat Suomessa
+                                </button>
+                            <?php endif; ?>
+                        </div>
 
-<div class="media-group kartta-osio">
-    <h3>Kartat</h3>
-    <?php if ($nayta_valilehdet) : ?>
-        <div class="kartta-tabs">
-            <button class="kartta-tab-button active" onclick="openKarttaTab(event, 'tab-luopioinen')">Luopioisten löytöpaikat</button>
-            <button class="kartta-tab-button" onclick="openKarttaTab(event, 'tab-suomi')">Löytöpaikat Suomessa</button>
-        </div>
-    <?php endif; ?>
+                        <?php if ($on_luopioinen) : 
+                            $uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png';
+                            $pisteet = isset($pisteet_decoded['points']) ? $pisteet_decoded['points'] : $pisteet_decoded;
+                            $pistekoko = isset($pisteet_decoded['size']) ? intval($pisteet_decoded['size']) : 15;
+                        ?>
+                            <div id="tab-luopioinen" class="kartta-tab-content <?php echo ($default_tab === 'tab-luopioinen') ? 'active' : ''; ?>" style="<?php echo ($default_tab === 'tab-luopioinen') ? 'display: block;' : 'display: none;'; ?>">
+                                <div class="kasvikartta-wrapper">
+                                    <div class="kasvikartta-container">
+                                        <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Kartta">
+                                        <?php 
+                                        $L = 42; $T = 7; $R = 535; $B = 500; $img_w = 577; $img_h = 516; 
+                                        foreach ($pisteet as $p) : 
+                                            $x_px = $L + (floatval($p['x']) * ($R - $L));
+                                            $y_px = $T + (floatval($p['y']) * ($B - $T));
+                                            $left_pct = ($x_px / $img_w) * 100;
+                                            $top_pct  = ($y_px / $img_h) * 100;
+                                            $vari = isset($p['c']) ? $p['c'] : (isset($p['v']) ? $p['v'] : 'black');
+                                            if ($vari === 'musta') $vari = 'black';
+                                            $koko_pct = ($pistekoko / $img_w) * 100;
+                                        ?>
+                                            <div class="kartta-piste" style="position: absolute; left: <?php echo $left_pct; ?>%; top: <?php echo $top_pct; ?>%; width: <?php echo $koko_pct; ?>%; aspect-ratio: 1/1; background-color: <?php echo $vari; ?> !important; border: 1.5px solid #ffffff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
 
-    <?php if ($on_luopioinen) : 
-        $uusi_karttapohja_url = get_template_directory_uri() . '/images/karttapohja.png';
-        $pisteet = isset($pisteet_decoded['points']) ? $pisteet_decoded['points'] : $pisteet_decoded;
-        $pistekoko = isset($pisteet_decoded['size']) ? intval($pisteet_decoded['size']) : 15;
-    ?>
-        <div id="tab-luopioinen" class="kartta-tab-content active">
-            <div class="kasvikartta-wrapper">
-                <div class="kasvikartta-container">
-                    <img src="<?php echo $uusi_karttapohja_url; ?>" alt="Kartta">
-                    <?php 
-                    $L = 42; $T = 7; $R = 535; $B = 500; $img_w = 577; $img_h = 516; 
-                    foreach ($pisteet as $p) : 
-                        $x_px = $L + (floatval($p['x']) * ($R - $L));
-                        $y_px = $T + (floatval($p['y']) * ($B - $T));
-                        $left_pct = ($x_px / $img_w) * 100;
-                        $top_pct  = ($y_px / $img_h) * 100;
-                        $vari = isset($p['c']) ? $p['c'] : (isset($p['v']) ? $p['v'] : 'black');
-                        if ($vari === 'musta') $vari = 'black';
-                        $koko_pct = ($pistekoko / $img_w) * 100;
-                    ?>
-                        <div class="kartta-piste" style="position: absolute; left: <?php echo $left_pct; ?>%; top: <?php echo $top_pct; ?>%; width: <?php echo $koko_pct; ?>%; aspect-ratio: 1/1; background-color: <?php echo $vari; ?> !important; border: 1.5px solid #ffffff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
-                    <?php endforeach; ?>
-                </div>
+                        <?php if ($on_maakunta) : ?>
+                            <div id="tab-suomi" class="kartta-tab-content <?php echo ($default_tab === 'tab-suomi') ? 'active' : ''; ?>" style="<?php echo ($default_tab === 'tab-suomi') ? 'display: block;' : 'display: none;'; ?>">
+                                <div class="maakuntakartta-inner">
+                                    <?php include(get_template_directory() . '/parts/suomi-kartta.php'); ?>
+                                    <div class="legend" style="display: flex; justify-content: center; margin-top: 15px; font-size: 0.7em; gap: 15px;">
+                                        <span><span style="display:inline-block; width:10px; height:10px; background:#2d5a27; border:1px solid #333;"></span> Nykyhavainto</span>
+                                        <span><span style="display:inline-block; width:10px; height:10px; background:#a8c69f; border:1px solid #333;"></span> Vanha havainto</span>
+                                        <span><span style="display:inline-block; width:10px; height:10px; background:#c64b4b; border:1px solid #333;"></span> Hävinnyt</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; // Kartta-osion end ?>
             </div>
         </div>
-    <?php endif; ?>
 
-    <?php if ($on_maakunta) : ?>
-        <div id="tab-suomi" class="kartta-tab-content <?php echo (!$on_luopioinen) ? 'active' : ''; ?>">
-            <div class="maakuntakartta-inner">
-                <?php include(get_template_directory() . '/parts/suomi-kartta.php'); ?>
-                <div class="legend" style="display: flex; justify-content: center; margin-top: 15px; font-size: 0.7em; gap: 15px;">
-                    <span><span style="display:inline-block; width:10px; height:10px; background:#2d5a27; border:1px solid #333;"></span> Nykyhavainto</span>
-                    <span><span style="display:inline-block; width:10px; height:10px; background:#a8c69f; border:1px solid #333;"></span> Vanha havainto</span>
-                    <span><span style="display:inline-block; width:10px; height:10px; background:#c64b4b; border:1px solid #333;"></span> Hävinnyt</span>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<script>
-function openKarttaTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("kartta-tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-        tabcontent[i].classList.remove("active");
-    }
-    tablinks = document.getElementsByClassName("kartta-tab-button");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].classList.remove("active");
-    }
-    document.getElementById(tabName).style.display = "block";
-    document.getElementById(tabName).classList.add("active");
-    evt.currentTarget.classList.add("active");
-}
-
-<?php if ($on_maakunta) : ?>
-document.addEventListener("DOMContentLoaded", function() {
-    const data = <?php echo $json_maakunta_final; ?>;
-    const svg = document.getElementById('suomi-svg');
-    if (!svg) return;
-    for (const [id, status] of Object.entries(data)) {
-        const el = document.getElementById(id);
-        if (el) {
-            let color = "#ffffff";
-            if (status === 'current') color = "#2d5a27";
-            else if (status === 'old') color = "#a8c69f";
-            else if (status === 'extinct') color = "#c64b4b";
-            if (el.tagName.toLowerCase() === 'g') {
-                el.querySelectorAll('path, polygon, polyline').forEach(p => p.style.fill = color);
-            } else {
-                el.style.fill = color;
+        <script>
+        function openKarttaTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("kartta-tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("kartta-tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            document.getElementById(tabName).classList.add("active");
+            
+            // Suojataan klikkaus siltä varalta, että painike toimii pelkkänä otsikkona (evt on null)
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add("active");
             }
         }
-    }
-});
-<?php endif; ?>
-</script>
+
+        <?php if ($on_maakunta) : ?>
+        document.addEventListener("DOMContentLoaded", function() {
+            const data = <?php echo $json_maakunta_final; ?>;
+            const svg = document.getElementById('suomi-svg');
+            if (!svg) return;
+            for (const [id, status] of Object.entries(data)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    let color = "#ffffff";
+                    if (status === 'current') color = "#2d5a27";
+                    else if (status === 'old') color = "#a8c69f";
+                    else if (status === 'extinct') color = "#c64b4b";
+                    if (el.tagName.toLowerCase() === 'g') {
+                        el.querySelectorAll('path, polygon, polyline').forEach(p => p.style.fill = color);
+                    } else {
+                        el.style.fill = color;
+                    }
+                }
+            }
+        });
+        <?php endif; ?>
+        </script>
 
     <?php endwhile; endif; ?>
 </main>
@@ -369,13 +326,15 @@ document.addEventListener("DOMContentLoaded", function() {
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const lightbox = GLightbox({
-        selector: '.glightbox',
-        loop: true, // Tämä mahdollistaa jatkuvan selaamisen
-        openEffect: 'zoom',
-        closeEffect: 'fade' 
-    });
-    });
-
+    if (document.querySelector('.glightbox')) {
+        const lightbox = GLightbox({
+            selector: '.glightbox',
+            loop: true,
+            openEffect: 'zoom',
+            closeEffect: 'fade' 
+        });
+    }
+});
 </script>
+
 <?php get_footer(); ?>
