@@ -352,3 +352,236 @@ function aja_maakuntapaivitys_raportilla() {
     }
 }
 add_action('init', 'aja_maakuntapaivitys_raportilla');
+
+
+
+/**
+ * AJAX-pohjainen massasiivoustyökalu sammalten kuva-URL-kentille (Paranneltu versio)
+ */
+
+// 1. Valikkolinkki
+add_action('admin_menu', 'sammalkuvien_siivous_valikko');
+function sammalkuvien_siivous_valikko() {
+    add_menu_page(
+        'Sammalkuvien siivous',
+        'Sammalkuvien siivous',
+        'manage_options',
+        'sammal-kuvasiivous',
+        'tulosta_sammal_kuvasiivous_sivu',
+        'dashicons-images-alt2',
+        25
+    );
+}
+
+// 2. AJAX-vastaanottaja tallennukselle
+add_action('wp_ajax_tallenna_sammal_rivi', 'ajax_tallenna_sammal_rivi');
+function ajax_tallenna_sammal_rivi() {
+    check_ajax_referer('sammal_siivous_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Ei oikeuksia');
+    }
+
+    $post_id = intval($_POST['post_id']);
+    $kentat = isset($_POST['kentat']) ? $_POST['kentat'] : array();
+
+    for ($i = 1; $i <= 8; $i++) {
+        $meta_avain = "kuva_{$i}_url";
+        if (isset($kentat[$meta_avain])) {
+            $uusi_arvo = trim($kentat[$meta_avain]);
+            
+            if (empty($uusi_arvo)) {
+                delete_post_meta($post_id, $meta_avain);
+                delete_post_meta($post_id, "_" . $meta_avain);
+            } else {
+                update_field($meta_avain, $uusi_arvo, $post_id);
+            }
+        }
+    }
+
+    wp_send_json_success('Päivitetty!');
+}
+
+// 3. Käyttöliittymä
+function tulosta_sammal_kuvasiivous_sivu() {
+    if (!current_user_can('manage_options')) return;
+
+    $args = array(
+        'post_type'      => 'kasvi',
+        'posts_per_page' => -1,
+        'post_status'    => 'any',
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+        'meta_query'     => array(
+            array(
+                'key'     => 'ryhma',
+                'value'   => 'Sammalet',
+                'compare' => '='
+            )
+        )
+    );
+
+    $query = new WP_Query($args);
+    ?>
+    
+    <div class="wrap">
+        <h1>🌿 Sammalkuvien massasiivous (AJAX)</h1>
+        <p>Tyhjennä kenttiä rasteista ja paina rivikohtaista <strong>Tallenna rivi</strong> -painiketta. Onnistuneen tallennuksen jälkeen sivu häivyttää kasvin pois listalta automaattisesti. Kasvin nimeä klikkaamalla pääset tarkistamaan kasvikortin uudella välilehdellä.</p>
+        
+        <style>
+            .siivous-taulukko { width: 100%; max-width: 1600px; margin-top: 20px; border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+            .siivous-taulukko th, .siivous-taulukko td { padding: 12px; border: 1px solid #ccd0d4; text-align: left; vertical-align: middle; }
+            .siivous-taulukko th { background: #f8f9fa; position: sticky; top: 32px; z-index: 10; }
+            .siivous-taulukko tr { transition: all 0.5s ease; }
+            .url-input-container { display: flex; flex-direction: column; gap: 6px; }
+            .url-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+            .url-input-row label { font-size: 10px; color: #646970; width: 60px; flex-shrink: 0; font-weight: 600; }
+            .url-input-wrap { display: flex; align-items: center; gap: 4px; flex-grow: 1; }
+            .url-input-wrap input { flex-grow: 1; font-size: 12px; padding: 4px 8px; height: 28px; width: 100%; }
+            .tyhjenna-btn { background: #e65c5c; color: #fff; border: none; border-radius: 3px; cursor: pointer; padding: 0 8px; height: 28px; font-weight: bold; font-size: 14px; line-height: 28px; }
+            .tyhjenna-btn:hover { background: #cc4444; }
+            .rivi-tallenna-btn { background: #2271b1; color: #fff; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: bold; width: 100%; max-width: 140px; }
+            .rivi-tallenna-btn:hover { background: #135e96; }
+            .kasvi-linkki { font-weight: bold; font-size: 14px; color: #2271b1; text-decoration: none; }
+            .kasvi-linkki:hover { text-decoration: underline; color: #135e96; }
+            .kasvi-tieteellinen { font-style: italic; color: #646970; font-size: 12px; display: block; margin-top: 2px; }
+        </style>
+
+        <table class="siivous-taulukko">
+            <thead>
+                <tr>
+                    <th style="width: 17%;">Kasvin nimi (Linkki)</th>
+                    <th style="width: 73%;">Kuva URL-kentät (1-8)</th>
+                    <th style="width: 10%; text-align: center;">Toiminto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+                $naytetty_lkm = 0;
+                if ($query->have_posts()) : 
+                    while ($query->have_posts()) : $query->the_post(); 
+                        $post_id = get_the_ID();
+                        $tieteellinen = get_field('tieteellinen_nimi', $post_id);
+                        $kasvi_url = get_permalink($post_id); // Haetaan kasvikortin osoite
+                        
+                        $onko_kuvia = false;
+                        $kuva_kentat = array();
+                        for ($i = 1; $i <= 8; $i++) {
+                            $url = get_post_meta($post_id, "kuva_{$i}_url", true);
+                            $kuva_kentat[$i] = $url;
+                            if (!empty($url)) $onko_kuvia = true;
+                        }
+
+                        if (!$onko_kuvia) continue;
+                        $naytetty_lkm++;
+                        ?>
+                        <tr id="rivi-<?php echo $post_id; ?>">
+                            <td>
+                                <a href="<?php echo esc_url($kasvi_url); ?>" target="_blank" class="kasvi-linkki" title="Avaa kasvikortti uudessa välilehdessä">
+                                    <?php the_title(); ?> 🔗
+                                </a>
+                                <?php if ($tieteellinen) : ?>
+                                    <span class="kasvi-tieteellinen"><?php echo esc_html($tieteellinen); ?></span>
+                                <?php endif; ?>
+                                <small style="color: #999; display: block; margin-top: 4px;">ID: <?php echo $post_id; ?></small>
+                            </td>
+                            <td>
+                                <div class="url-input-container">
+                                    <?php for ($i = 1; $i <= 8; $i++) : ?>
+                                        <div class="url-input-row">
+                                            <label for="input_<?php echo $post_id . '_' . $i; ?>">Kuva <?php echo $i; ?></label>
+                                            <div class="url-input-wrap">
+                                                <input type="text" 
+                                                       class="kasvi-input-<?php echo $post_id; ?>"
+                                                       data-avain="kuva_<?php echo $i; ?>_url"
+                                                       id="input_<?php echo $post_id . '_' . $i; ?>"
+                                                       value="<?php echo esc_attr($kuva_kentat[$i]); ?>">
+                                                <button type="button" 
+                                                        class="tyhjenna-btn" 
+                                                        onclick="document.getElementById('input_<?php echo $post_id . '_' . $i; ?>').value='';" 
+                                                        title="Tyhjennä">×</button>
+                                            </div>
+                                        </div>
+                                    <?php endfor; ?>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" 
+                                        class="rivi-tallenna-btn" 
+                                        onclick="tallennaSammalRivi(<?php echo $post_id; ?>)">
+                                    Tallenna rivi
+                                </button>
+                            </td>
+                        </tr>
+                        <?php 
+                    endwhile; 
+                    wp_reset_postdata(); 
+                endif; 
+
+                if ($naytetty_lkm === 0) : ?>
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 30px; font-size: 16px; color: green;">
+                            🎉 Kaikki sammalet on jo siivottu vanhoista kuva-URL-osoitteista!
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    function tallennaSammalRivi(postId) {
+        const painike = jQuery(`#rivi-${postId} .rivi-tallenna-btn`);
+        painike.text('Tallennetaan...').prop('disabled', true);
+
+        const kentat = {};
+        let onkoKuviaJaljella = false;
+
+        jQuery(`.kasvi-input-${postId}`).each(function() {
+            const avain = jQuery(this).data('avain');
+            const arvo = jQuery(this).val().trim();
+            kentat[avain] = arvo;
+            if (arvo !== '') {
+                onkoKuviaJaljella = true;
+            }
+        });
+
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'tallenna_sammal_rivi',
+                post_id: postId,
+                kentat: kentat,
+                nonce: '<?php echo wp_create_nonce("sammal_siivous_nonce"); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    painike.text('Tallennettu!').css('background', '#46b450');
+                    
+                    if (!onkoKuviaJaljella) {
+                        setTimeout(function() {
+                            jQuery(`#rivi-${postId}`).css({'background': '#bfffbf', 'opacity': '0'});
+                            setTimeout(function() {
+                                jQuery(`#rivi-${postId}`).remove();
+                            }, 500);
+                        }, 600);
+                    } else {
+                        setTimeout(function() {
+                            painike.text('Tallenna rivi').prop('disabled', false).css('background', '#2271b1');
+                        }, 2000);
+                    }
+                } else {
+                    alert('Virhe tallennuksessa: ' + response.data);
+                    painike.text('Yritä uudelleen').prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('Yhteysvirhe palvelimeen.');
+                painike.text('Yritä uudelleen').prop('disabled', false);
+            }
+        });
+    }
+    </script>
+    <?php
+}

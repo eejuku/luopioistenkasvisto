@@ -226,7 +226,7 @@
                             <?php if ($on_maakunta) : ?>
                                 <button class="kartta-tab-button <?php echo ($default_tab === 'tab-suomi') ? 'active' : ''; ?>" 
                                         onclick="openKarttaTab(event, 'tab-suomi')">
-                                    Löytöpaikat Suomessa
+                                    Levinneisyys Suomessa
                                 </button>
                             <?php endif; ?>
                         </div>
