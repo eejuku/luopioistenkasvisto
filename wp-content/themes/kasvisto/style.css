@@ -28,7 +28,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 /* ==========================================================================
    2. SITE HEADER & PAINIKEMAINEN NAVIGAATIO
    ========================================================================== */
-.site-header {
+/* .site-header {
     background: #fff;
     border-bottom: 1px solid #eee;
     padding: 15px 0;
@@ -90,7 +90,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     background-color: #77a464 !important;
     color: #fff !important;
     border-color: #77a464 !important;
-}
+} */
 
 /* ==========================================================================
    3. SIVUPALKKI & HAITARI-NAVIGAATIO
@@ -718,7 +718,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
    RELEVANSSI LIVE SEARCH -STYLET
    ========================================================================== */
 /* Live-hakutulosten säiliö */
-.relevanssi-live-search-results {
+/* .relevanssi-live-search-results {
     border: 1px solid #ddd !important;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
     border-radius: 4px !important;
@@ -771,12 +771,12 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     font-size: 13px;
     font-weight: bold;
     text-decoration: none;
-}
+} */
 
 /* ==========================================================================
    HEADER - STYLET - NÄMÄ EIVÄT OLE KÄYTÖSSÄ, MUTTA SÄILYTETÄÄN TÄSSÄ VARMUUDEN VUOKSI
    ========================================================================== */
-/* Päärakenteen asettelu */
+Päärakenteen asettelu
 .header-main-row {
     display: flex;
     justify-content: space-between;
