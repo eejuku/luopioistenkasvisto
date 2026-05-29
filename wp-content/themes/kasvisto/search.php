@@ -10,13 +10,44 @@
     .search-page-form button { background: #2d5a27; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
     .search-results-list { list-style: none; padding: 0; margin: 0; }
-    .search-result-item { padding: 15px 0; border-bottom: 1px solid #eee; transition: opacity 0.3s ease; }
     
-    .result-meta { font-size: 10px; text-transform: uppercase; color: #888; margin-bottom: 2px; display: block; }
+    /* UUSI JOUSTAVA RAKENNE KUVAA VARTEN */
+    .search-result-item { 
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        padding: 20px 0; 
+        border-bottom: 1px solid #eee; 
+        transition: opacity 0.3s ease; 
+    }
+    
+    /* Hakutuloksen kuvalaatikko */
+    .result-thumb-wrapper {
+        flex-shrink: 0;
+        width: 100px;
+        height: 100px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f5f5f5;
+        border: 1px solid #e5e5e5;
+    }
+    .result-thumb-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Hakutuloksen tekstisisältö */
+    .result-content-wrapper {
+        flex-grow: 1;
+    }
+    
+    .result-meta { font-size: 10px; text-transform: uppercase; color: #888; margin-bottom: 4px; display: block; }
     .result-title { font-size: 18px; margin: 0; line-height: 1.3; }
     .result-title a { color: #2d5a27; text-decoration: none; }
     .result-scientific { font-style: italic; color: #777; font-size: 14px; margin-left: 8px; font-weight: normal; }
-    .result-excerpt { font-size: 14px; color: #555; margin-top: 4px; }
+    .result-excerpt { font-size: 14px; color: #555; margin-top: 6px; line-height: 1.5; }
 
     /* Lataa lisää -painike */
     .load-more-wrapper { text-align: center; margin-top: 40px; }
@@ -26,6 +57,14 @@
     }
     #load-more-btn:hover { background: #2d5a27; color: white; border-color: #2d5a27; }
     #load-more-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* Mobiilimuotoilu, jotta kuva ja teksti toimivat pienellä näytöllä */
+    @media (max-width: 600px) {
+        .search-result-item { gap: 15px; }
+        .result-thumb-wrapper { width: 70px; height: 70px; }
+        .result-title { font-size: 16px; }
+        .result-scientific { display: block; margin-left: 0; margin-top: 2px; }
+    }
 </style>
 
 <div class="search-container">
@@ -66,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.textContent = 'Ladataan...';
 
-        // Hyödynnetään WordPressin omaa hakua hakemalla seuraava sivu taustalla
         fetch(`${window.location.pathname}?s=${searchQuery}&paged=${currentPage + 1}`)
             .then(response => response.text())
             .then(html => {
