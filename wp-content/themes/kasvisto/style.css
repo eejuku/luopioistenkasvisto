@@ -994,3 +994,13 @@ KARTTOJEN NÄYTTÄMISEEN LIITTYVÄT TYYLIT
         stroke: #282727;
         stroke-width: 3px;
     }
+
+/* Varmistetaan, että tekstit ankkuroituvat täydellisesti keskipisteeseensä */
+  .eliomaakunta_nimi text {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 28px;
+    fill: #000000;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
