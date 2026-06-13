@@ -213,9 +213,9 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 .nav-btn.active {
-    background: #27ae60;
+    background: #77a464;
     color: #fff;
-    border-color: #27ae60;
+    border-color: #77a464;
 }
 
 .nav-btn .count { opacity: 0.7; font-weight: normal; }
@@ -292,7 +292,7 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
 }
 
 .nimi-latina { 
-    font-weight: 400; 
+    font-weight: 500; 
     color: #666; 
     font-style: italic; 
     font-size: 0.9rem;
