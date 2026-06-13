@@ -1,16 +1,4 @@
 <svg id="suomi-svg" viewBox="0 0 800 1400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-  
-<style>
-  /* Varmistetaan tekstien täydellinen keskitys ankkuripisteeseensä */
-  .eliomaakunta_nimi text {
-    font-family: sans-serif;
-    font-weight: bold;
-    font-size: 28px;
-    fill: #000000;
-    text-anchor: middle;
-    dominant-baseline: central;
-  }
-</style>
 
 <g id="eliomaakunta_ES" class="eliomaakunta">
    <title>Etelä-Savo (ES)</title>
@@ -180,6 +168,6 @@
 <g id="SoL_nimi" class="eliomaakunta_nimi"><text transform="matrix(1 0 0 1 535 325)">SoL</text></g>
 <g id="KiL_nimi" class="eliomaakunta_nimi"><text transform="matrix(1 0 0 1 400 320)">KiL</text></g>
 <g id="InL_nimi" class="eliomaakunta_nimi"><text transform="matrix(1 0 0 1 520 140)">InL</text></g>
-<g id="EnL_nimi" class="eliomaakunta_nimi"><text transform="matrix(1 0 0 1 350 215)">EnL</text></g>
+<g id="EnL_nimi" class="eliomaakunta_nimi"><text transform="matrix(1 0 0 1 370 215)">EnL</text></g>
 
 </svg>

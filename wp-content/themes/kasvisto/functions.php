@@ -585,3 +585,117 @@ function tulosta_sammal_kuvasiivous_sivu() {
     </script>
     <?php
 }
+
+function aja_uhanalaisuus_puhdistus() {
+    // Tehdään testistä helpompaa: vaaditaan vain, että käyttäjä on järjestelmänvalvoja
+    if ( ! current_user_can('manage_options') || ! isset($_GET['aja_puhdistus']) ) {
+        return;
+    }
+
+    // Estetään sivun tallentuminen välimuistiin ajon aikana
+    if ( ! defined('DONOTCACHEPAGE') ) {
+        define('DONOTCACHEPAGE', true);
+    }
+
+    // !!! TARKISTA TÄMÄ !!! 
+    // Mikä on kasviesi tarkka post_type-tunnus? (Löytyy esim. osoiteriviltä, kun muokkaat kasvia takahuoneessa)
+    $oikea_post_type = 'kasvi'; 
+
+    echo '<div style="background:#fff; color:#000; padding:20px; border:5px solid #000; position:relative; z-index:99999;">';
+    echo '<h2>Uhanalaisuuden puhdistustyökalu</h2>';
+
+    // Haetaan kohteet
+    $kasvit = get_posts(array(
+        'post_type'   => $oikea_post_type, 
+        'numberposts' => -1,
+        'post_status' => array('publish', 'pending', 'draft', 'private', 'future'), // haetaan kaikki tilat
+    ));
+
+    // Jos kanta ei löydä mitään, ilmoitetaan siitä heti
+    if ( empty($kasvit) ) {
+        echo '<p style="color:red; font-weight:bold;">VIRHE: Artikkelityypillä "' . $oikea_post_type . '" nuuskittaessa ei löytynyt yhtä ainutta kohdetta! Tarkista post_type-nimi.</p>';
+        echo '</div>';
+        exit;
+    }
+
+    echo '<p>Löytyi yhteensä ' . count($kasvit) . ' kasvia. Aloitetaan läpikäynti...</p>';
+    $paivitetty = 0;
+
+    foreach ( $kasvit as $kasvi ) {
+        // false = haetaan raakadata kannasta ilman ACF:n muotoiluja
+        $vanhat_valinnat = get_field('uhanalaisuus', $kasvi->ID, false); 
+
+        if ( $vanhat_valinnat ) {
+            $uudet_valinnat = array();
+            $muutettu = false;
+
+            foreach ( (array)$vanhat_valinnat as $valinta ) {
+                // Poistetaan sulut ja niiden sisältö
+                $puhdistettu = trim(preg_replace('/\s*\([^)]*\)/', '', $valinta));
+
+                if ( $puhdistettu !== $valinta ) {
+                    $muutettu = true;
+                }
+                $uudet_valinnat[] = $puhdistettu;
+            }
+
+            if ( $muutettu ) {
+                update_field('uhanalaisuus', $uudet_valinnat, $kasvi->ID);
+                $paivitetty++;
+            }
+        }
+    }
+
+    echo '<p style="color:green; font-weight:bold;">Valmis! Päivitettiin onnistuneesti ' . $paivitetty . ' kasvin tiedot.</p>';
+    echo '</div>';
+    exit;
+}
+// Käytetään varhaisempaa wp_loaded-koukkua, jotta tulostus tulee varmasti läpi ennen sivun latausta
+add_action('wp_loaded', 'aja_uhanalaisuus_puhdistus');
+
+function kaanna_uhanalaisuuden_muoto() {
+    if ( ! current_user_can('manage_options') || ! isset($_GET['kaanna_uhanalaisuus']) ) {
+        return;
+    }
+
+    $kasvit = get_posts(array(
+        'post_type'   => 'kasvi', // Vaihda tähän oikea post_type jos tarpeen
+        'numberposts' => -1,
+        'post_status' => 'any',
+    ));
+
+    $paivitetty = 0;
+
+    foreach ( $kasvit as $kasvi ) {
+        $vanhat_valinnat = get_field('uhanalaisuus', $kasvi->ID, false);
+
+        if ( $vanhat_valinnat ) {
+            $uudet_valinnat = array();
+            $muutettu = false;
+
+            foreach ( (array)$vanhat_valinnat as $valinta ) {
+                // Etsitään muotoa "EW Luonnosta hävinneet"
+                if ( preg_match('/^([A-Z]{2})\s+(.+)$/', trim($valinta), $matches) ) {
+                    $tunnus = $matches[1];
+                    $nimi   = $matches[2];
+                    
+                    // Käännetään muotoon: "Luonnosta hävinneet (EW)"
+                    $uudet_valinnat[] = $nimi . ' (' . $tunnus . ')';
+                    $muutettu = true;
+                } else {
+                    $uudet_valinnat[] = $valinta;
+                }
+            }
+
+            if ( $muutettu ) {
+                update_field('uhanalaisuus', $uudet_valinnat, $kasvi->ID);
+                $paivitetty++;
+            }
+        }
+    }
+
+    echo 'Valmis! Käännettiin ' . $paivitetty . ' kasvin tiedot uuteen muotoon.';
+    exit;
+}
+add_action('wp_loaded', 'kaanna_uhanalaisuuden_muoto');
+

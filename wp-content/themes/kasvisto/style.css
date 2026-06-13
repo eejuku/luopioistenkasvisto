@@ -999,8 +999,8 @@ KARTTOJEN NÄYTTÄMISEEN LIITTYVÄT TYYLIT
   .eliomaakunta_nimi text {
     font-family: sans-serif;
     font-weight: bold;
-    font-size: 28px;
+    font-size: 2rem;
     fill: #000000;
     text-anchor: middle;
     dominant-baseline: central;
-  }
+}
