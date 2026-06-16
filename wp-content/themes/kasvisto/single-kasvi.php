@@ -96,6 +96,18 @@
                     <?php endif; 
                 endforeach; ?>
 
+<!-- <?php if( have_rows('synonyymi2') ): ?>
+
+    <?php while( have_rows('synonyymi2') ): the_row(); ?>
+    <ul>
+        <li><?php the_sub_field('synonyymi_suomenkielinen_nimi'); ?></li>
+        <li><i><?php the_sub_field('synonyymi_tieteellinen_nimi'); ?></i></li>
+    </ul>
+    <?php endwhile; ?>
+<?php else: ?>
+    <?php // Ei rivejä -lauseke (valinnainen) ?>
+<?php endif; ?> -->
+
                 <div class="content-section">
                     <small>
                         Kortti luotu: <?php the_date(); ?>.
@@ -110,10 +122,58 @@
                 
                 <div class="media-group">
                     <h3>Kuvat</h3>
+
+                    <?php
+// Varmistetaan, että ACF on aktiivinen
+if ( function_exists('get_field') ) :
+    $kuvat = get_field('kasvikuvagalleria'); // Haetaan nykyisen kasvin kuvat
+    
+    if ( !empty($kuvat) && is_array($kuvat) ) : ?>
+        
+        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script> -->
+
+        <div class="kasvi-galleria-grid">
+            <?php foreach ($kuvat as $kuva) : 
+                $pieni_kuva = $kuva['sizes']['thumbnail']; // Lataa valmiiksi pienen 150x150px kuvan
+                // $pieni_kuva   = !empty($kuva['sizes']['medium_large']) ? $kuva['sizes']['medium_large'] : $kuva['sizes']['medium'];
+                $iso_kuva     = $kuva['url'];
+                $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
+                $kuvausteksti = !empty($kuva['caption']) ? $kuva['caption'] : '';
+            ?>
+                <a href="<?php echo esc_url($iso_kuva); ?>" 
+                   class="glightbox kasvi-galleria-item" 
+                   data-gallery="kasvigalleria" 
+                   data-title="<?php echo esc_attr($otsikko); ?>" 
+                   data-description="<?php echo esc_attr($kuvausteksti); ?>">
+                    
+                    <img src="<?php echo esc_url($pieni_kuva); ?>" 
+                         alt="<?php echo esc_attr($kuva['alt']); ?>" 
+                         loading="lazy">
+                </a>
+            <?php endforeach; ?>
+        </div>
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof GLightbox !== 'undefined') {
+                GLightbox({
+                    selector: '.glightbox',
+                    touchNavigation: true,
+                    loop: true
+                });
+            }
+        });
+        </script>
+
+    <?php 
+    endif;
+endif; 
+?>
+
                     <div class="clean-gallery">
                         <?php 
                         // 1. VANHAT URL-KENTÄT
-                        for ($i = 1; $i <= 10; $i++) {
+                        for ($i = 1; $i <= 5; $i++) {
                             $url = get_field("kuva_{$i}_url");
                             if ($url) {
                                 echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';

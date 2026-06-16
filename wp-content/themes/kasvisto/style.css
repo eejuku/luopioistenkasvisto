@@ -1004,3 +1004,56 @@ KARTTOJEN NÄYTTÄMISEEN LIITTYVÄT TYYLIT
     text-anchor: middle;
     dominant-baseline: central;
 }
+
+/* ===============================
+ACF PRO -GALLERIAN STYLET
+================================= */
+
+.kasvi-galleria-grid {
+    display: grid;
+    /* Pakotetaan 3 tasasuuruista saraketta rinnakkain */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 30px 0;
+    width: 100%;
+}
+
+.kasvi-galleria-item {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: #f9f9f9;
+}
+.kasvi-galleria-item img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.kasvi-galleria-item:hover img {
+    transform: scale(1.05);
+}
+/* .galleria-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s ease;
+}
+.kasvi-galleria-item:hover .galleria-overlay {
+    opacity: 1;
+} */
+    
+/* Tabletit: 4 kuvaa rinnakkain */
+@media (max-width: 768px) {
+    .kasvi-galleria-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+/* Kännykät: 3 kuvaa rinnakkain */
+@media (max-width: 480px) {
+    .kasvi-galleria-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+}

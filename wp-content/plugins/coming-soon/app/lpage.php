@@ -670,7 +670,7 @@ function seedprod_lite_save_lpage() {
 			// end html custom comment.
 			$html = preg_replace( "'contenteditable=\"true\"'", '', $html );
 			$html = preg_replace( "'spellcheck=\"false\"'", '', $html );
-			$html = str_replace( 'function(e,n,r,i){return fn(t,e,n,r,i,!0)}', '', $html );
+			$html = seedprod_lite_strip_vue_render_helpers( $html );
 			// remove preview animation.
 			$html = str_replace( 'animate__', '', $html );
 			// remove sp-theme-template id.
@@ -743,7 +743,11 @@ function seedprod_lite_save_lpage() {
 		} else {
 			$check_post_type = json_decode( stripslashes( $settings ) );
 			$page_type_check = isset( $check_post_type->page_type ) ? $check_post_type->page_type : '';
-			if ( 'post' === $page_type_check ) {
+
+			// Pages flagged _seedprod_edited_with_seedprod are edited with SeedProd, not standalone landing pages.
+			$is_edited_wp_page = '1' === get_post_meta( $lpage_id, '_seedprod_edited_with_seedprod', true );
+
+			if ( 'post' === $page_type_check || $is_edited_wp_page ) {
 				update_post_meta( $lpage_id, '_seedprod_edited_with_seedprod', '1' );
 				delete_post_meta( $lpage_id, '_seedprod_page' );
 			} else {
