@@ -135,7 +135,7 @@ get_header(); ?>
                             $galleria_index++; 
                         endif;
                     endif;
-
+ 
                 endwhile; ?>
             </div>
 
