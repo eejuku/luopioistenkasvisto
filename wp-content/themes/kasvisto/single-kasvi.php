@@ -135,7 +135,7 @@ if ( function_exists('get_field') ) :
 
         <div class="kasvi-galleria-grid">
             <?php foreach ($kuvat as $kuva) : 
-                $pieni_kuva = $kuva['sizes']['thumbnail']; // Lataa valmiiksi pienen 150x150px kuvan
+                $pieni_kuva = $kuva['sizes']['medium']; // 300x300px kuva
                 // $pieni_kuva   = !empty($kuva['sizes']['medium_large']) ? $kuva['sizes']['medium_large'] : $kuva['sizes']['medium'];
                 $iso_kuva     = $kuva['url'];
                 $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
