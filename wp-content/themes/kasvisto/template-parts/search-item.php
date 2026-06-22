@@ -1,29 +1,27 @@
 <?php
 /**
  * Yksittäisen hakutuloksen pomminvarma rakenne 
- * (Kuva poimitaan WYSIWYG-editorista ja teksti puhdistetaan)
+ * (Kuva poimitaan ACF Kasvikuvagalleriasta, thumbnail-koko)
  */
 
 $kuva_url = '';
 
-// 1. HAETAAN SISÄLTÖ WYSIWYG-EDITORISTA (galleria_editori)
-$editori_sisalto = get_field('galleria_editori', get_the_ID());
+// 1. HAETAAN KUVAGALLERIA ACF-KENTÄSTÄ (kasvikuvagalleria)
+$galleria = get_field('kasvikuvagalleria', get_the_ID());
 
-if ( $editori_sisalto ) {
-    // Regex-kaava, jolla etsitään kaikki img-tagit ja niiden src-osoitteet
-    $pattern = '/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i';
+if ( !empty($galleria) && is_array($galleria) ) {
+    // Poimitaan gallerian ensimmäinen kuva
+    $ensimmainen_kuva = $galleria[0];
     
-    if ( preg_match($pattern, $editori_sisalto, $matches) ) {
-        // preg_match poimii vain ensimmäisen osuman, joka löytyy osoitteesta $matches[1]
-        $img_url = htmlspecialchars_decode($matches[1]);
-        
-        // Puhdistetaan mahdolliset WordPressin kokomerkinnät (esim. -150x150.jpg) pois, jos halutaan alkuperäinen kuva
-        // Tai voit käyttää suoraan $img_url, jolloin käytetään sitä kokoa mikä editorissa oli
-        $kuva_url = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif|webp))/i', '', $img_url);
+    // Tarkistetaan löytyykö kuvasta 'thumbnail'-koko, muuten käytetään pääosoitetta
+    if ( isset($ensimmainen_kuva['sizes']['thumbnail']) ) {
+        $kuva_url = $ensimmainen_kuva['sizes']['thumbnail'];
+    } else {
+        $kuva_url = $ensimmainen_kuva['url'];
     }
 }
 
-// 2. VARAJÄRJESTELMÄ: Jos editorista ei löytynyt kuvaa, kokeillaan WP:n omaa artikkelikuvaa
+// 2. VARAJÄRJESTELMÄ: Jos galleriasta ei löytynyt kuvaa, kokeillaan WP:n omaa artikkelikuvaa
 if ( !$kuva_url && has_post_thumbnail() ) {
     $kuva_url = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
 }
@@ -32,12 +30,6 @@ if ( !$kuva_url && has_post_thumbnail() ) {
 // 3. TEKSTIN PUHDISTUS JA FIKSU POIMINTA SIVUN ALUSTA
 // Otetaan sivun pääsisältö
 $raaka_sisalto = get_the_content();
-
-// Jos pääsisältö on tyhjä (esim. kaikki teksti onkin ACF-kentissä), 
-// voidaan käyttää myös editorin tekstiä varana ilman HTML-taggilaatikkoja
-if ( empty(trim($raaka_sisalto)) && $editori_sisalto ) {
-    $raaka_sisalto = $editori_sisalto;
-}
 
 // Perataan shortcodet ja HTML-sotkut pois
 $puhdas_teksti = strip_shortcodes($raaka_sisalto);
@@ -67,8 +59,26 @@ if ( !empty($puhdas_teksti) ) {
     <div class="result-content-wrapper">
         <span class="result-meta">
             <?php 
-                $post_type = get_post_type_object( get_post_type() );
-                echo esc_html( $post_type->labels->singular_name ); 
+                $nykyinen_post_type = get_post_type();
+                $naytettava_ryhma = '';
+
+                // JOS kyseessä on kasvikortti, yritetään hakea ryhmä ACF-kentästä
+                if ( $nykyinen_post_type === 'kasvi' ) {
+                    $acf_ryhma = get_field('ryhma', get_the_ID());
+                    
+                    if ( $acf_ryhma ) {
+                        // Jos valintalista palauttaa taulukon (esim. label/value), poimitaan label. Muuten raaka teksti.
+                        $naytettava_ryhma = is_array($acf_ryhma) ? $acf_ryhma['label'] : $acf_ryhma;
+                    }
+                }
+
+                // Jos ryhmää ei löytynyt (tai kyseessä on sivu), käytetään oletusnimeä
+                if ( empty($naytettava_ryhma) ) {
+                    $post_type_obj = get_post_type_object( $nykyinen_post_type );
+                    $naytettava_ryhma = $post_type_obj->labels->singular_name;
+                }
+
+                echo esc_html( ucfirst($naytettava_ryhma) ); 
             ?>
         </span>
         
@@ -89,27 +99,3 @@ if ( !empty($puhdas_teksti) ) {
     </div>
 
 </div>
-
-
-<!-- <article class="search-result-item">
-    <span class="result-meta">
-        <?php echo (get_post_type() === 'kasvi') ? 'Kasvikortti' : 'Sivusto'; ?>
-    </span>
-    
-    <h2 class="result-title">
-        <a href="<?php the_permalink(); ?>">
-            <?php the_title(); ?>
-            <?php if ( get_post_type() === 'kasvi' ) : ?>
-                <span class="result-scientific">
-                    <?php echo get_post_meta(get_the_ID(), 'tieteellinen_nimi', true); ?>
-                </span>
-            <?php endif; ?>
-        </a>
-    </h2>
-
-    <?php if ( get_post_type() !== 'kasvi' ) : ?>
-        <div class="result-excerpt" style="font-size: 13px; color: #666;">
-            <?php echo wp_trim_words(get_the_excerpt(), 20); ?>
-        </div>
-    <?php endif; ?>
-</article> -->
