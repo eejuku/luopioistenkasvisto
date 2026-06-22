@@ -229,3 +229,8 @@ function tulosta_isantakasvi_taulukko() {
     return $html;
 }
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
+
+
+
+
+
