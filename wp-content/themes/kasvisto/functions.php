@@ -231,6 +231,14 @@ function tulosta_isantakasvi_taulukko() {
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 
 
+function nollaa_acf_field_groups_piilotus() {
+    // Tyhjentää kaikkien käyttäjien piilotustiedot ACF-kenttäryhmiltä
+    global $wpdb;
+    $wpdb->query(
+        "DELETE FROM {$wpdb->usermeta} WHERE meta_key = 'closedpostboxes_acf-field-group'"
+    );
+}
+add_action('admin_init', 'nollaa_acf_field_groups_piilotus');
 
 
 
