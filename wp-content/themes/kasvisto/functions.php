@@ -230,5 +230,107 @@ function tulosta_isantakasvi_taulukko() {
 }
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 
+/**
+ * MASSA-AJOTYÖKALU V3: Karttapisteiden tuonti JSON-tiedostosta ACF-kenttiin
+ * Korjattu lukemaan suoraan piste-taulukko ilman 'pisteet'-avainta.
+ */
+add_action('init', function() {
+    if (!isset($_GET['aja_karttatuonti']) || $_GET['aja_karttatuonti'] !== '1') {
+        return;
+    }
+
+    if (!current_user_can('manage_options')) {
+        wp_die('Sinulla ei ole oikeutta ajaa tätä skriptiä. Kirjaudu ensin sisään ylläpitäjänä.');
+    }
+
+    $json_polku = get_stylesheet_directory() . '/karttapisteet.json';
+
+    if (!file_exists($json_polku)) {
+        wp_die('Virhe: Tiedostoa "karttapisteet.json" ei löytynyt teeman kansiosta polusta: ' . $json_polku);
+    }
+
+    $json_data = file_get_contents($json_polku);
+    $data = json_decode($json_data, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        wp_die('Virhe JSON-tiedoston rakenteessa: ' . json_last_error_msg());
+    }
+
+    echo '<!DOCTYPE html><html lang="fi"><head><meta charset="UTF-8"><title>Karttatuonnin raportti (Korjattu data)</title>';
+    echo '<style>
+        body { font-family: -apple-system, sans-serif; line-height: 1.5; padding: 30px; background: #f0f2f5; color: #1d2327; }
+        .raportti-box { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        h1 { border-bottom: 2px solid #f0f0f1; padding-bottom: 10px; margin-top: 0; }
+        .rivi { padding: 8px 12px; margin-bottom: 4px; border-radius: 4px; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        .onnistui { background: #edfae7; color: #1e4620; border-left: 4px solid #46b450; }
+        .virhe { background: #fbeaea; color: #631010; border-left: 4px solid #dc3232; }
+        .stat-box { display: flex; gap: 20px; margin-bottom: 20px; font-weight: bold; }
+        .stat { padding: 10px 15px; border-radius: 4px; background: #f6f7f7; }
+    </style></head><body>';
+    
+    echo '<div class="raportti-box">';
+    echo '<h1>Karttapisteiden massatuonti (Korjattu datarakenne)</h1>';
+
+    $onnistuneet_laskuri = 0;
+    $virhe_laskuri = 0;
+    $tulostus_rivit = '';
+
+    foreach ($data as $kuva_nimi => $pisteet_taulukko) {
+        // Puhdistetaan lajin nimi tiedostonimestä
+        $laji_nimi = pathinfo($kuva_nimi, PATHINFO_FILENAME);
+        $laji_nimi = str_replace('û', '×', $laji_nimi);
+        $laji_nimi = trim($laji_nimi);
+
+        // Varmistetaan, että kyseessä on taulukko (jos JSONissa on jotain muuta dataa)
+        if (!is_array($pisteet_taulukko)) {
+            continue;
+        }
+        
+        $args = [
+            'post_type'      => 'kasvi',
+            'posts_per_page' => 1,
+            'meta_query'     => [
+                [
+                    'key'     => 'tieteellinen_nimi',
+                    'value'   => $laji_nimi,
+                    'compare' => '='
+                ]
+            ]
+        ];
+        
+        $kasvi_query = new WP_Query($args);
+
+        if ($kasvi_query->have_posts()) {
+            $kasvi_query->the_post();
+            $post_id = get_the_ID();
+            
+            // Muutetaan korjattu piste-taulukko puhtaaksi JSON-tekstiksi
+            $pisteet_json_string = json_encode($pisteet_taulukko, JSON_UNESCAPED_UNICODE);
+            
+            // Päivitetään ACF-kenttä
+            update_field('karttapisteet_json', $pisteet_json_string, $post_id);
+            
+            $artikkelin_otsikko = get_the_title();
+            $tulostus_rivit .= '<div class="rivi onnistui"><span>✓ <strong>' . esc_html($laji_nimi) . '</strong> &rarr; "' . esc_html($artikkelin_otsikko) . '"</span> <span>Tallennettu ' . count($pisteet_taulukko) . ' pistettä</span></div>';
+            $onnistuneet_laskuri++;
+        } else {
+            $tulostus_rivit .= '<div class="rivi virhe"><span>✕ <strong>' . esc_html($laji_nimi) . '</strong></span> <span>Ei löytynyt kasvia ACF "tieteellinen_nimi" perusteella.</span></div>';
+            $virhe_laskuri++;
+        }
+        
+        wp_reset_postdata();
+    }
+
+    echo '<div class="stat-box">';
+    echo '<div class="stat" style="color:#46b450;">Onnistui: ' . $onnistuneet_laskuri . ' kpl</div>';
+    echo '<div class="stat" style="color:#dc3232;">Ei löydetty: ' . $virhe_laskuri . ' kpl</div>';
+    echo '</div>';
+
+    echo '<div class="rivit-wrapper">' . $tulostus_rivit . '</div>';
+    echo '</div></body></html>';
+    
+    exit;
+});
+
 
 
