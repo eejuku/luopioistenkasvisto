@@ -344,9 +344,7 @@ msgid "<a href=\"%1$s\">Give a donation</a> – any amount will make me happy"
 msgstr ""
 
 #: functions.php:1702
-msgid ""
-"<a href=\"%1$s\">Post a nice tweet</a> or make a nice blog post about the "
-"plugin"
+msgid "Write a nice blog post about the plugin"
 msgstr ""
 
 #: functions.php:1705

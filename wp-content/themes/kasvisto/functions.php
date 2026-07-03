@@ -66,41 +66,41 @@ add_filter('nav_menu_css_class', 'korosta_kasviryhma_valikossa', 10, 3);
 /**
  * Kasvilistat - SUOJATTU ACF-tarkistuksella
  */
-function custom_kasvilista_shortcode( $atts ) {
-    if ( !function_exists('get_field') ) return '';
+// function custom_kasvilista_shortcode( $atts ) {
+//     if ( !function_exists('get_field') ) return '';
 
-    $pairs = shortcode_atts( array('ryhma' => ''), $atts );
-    $etsittava = $pairs['ryhma'];
-    if ( empty( $etsittava ) ) return 'Määritä ryhmä.';
+//     $pairs = shortcode_atts( array('ryhma' => ''), $atts );
+//     $etsittava = $pairs['ryhma'];
+//     if ( empty( $etsittava ) ) return 'Määritä ryhmä.';
 
-    $args = array(
-        'post_type'      => 'kasvi',
-        'posts_per_page' => -1,
-        'orderby'        => 'title',
-        'order'          => 'ASC',
-        'meta_query'     => array(
-            array('key' => 'lisaryhmat', 'value' => $etsittava, 'compare' => 'LIKE'),
-        ),
-    );
+//     $args = array(
+//         'post_type'      => 'kasvi',
+//         'posts_per_page' => -1,
+//         'orderby'        => 'title',
+//         'order'          => 'ASC',
+//         'meta_query'     => array(
+//             array('key' => 'lisaryhmat', 'value' => $etsittava, 'compare' => 'LIKE'),
+//         ),
+//     );
 
-    $query = new WP_Query( $args );
-    $output = '';
-    if ( $query->have_posts() ) {
-        $output .= '<div class="kasvi-lista-rows shortcode-lista">';
-        while ( $query->have_posts() ) {
-            $query->the_post();
-            $tieteellinen = get_field('tieteellinen_nimi');
-            $output .= '<a href="' . get_permalink() . '" class="kasvi-rivi">';
-            $output .= '<div class="sarake nimi-suomi">' . get_the_title() . '</div>';
-            $output .= '<div class="sarake nimi-latina"><i>' . esc_html($tieteellinen) . '</i></div>';
-            $output .= '</a>';
-        }
-        $output .= '</div>';
-        wp_reset_postdata();
-    }
-    return $output;
-}
-add_shortcode( 'kasvilista', 'custom_kasvilista_shortcode' );
+//     $query = new WP_Query( $args );
+//     $output = '';
+//     if ( $query->have_posts() ) {
+//         $output .= '<div class="kasvi-lista-rows shortcode-lista">';
+//         while ( $query->have_posts() ) {
+//             $query->the_post();
+//             $tieteellinen = get_field('tieteellinen_nimi');
+//             $output .= '<a href="' . get_permalink() . '" class="kasvi-rivi">';
+//             $output .= '<div class="sarake nimi-suomi">' . get_the_title() . '</div>';
+//             $output .= '<div class="sarake nimi-latina"><i>' . esc_html($tieteellinen) . '</i></div>';
+//             $output .= '</a>';
+//         }
+//         $output .= '</div>';
+//         wp_reset_postdata();
+//     }
+//     return $output;
+// }
+// add_shortcode( 'kasvilista', 'custom_kasvilista_shortcode' );
 
 /**
  * Hakumuokkaukset
@@ -229,16 +229,6 @@ function tulosta_isantakasvi_taulukko() {
     return $html;
 }
 add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
-
-
-function nollaa_acf_field_groups_piilotus() {
-    // Tyhjentää kaikkien käyttäjien piilotustiedot ACF-kenttäryhmiltä
-    global $wpdb;
-    $wpdb->query(
-        "DELETE FROM {$wpdb->usermeta} WHERE meta_key = 'closedpostboxes_acf-field-group'"
-    );
-}
-add_action('admin_init', 'nollaa_acf_field_groups_piilotus');
 
 
 

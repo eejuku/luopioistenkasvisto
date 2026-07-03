@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 
 /**
  * Example how to use action cms_tree_page_view_post_can_edit to modify if a user can edit the page/post
@@ -100,15 +104,11 @@ function cms_tpv_add_pages() {
 	)
 	*/
 
-	$post_position 	= esc_attr($_POST["cms_tpv_add_type"]);
-	$post_status 	= esc_attr($_POST["cms_tpv_add_status"]);
+	$post_position 	= sanitize_text_field($_POST["cms_tpv_add_type"]);
+	$post_status 	= sanitize_text_field($_POST["cms_tpv_add_status"]);
 	$post_names 	= (array) $_POST["cms_tpv_add_new_pages_names"];
-	$ref_post_id	= (int) esc_attr($_POST["ref_post_id"]);
-	$lang 			= esc_attr($_POST["lang"]);
-
-	for ($i = 0; $i < count($post_names); $i++) {
-		$post_names[$i] = esc_attr($post_names[$i]);
-	}
+	$ref_post_id	= (int) sanitize_text_field($_POST["ref_post_id"]);
+	$lang 			= sanitize_text_field($_POST["lang"]);
 
 	// Check nonce
 	if ( ! check_admin_referer("cms-tpv-add-pages") ) {
@@ -122,14 +122,15 @@ function cms_tpv_add_pages() {
 		// $_GET["lang"] = $lang;
 	}
 
-	// make sure the status is publish and nothing else (yes, perhaps I named it bad elsewhere)
-	if ("published" === $post_status) $post_status = "publish";
+	// The caller-supplied status is normalized, whitelisted and gated against the
+	// post type's own publish capability below, once we have $post_type_object
+	// (see cms_tpv_resolve_new_post_status() — security todo 30, finding 2).
 
 	// remove possibly empty posts
 	$arr_post_names = array();
 	foreach ($post_names as $one_post_name) {
 		if ( trim($one_post_name) ) {
-			$arr_post_names[] = $one_post_name;
+			$arr_post_names[] = sanitize_text_field($one_post_name);
 		}
 	}
 
@@ -148,6 +149,10 @@ function cms_tpv_add_pages() {
 
 	$ok_to_continue_by_permission = TRUE;
 	$post_type_object = get_post_type_object($ref_post->post_type);
+
+	// Normalize + whitelist the requested status and enforce this post type's own
+	// publish capability (security todo 30, finding 2).
+	$post_status = cms_tpv_resolve_new_post_status( $post_status, $post_type_object );
 
 	$post_parent = 0;
 	if ("after" === $post_position) {
@@ -249,7 +254,7 @@ function cms_tpv_add_pages() {
 		$newpost_args = array(
       "menu_order" => $new_menu_order,
       "post_parent" => $post_parent_id,
-      "post_status" => ( ('publish' == $post_status) && !current_user_can('publish_posts') ? 'pending' : $post_status ),
+      "post_status" => $post_status, // already resolved via cms_tpv_resolve_new_post_status()
       "post_title" => $one_new_post_name,
       "post_type" => $ref_post->post_type,
     );
@@ -272,6 +277,43 @@ function cms_tpv_add_pages() {
 
 }
 
+/**
+ * Resolve a safe post status for a newly added page from a caller-supplied value.
+ *
+ * Security hardening for the AJAX add-page handler (todo 30, finding 2):
+ *  - normalizes the UI's "published" alias to "publish",
+ *  - whitelists the status to the values the add-page UI offers (draft, pending,
+ *    publish) so an arbitrary caller-supplied status can't be passed through to
+ *    wp_insert_post(), and
+ *  - enforces the *post type's own* publish capability (not the hardcoded core
+ *    "publish_posts"), downgrading "publish" to "pending" when the current user
+ *    may not publish that post type.
+ *
+ * @param string       $requested_status Raw status from the request (e.g. "draft", "published").
+ * @param WP_Post_Type $post_type_object The post type the page is being added to.
+ * @return string One of "draft", "pending" or "publish".
+ */
+function cms_tpv_resolve_new_post_status( $requested_status, $post_type_object ) {
+
+	// The UI sends "published" for the publish option; normalize it.
+	if ( "published" === $requested_status ) {
+		$requested_status = "publish";
+	}
+
+	// Only allow the statuses the add-page UI actually offers.
+	$allowed_statuses = array( "draft", "pending", "publish" );
+	if ( ! in_array( $requested_status, $allowed_statuses, true ) ) {
+		$requested_status = "draft";
+	}
+
+	// Enforce the post type's own publish capability.
+	if ( "publish" === $requested_status && ! current_user_can( $post_type_object->cap->publish_posts ) ) {
+		$requested_status = "pending";
+	}
+
+	return $requested_status;
+}
+
 
 /**
  * Output and add hooks in head
@@ -284,7 +326,7 @@ function cms_tpv_admin_head() {
 
 	global $cms_tpv_view;
 	if (isset($_GET["cms_tpv_view"])) {
-		$cms_tpv_view = esc_attr(htmlspecialchars($_GET["cms_tpv_view"]));
+		$cms_tpv_view = htmlspecialchars(sanitize_text_field($_GET["cms_tpv_view"]));
 	} else {
 		$cms_tpv_view = "all";
 	}
@@ -437,7 +479,7 @@ function cms_tpv_promo_above_wrapper() {
 	// enable this to show box while testing
 	//update_option('cms_tpv_show_promo', 1);
 
-	if ( isset($_GET["action"]) && "cms_tpv_remove_promo" == $_GET["action"] ) {
+	if ( isset($_GET["action"]) && "cms_tpv_remove_promo" == $_GET["action"] && isset($_GET["_wpnonce"]) && wp_verify_nonce( $_GET["_wpnonce"], "cms_tpv_remove_promo" ) ) {
 		$show_box = 0;
 		update_option('cms_tpv_show_promo', $show_box);
 	} else {
@@ -484,53 +526,15 @@ function cms_tpv_promo_above_wrapper() {
 	</style>
 	<div class="cms_tpv_promo_above_wrapper">
 
-		<div class="cms_tpv_promo_above_wrapper-owp">
-			<p class="cms_tpv_promo_above_wrapper-owp-logo">
-				<a href="https://organizewp.com/?utm_campaign=migrate&utm_source=cmstpv&utm_medium=banner&utm_content=logolink" target="_BLANK">
-					<svg width="559" height="105" viewBox="0 0 559 105" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path fill-rule="evenodd" clip-rule="evenodd" d="M151.172 81.4821C146.579 81.4821 142.579 80.5115 139.175 78.5701C135.77 76.6288 133.149 73.8246 131.311 70.1576C129.474 66.4906 128.555 62.1496 128.555 57.1344C128.555 50.6632 130.028 44.7987 132.973 39.5409C135.918 34.2831 139.864 30.1442 144.809 27.1244C149.754 24.1045 155.118 22.5945 160.9 22.5945C165.494 22.5945 169.493 23.5652 172.898 25.5066C176.303 27.4479 178.924 30.2521 180.761 33.9191C182.599 37.5861 183.518 41.9271 183.518 46.9423C183.518 53.4135 182.045 59.2779 179.1 64.5358C176.154 69.7936 172.209 73.9324 167.264 76.9523C162.319 79.9722 156.955 81.4821 151.172 81.4821ZM152.794 71.5327C156.685 71.5327 160.09 70.4407 163.008 68.2567C165.926 66.0727 168.156 63.1741 169.696 59.5611C171.236 55.948 172.006 52.0383 172.006 47.8321C172.006 42.9787 170.939 39.2173 168.804 36.548C166.67 33.8786 163.467 32.5439 159.198 32.5439C155.307 32.5439 151.902 33.6359 148.984 35.82C146.065 38.004 143.836 40.9025 142.296 44.5156C140.755 48.1287 139.985 52.0383 139.985 56.2446C139.985 61.098 141.053 64.8593 143.187 67.5287C145.322 70.198 148.524 71.5327 152.794 71.5327ZM191.064 39.9049H200.63L199.981 44.192C201.17 42.9517 202.765 41.8192 204.764 40.7946C206.764 39.77 208.791 39.2577 210.844 39.2577H213.682L210.115 48.7218H206.305C204.791 48.7218 203.346 49.0993 201.968 49.8543C200.589 50.6092 199.549 51.5799 198.846 52.7663L193.901 80.3496H183.93L191.064 39.9049ZM222.039 100.572C216.472 100.572 212.311 99.5474 209.554 97.4982C206.798 95.449 205.42 92.9414 205.42 89.9755C205.42 87.7645 206.123 85.8232 207.528 84.1514C208.933 82.4797 210.932 80.9428 213.527 79.5407C211.851 78.2465 211.014 76.6018 211.014 74.6065C211.014 73.2044 211.419 71.991 212.23 70.9664C213.04 69.9418 214.256 69.0251 215.877 68.2162C214.634 67.0837 213.675 65.6008 213 63.7673C212.324 61.9338 211.986 59.9655 211.986 57.8623C211.986 54.6267 212.77 51.5799 214.337 48.7218C215.905 45.8637 218.12 43.5719 220.985 41.8462C223.849 40.1205 227.119 39.2577 230.794 39.2577C234.361 39.2577 237.171 40.0666 239.225 41.6844C240.035 41.1991 241.224 40.7812 242.791 40.4306C244.359 40.0801 246.007 39.9049 247.736 39.9049H250.493L248.79 46.2142H244.98C244.278 46.2142 243.683 46.2412 243.197 46.2951C243.791 47.9669 244.088 49.9891 244.088 52.3618C244.088 55.6514 243.318 58.7386 241.778 61.6237C240.238 64.5088 238.036 66.8141 235.171 68.5398C232.307 70.2654 229.01 71.1282 225.281 71.1282C224.092 71.1282 222.768 70.9934 221.309 70.7238C220.714 71.0473 220.417 71.5596 220.417 72.2607C220.417 73.1235 221.079 73.7436 222.403 74.1211C223.727 74.4986 226.011 74.9031 229.253 75.3345C233.145 75.8737 236.401 76.8579 239.022 78.2869C241.643 79.716 242.954 82.3179 242.954 86.0928C242.954 88.843 242.116 91.3102 240.441 93.4942C238.765 95.6782 236.347 97.4038 233.185 98.6711C230.024 99.9384 226.308 100.572 222.039 100.572ZM226.578 63.7673C229.172 63.7673 231.239 62.7562 232.78 60.734C234.32 58.7117 235.09 56.2446 235.09 53.3326C235.09 48.8567 233.199 46.6187 229.415 46.6187C226.821 46.6187 224.768 47.6298 223.254 49.6521C221.741 51.6743 220.985 54.1684 220.985 57.1344C220.985 61.5564 222.849 63.7673 226.578 63.7673ZM222.606 93.4538C225.741 93.4538 228.402 92.9146 230.591 91.836C232.78 90.7575 233.874 89.3554 233.874 87.6298C233.874 85.958 232.915 84.7717 230.996 84.0706C229.078 83.3696 226.47 82.8303 223.173 82.4528C222.147 82.3989 221.147 82.2641 220.174 82.0484C215.959 83.4505 213.851 85.4997 213.851 88.196C213.851 89.8677 214.608 91.1619 216.121 92.0787C217.634 92.9954 219.796 93.4538 222.606 93.4538ZM263.633 81.1585C259.039 81.1585 255.391 79.5947 252.689 76.4669C249.987 73.3392 248.636 69.2947 248.636 64.3335C248.636 60.0733 249.568 56.0154 251.432 52.1596C253.297 48.3039 255.959 45.1896 259.417 42.8169C262.876 40.4441 266.876 39.2577 271.415 39.2577C273.469 39.2577 275.239 39.5543 276.725 40.1475C278.211 40.7407 279.576 41.6035 280.819 42.736L281.954 39.9049H290.709L286.007 67.5691C285.791 68.8094 285.683 69.834 285.683 70.6429C285.683 71.7214 285.926 72.3685 286.412 72.5842C286.899 72.7999 287.98 72.9078 289.655 72.9078L287.385 81.1585C284.575 81.1585 282.454 81.0372 281.022 80.7945C279.589 80.5518 278.495 80.1204 277.738 79.5003C276.982 78.8801 276.252 77.869 275.55 76.4669C273.874 77.9229 272.104 79.0689 270.24 79.9047C268.375 80.7406 266.173 81.1585 263.633 81.1585ZM267.038 72.9079C271.037 72.9079 273.861 71.2362 275.509 67.8927C277.157 64.5493 277.982 60.8284 277.982 56.73C277.982 50.5823 275.55 47.5086 270.686 47.5086C268.47 47.5086 266.47 48.2096 264.687 49.6117C262.903 51.0138 261.525 52.9012 260.552 55.2739C259.58 57.6467 259.093 60.2352 259.093 63.0393C259.093 66.1132 259.742 68.5263 261.039 70.279C262.336 72.0316 264.335 72.9079 267.038 72.9079ZM300.768 39.9049H309.604L310.01 42.3315C311.577 41.3609 313.158 40.6059 314.752 40.0666C316.346 39.5274 318.143 39.2577 320.143 39.2577C324.196 39.2577 327.25 40.498 329.303 42.9787C331.357 45.4593 332.384 48.7757 332.384 52.9281C332.384 53.8987 332.141 55.9884 331.654 59.197C331.168 62.4056 329.952 69.4564 328.006 80.3496H317.873C320.683 64.3873 322.089 55.7053 322.089 54.3032C322.089 51.9304 321.629 50.2048 320.71 49.1263C319.792 48.0477 318.333 47.5085 316.333 47.5085C314.874 47.5085 313.563 47.7916 312.401 48.3578C311.239 48.924 310.064 49.8003 308.875 50.9867L303.687 80.3496H293.634L300.768 39.9049ZM345.605 23.727H355.738L353.955 33.7573H343.903L345.605 23.727ZM342.768 39.9049H352.82L345.686 80.3497H335.634L342.768 39.9049ZM373.256 48.8028H357.286L358.907 39.9049H391.739L369.446 71.4519H385.254L383.632 80.3497H350.963L373.256 48.8028ZM407.878 81.1585C401.987 81.1585 397.529 79.5407 394.502 76.3052C391.476 73.0696 389.963 68.8903 389.963 63.7673C389.963 59.6149 390.922 55.6514 392.84 51.8765C394.759 48.1016 397.461 45.0548 400.947 42.736C404.433 40.4171 408.392 39.2577 412.823 39.2577C417.039 39.2577 420.295 40.3093 422.592 42.4124C424.888 44.5156 426.037 47.3736 426.037 50.9867C426.037 55.5705 424.213 58.9274 420.565 61.0575C416.917 63.1876 412.283 64.2526 406.662 64.2526C403.96 64.2526 401.906 64.0908 400.501 63.7673C400.663 66.895 401.636 69.2003 403.419 70.6833C405.203 72.1663 407.338 72.9078 409.824 72.9078C414.147 72.9078 418.39 71.8023 422.551 69.5913L421.416 78.0847C417.579 80.1339 413.066 81.1585 407.878 81.1585ZM405.041 57.7006C409.581 57.7006 412.81 57.1074 414.728 55.9211C416.647 54.7347 417.606 53.2517 417.606 51.4721C417.606 49.9083 417.052 48.8567 415.944 48.3174C414.836 47.7782 413.661 47.5086 412.418 47.5086C409.608 47.5086 407.216 48.5601 405.244 50.6632C403.271 52.7664 401.96 55.0043 401.312 57.3771C402.177 57.5928 403.42 57.7006 405.041 57.7006Z" fill="#FC5C65"/>
-						<path fill-rule="evenodd" clip-rule="evenodd" d="M434.592 23.727H445.374L448.941 63.9291L467.991 23.727H474.963L480.394 62.8775L497.499 23.727H508.281L482.34 80.3497H473.423L468.072 42.5743L449.508 80.3497H439.943L434.592 23.727ZM513.726 23.727H533.019C538.586 23.727 542.855 25.1291 545.828 27.9332C548.8 30.7374 550.286 34.5931 550.286 39.5005C550.286 44.246 549.3 48.2904 547.327 51.6339C545.355 54.9773 542.599 57.4984 539.059 59.1971C535.519 60.8957 531.425 61.7451 526.777 61.7451H517.374L514.05 80.3497H503.754L513.726 23.727ZM528.317 52.0383C531.722 52.0383 534.438 51.0541 536.465 49.0858C538.491 47.1175 539.505 44.192 539.505 40.3093C539.505 37.6669 538.897 35.6851 537.681 34.3639C536.465 33.0427 534.532 32.3821 531.884 32.3821H522.562L519.076 52.0383H528.317Z" fill="#FC5C65"/>
-						<path fill-rule="evenodd" clip-rule="evenodd" d="M0 12.65C0 8.23174 3.58172 4.65002 8 4.65002H88C92.4183 4.65002 96 8.23175 96 12.65V92.65C96 97.0683 92.4183 100.65 88 100.65H8C3.58172 100.65 0 97.0683 0 92.65V12.65ZM22.1315 14.65H9.86852C9.06982 14.65 8.59343 15.5402 9.03647 16.2047L15.1679 25.4019C15.5638 25.9957 16.4362 25.9957 16.8321 25.402L22.9635 16.2047C23.4066 15.5402 22.9302 14.65 22.1315 14.65ZM35 16.65C33.8954 16.65 33 17.5455 33 18.65V21.65C33 22.7546 33.8954 23.65 35 23.65H69C70.1046 23.65 71 22.7546 71 21.65V18.65C71 17.5455 70.1046 16.65 69 16.65H35ZM22.1315 67.65H9.86852C9.06982 67.65 8.59343 68.5402 9.03647 69.2047L15.1679 78.4019C15.5638 78.9957 16.4362 78.9957 16.8321 78.4019L22.9635 69.2047C23.4066 68.5402 22.9302 67.65 22.1315 67.65ZM35 69.65C33.8954 69.65 33 70.5455 33 71.65V74.65C33 75.7546 33.8954 76.65 35 76.65H72C73.1046 76.65 74 75.7546 74 74.65V71.65C74 70.5455 73.1046 69.65 72 69.65H35ZM25 46.5185V58.7815C25 59.5802 25.8901 60.0566 26.5547 59.6136L35.7519 53.4821C36.3457 53.0863 36.3457 52.2138 35.7519 51.818L26.5547 45.6865C25.8901 45.2435 25 45.7198 25 46.5185ZM47 49.65C45.8954 49.65 45 50.5455 45 51.65V54.65C45 55.7546 45.8954 56.65 47 56.65H79C80.1046 56.65 81 55.7546 81 54.65V51.65C81 50.5455 80.1046 49.65 79 49.65H47ZM33 86.65C33 85.5455 33.8954 84.65 35 84.65H80C81.1046 84.65 82 85.5455 82 86.65V89.65C82 90.7546 81.1046 91.65 80 91.65H35C33.8954 91.65 33 90.7546 33 89.65V86.65ZM35 32.65C33.8954 32.65 33 33.5455 33 34.65V37.65C33 38.7546 33.8954 39.65 35 39.65H83C84.1046 39.65 85 38.7546 85 37.65V34.65C85 33.5455 84.1046 32.65 83 32.65H35Z" fill="#FC5C65"/>
-					</svg>
-				</a>
-			</p>
-			<p><a href="https://organizewp.com/?utm_campaign=migrate&utm_source=cmstpv&utm_medium=banner&utm_content=brandlink" target="_BLANK">OrganizeWP</a> is like CMS Tree Page View but incorporates <em>multiple content types, global search, content groups,</em> <strong>&amp; more!</strong></p>
-			<p><a class="cms_tpv_promo_above_wrapper-owp-btn button" href="https://organizewp.com/?utm_campaign=migrate&utm_source=cmstpv&utm_medium=banner&utm_content=buttonlink" target="_BLANK">Get OrganizeWP</a></p>
-		</div>
-
-		<style>
-			.cms_tpv_promo_above_wrapper-owp {
-				padding-bottom: 10px;
-				border-bottom: 2px solid #eaeaea;
-				margin-bottom: 20px;
-			}
-
-			.cms_tpv_promo_above_wrapper .cms_tpv_promo_above_wrapper-owp p {
-				margin: 1em 0;
-			}
-
-			.cms_tpv_promo_above_wrapper p.cms_tpv_promo_above_wrapper-owp-logo {
-				margin-top: 0;
-			}
-			.cms_tpv_promo_above_wrapper-owp-logo a {
-				display: block;
-			}
-			.cms_tpv_promo_above_wrapper-owp svg {
-				display: block;
-				width: 100%;
-				height: auto;
-			}
-		</style>
-
 		<p>Thanks for using <b>CMS Tree Page View</b>!</p>
 
 		<p>Do you like this plugin? Then <a href="https://wordpress.org/support/view/plugin-reviews/cms-tree-page-view#topic">give it a nice review</a>!</p>
 
-		<p>Want to see who in you team edited what and when?
-			Then <a href="https://wordpress.org/plugins/simple-history/">Simple History</a> is the plugin you need!
+		<p>Want to see who in your team edited what and when?
+			Then <a href="https://simple-history.com/?utm_source=cms-tree-page-view&amp;utm_medium=plugin&amp;utm_campaign=cmstpv_promo_box">Simple History</a> is the plugin you need!
 
 		<p class="cms_tpv_promo_above_wrapper-close">
-			<a href="<?php echo esc_url( add_query_arg("action", "cms_tpv_remove_promo") ) ?>">
+			<a href="<?php echo esc_url( wp_nonce_url( add_query_arg("action", "cms_tpv_remove_promo"), "cms_tpv_remove_promo" ) ) ?>">
 				<?php _e("Hide until next upgrade", 'cms-tree-page-view') ?>
 			</a>
 		</p>
@@ -668,7 +672,7 @@ function cms_tpv_set_plugin_row_meta($links, $file) {
  */
 function cms_tpv_save_settings() {
 
-	if (isset($_POST["cms_tpv_action"]) && $_POST["cms_tpv_action"] == "save_settings" && check_admin_referer('update-options')) {
+	if (isset($_POST["cms_tpv_action"]) && $_POST["cms_tpv_action"] == "save_settings" && current_user_can('manage_options') && check_admin_referer('update-options')) {
 
 		$options = array();
 		$options["dashboard"] = isset( $_POST["post-type-dashboard"] ) ? (array) $_POST["post-type-dashboard"] : array();
@@ -676,6 +680,15 @@ function cms_tpv_save_settings() {
 		$options["postsoverview"] = isset( $_POST["post-type-postsoverview"] ) ? (array) $_POST["post-type-postsoverview"] : array();
 
 		update_option('cms_tpv_options', $options);
+
+		// Self-handled save (Post/Redirect/Get): the form posts to this settings
+		// page rather than core options.php, so only this handler runs. Redirect
+		// back with a flag so a refresh doesn't resubmit and we can show a notice.
+		// (Posting to options.php with action=update + page_options caused
+		// "unregistered/deprecated setting" and "headers already sent" notices on
+		// modern WordPress.)
+		wp_safe_redirect( add_query_arg( 'settings-updated', 'true', admin_url( 'options-general.php?page=cms-tpv-options' ) ) );
+		exit;
 
 	}
 
@@ -765,7 +778,11 @@ function cms_tpv_options() {
 
 		<h2><?php echo CMS_TPV_NAME ?> <?php _e("settings", 'cms-tree-page-view') ?></h2>
 
-		<form method="post" action="options.php" class="cmtpv_options_form">
+		<?php if ( isset( $_GET['settings-updated'] ) ) : ?>
+			<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Settings saved.' ); ?></p></div>
+		<?php endif; ?>
+
+		<form method="post" class="cmtpv_options_form">
 
 			<?php wp_nonce_field('update-options'); ?>
 
@@ -784,7 +801,6 @@ function cms_tpv_options() {
 					), "objects");
 
 
-					$arr_page_options = array();
 					foreach ($post_types as $one_post_type) {
 
 						if ( cms_tpv_post_type_is_ignored($one_post_type->name) ) {
@@ -803,10 +819,6 @@ function cms_tpv_options() {
 							// No support for media/attachment
 							continue;
 						}
-
-						$arr_page_options[] = "post-type-dashboard-$name";
-						$arr_page_options[] = "post-type-menu-$name";
-						$arr_page_options[] = "post-type-postsoverview-$name";
 
 						echo "<tr>";
 
@@ -841,10 +853,7 @@ function cms_tpv_options() {
 				</tbody>
 			</table>
 
-			<input type="hidden" name="action" value="update" />
 			<input type="hidden" name="cms_tpv_action" value="save_settings" />
-			<?php // TODO: why is the line below needed? gives deprecated errors ?>
-			<input type="hidden" name="page_options" value="<?php echo esc_attr( implode( ',', $arr_page_options ) ); ?>" />
 			<p class="submit">
 				<input type="submit" class="button-primary" value="<?php _e('Save Changes', 'cms-tree-page-view') ?>" />
 			</p>
@@ -894,11 +903,11 @@ function cms_tpv_get_selected_post_type() {
 	// http://localhost/wp-admin/admin.php?page=cms-tpv-page-movies
 	$post_type = NULL;
 	if (isset($_GET["post_type"])) {
-		$post_type = esc_attr($_GET["post_type"]);
+		$post_type = sanitize_text_field($_GET["post_type"]);
 	}
 	if (!$post_type) {
 		// no post type, happens with ozh admin drop down, so get it via page instead
-		$page = isset($_GET["page"]) ? esc_attr($_GET["page"]) : "";
+		$page = isset($_GET["page"]) ? sanitize_text_field($_GET["page"]) : "";
 		$post_type = str_replace("cms-tpv-page-", "", $page);
 	}
 
@@ -938,13 +947,13 @@ function cms_tpv_get_wpml_post_counts($post_type) {
 			$extra_cond .= " AND post_status <> 'trash'";
 		}
 		$extra_cond .= " AND post_status <> 'auto-draft'";
-		$sql = "
+		$sql = $wpdb->prepare("
 			SELECT language_code, COUNT(p.ID) AS c FROM {$wpdb->prefix}icl_translations t
 			JOIN {$wpdb->posts} p ON t.element_id=p.ID
 			JOIN {$wpdb->prefix}icl_languages l ON t.language_code=l.code AND l.active = 1
-			WHERE p.post_type='{$post_type}' AND t.element_type='post_{$post_type}' {$extra_cond}
+			WHERE p.post_type=%s AND t.element_type=%s {$extra_cond}
 			GROUP BY language_code
-		";
+		", $post_type, "post_{$post_type}");
 
 		$res = $wpdb->get_results($sql);
 
@@ -976,6 +985,14 @@ function cms_tpv_print_common_tree_stuff($post_type = "") {
 	}
 
 	$post_type_object = get_post_type_object($post_type);
+
+	// Bail if the requested post type is not registered (e.g. a bogus ?post_type= value).
+	// Prevents fatals on a null object and avoids rendering with unvalidated input.
+	if ( empty( $post_type_object ) ) {
+		echo '<div class="updated fade below-h2"><p>' . esc_html__("No posts found.", 'cms-tree-page-view') . '</p></div>';
+		return;
+	}
+
 	$get_pages_args = array("post_type" => $post_type);
 
 	$pages = cms_tpv_get_pages($get_pages_args);
@@ -1045,7 +1062,7 @@ function cms_tpv_print_common_tree_stuff($post_type = "") {
 	if (! $json_data) $json_data = '{}';
 	?>
 	<script type="text/javascript">
-		cms_tpv_jsondata["<?php echo $post_type ?>"] = <?php echo $json_data ?>;
+		cms_tpv_jsondata[<?php echo wp_json_encode( $post_type ) ?>] = <?php echo $json_data ?>;
 	</script>
 
 	<?php
@@ -1053,9 +1070,9 @@ function cms_tpv_print_common_tree_stuff($post_type = "") {
 	?>
 
 	<div class="cms_tpv_wrapper">
-		<input type="hidden" name="cms_tpv_meta_post_type" value="<?php echo $post_type ?>" />
+		<input type="hidden" name="cms_tpv_meta_post_type" value="<?php echo esc_attr( $post_type ) ?>" />
 		<input type="hidden" name="cms_tpv_meta_post_type_hierarchical" value="<?php echo (int) cms_tpv_is_post_type_hierarchical($post_type_object) ?>" />
-		<input type="hidden" name="cms_tpv_meta_wpml_language" value="<?php echo $wpml_current_lang ?>" />
+		<input type="hidden" name="cms_tpv_meta_wpml_language" value="<?php echo esc_attr( $wpml_current_lang ) ?>" />
 		<?php
 
 		// check if WPML is activated and show a language-menu
@@ -1265,6 +1282,11 @@ function cms_tpv_pages_page() {
 	$post_type = cms_tpv_get_selected_post_type();
 	$post_type_object = get_post_type_object($post_type);
 
+	// Bail on an unregistered post type (e.g. a crafted ?post_type= value).
+	if ( empty( $post_type_object ) ) {
+		wp_die( esc_html__("No posts found.", 'cms-tree-page-view') );
+	}
+
 	if ( 'post' != $post_type ) {
 		$post_new_file = "post-new.php?post_type=$post_type";
 	} else {
@@ -1337,6 +1359,16 @@ function cms_tpv_get_pages($args = null) {
 		$get_posts_args["post_status"] = "publish";
 	}
 
+	// Security: mirror core's edit.php list table — when the current user can't
+	// edit other authors' posts of this type, restrict the listing to posts they
+	// authored. Without this, a low-privileged user (e.g. a Contributor, who has
+	// the post-type `edit_posts` cap) could enumerate other authors' drafts and
+	// private posts through the tree. (todo 30, finding 1)
+	$cms_tpv_pt_obj = get_post_type_object( $get_posts_args["post_type"] );
+	if ( $cms_tpv_pt_obj && ! current_user_can( $cms_tpv_pt_obj->cap->edit_others_posts ) ) {
+		$get_posts_args["author"] = get_current_user_id();
+	}
+
 	// does not work with plugin role scoper. don't know why, but this should fix it
 	remove_action("get_pages", array('ScoperHardway', 'flt_get_pages'), 1, 2);
 
@@ -1376,6 +1408,70 @@ function cms_tpv_get_pages($args = null) {
 function cms_tpv_parse_query($q) {
 }
 
+/**
+ * Performance helper: return a map of [parent_id => child_count] for all the
+ * given parent IDs in a single query.
+ *
+ * Without this, cms_tpv_print_childs() would call cms_tpv_get_pages() once per
+ * rendered node just to test "does this node have children?" — an N+1 query
+ * pattern that dominates load time on large trees. Mirrors the post_status
+ * semantics of cms_tpv_get_pages() ("all" => the WP_Query "any" set, otherwise
+ * just "publish").
+ *
+ * Note: unlike cms_tpv_get_pages() this does not run the `get_pages` filter, so
+ * on WPML sites the count may include children in other languages. childCount is
+ * only used for the "(N)" label / expand arrow, so a cosmetic discrepancy there
+ * is an acceptable trade for collapsing N queries into one.
+ */
+function cms_tpv_get_child_counts($parent_ids, $view, $post_type) {
+
+	global $wpdb;
+
+	$parent_ids = array_filter( array_map( 'intval', (array) $parent_ids ) );
+	if ( empty( $parent_ids ) ) {
+		return array();
+	}
+
+	if ( $view == "all" ) {
+		// "any" in WP_Query == all statuses not excluded from search.
+		$statuses = array_values( get_post_stati( array( "exclude_from_search" => false ) ) );
+	} else {
+		$statuses = array( "publish" );
+	}
+
+	$id_placeholders = implode( ",", array_fill( 0, count( $parent_ids ), "%d" ) );
+	$status_placeholders = implode( ",", array_fill( 0, count( $statuses ), "%s" ) );
+
+	// Security: match the author restriction applied in cms_tpv_get_pages() so the
+	// child count / expand arrow doesn't reveal the existence of other authors'
+	// (hidden) children to low-privileged users. (todo 30, finding 1)
+	$author_sql = "";
+	$author_params = array();
+	$cms_tpv_pt_obj = get_post_type_object( $post_type );
+	if ( $cms_tpv_pt_obj && ! current_user_can( $cms_tpv_pt_obj->cap->edit_others_posts ) ) {
+		$author_sql = " AND post_author = %d";
+		$author_params[] = get_current_user_id();
+	}
+
+	$sql = $wpdb->prepare(
+		"SELECT post_parent, COUNT(*) AS child_count
+		 FROM $wpdb->posts
+		 WHERE post_parent IN ($id_placeholders)
+		   AND post_type = %s
+		   AND post_status IN ($status_placeholders)
+		   $author_sql
+		 GROUP BY post_parent",
+		array_merge( $parent_ids, array( $post_type ), $statuses, $author_params )
+	);
+
+	$counts = array();
+	foreach ( $wpdb->get_results( $sql ) as $row ) {
+		$counts[ (int) $row->post_parent ] = (int) $row->child_count;
+	}
+
+	return $counts;
+}
+
 
 /**
  * Output JSON for the children of a node
@@ -1407,6 +1503,17 @@ function cms_tpv_print_childs($pageID, $view = "all", $arrOpenChilds = null, $po
 		// Translated post statuses
 		$post_statuses = get_post_statuses();
 
+		// Performance: prime the post + meta caches for every node at this level in
+		// one pair of queries. cms_tpv_get_pages() returns IDs only, so get_post()
+		// and get_post_meta('_edit_last') below would otherwise fire one query each
+		// per node (an N+1 over the whole level).
+		$page_ids = wp_list_pluck( $arrPages, "ID" );
+		_prime_post_caches( $page_ids, false, true );
+
+		// Performance: resolve "has children?" / childCount for every node at this
+		// level in one query instead of a full get_pages() lookup per node. Trash
+		// view renders flat (no children fetched), so skip it there.
+		$child_counts = ( $view == "trash" ) ? array() : cms_tpv_get_child_counts( $page_ids, $view, $post_type );
 
 		?>[<?php
 		for ($i=0, $pagesCount = sizeof($arrPages); $i<$pagesCount; $i++) {
@@ -1416,22 +1523,14 @@ function cms_tpv_print_childs($pageID, $view = "all", $arrOpenChilds = null, $po
 			$tmpPost = $post;
 			$post = $onePage;
 			$page_id = $onePage->ID;
-			$arrChildPages = NULL;
 
 			$editLink = get_edit_post_link($onePage->ID, 'notDisplay');
 			$content = esc_html($onePage->post_content);
 			$content = str_replace(array("\n","\r"), "", $content);
-			$hasChildren = false;
 
-			// if viewing trash, don't get children. we watch them "flat" instead
-			if ($view == "trash") {
-			} else {
-				$arrChildPages = cms_tpv_get_pages("parent={$onePage->ID}&view=$view&post_type=$post_type");
-			}
-
-			if ( !empty($arrChildPages) ) {
-				$hasChildren = true;
-			}
+			// Child count comes from the single batched query above (0 in trash view).
+			$child_count = isset( $child_counts[ $onePage->ID ] ) ? $child_counts[ $onePage->ID ] : 0;
+			$hasChildren = $child_count > 0;
 			// if no children, output no state
 			$strState = '"state": "closed",';
 			if (!$hasChildren) {
@@ -1528,13 +1627,13 @@ function cms_tpv_print_childs($pageID, $view = "all", $arrOpenChilds = null, $po
 			if ($str_columns) {
 				$str_columns = "<dl>$str_columns</dl>";
 			}
-			$str_columns = json_encode($str_columns);
+			$str_columns = wp_json_encode($str_columns);
 			?>
 			{
 				"data": {
-					"title": <?php echo json_encode($title) ?>,
+					"title": <?php echo wp_json_encode($title) ?>,
 					"attr": {
-						"href": "<?php echo $editLink ?>"
+						"href": <?php echo wp_json_encode($editLink) ?>
 						<?php /* , "xid": "cms-tpv-<?php echo $onePage->ID ?>" */ ?>
 					}<?php /*,
 					"xicon": "<?php echo CMS_TPV_URL . "images/page_white_text.png" ?>"*/?>
@@ -1553,16 +1652,16 @@ function cms_tpv_print_childs($pageID, $view = "all", $arrOpenChilds = null, $po
 					"post_status": "<?php echo $onePage->post_status ?>",
 					"post_status_translated": "<?php echo isset($post_statuses[$onePage->post_status]) ? $post_statuses[$onePage->post_status] : $onePage->post_status  ?>",
 					"rel": "<?php echo $rel ?>",
-					"childCount": <?php echo ( !empty( $arrChildPages ) ) ? sizeof( $arrChildPages ) : 0 ; ?>,
-					"permalink": "<?php echo htmlspecialchars_decode(get_permalink($onePage->ID)) ?>",
-					"editlink": "<?php echo htmlspecialchars_decode($editLink) ?>",
-					"modified_time": "<?php echo $post_modified_time ?>",
-					"modified_author": "<?php echo $post_author ?>",
+					"childCount": <?php echo (int) $child_count ; ?>,
+					"permalink": <?php echo wp_json_encode(htmlspecialchars_decode((string) get_permalink($onePage->ID))) ?>,
+					"editlink": <?php echo wp_json_encode(htmlspecialchars_decode((string) $editLink)) ?>,
+					"modified_time": <?php echo wp_json_encode($post_modified_time) ?>,
+					"modified_author": <?php echo wp_json_encode($post_author) ?>,
 					"columns": <?php echo $str_columns ?>,
 					"user_can_edit_page": "<?php echo (int) $user_can_edit_page ?>",
 					"user_can_add_page_inside": "<?php echo (int) $user_can_add_inside ?>",
 					"user_can_add_page_after": "<?php echo (int) $user_can_add_after ?>",
-					"post_title": <?php echo json_encode($title) ?>
+					"post_title": <?php echo wp_json_encode($title) ?>
 				}
 				<?php
 				// if id is in $arrOpenChilds then also output children on this one
@@ -1589,6 +1688,103 @@ function cms_tpv_print_childs($pageID, $view = "all", $arrOpenChilds = null, $po
 	}
 }
 
+/**
+ * Find posts whose title matches a search string, for the tree search.
+ *
+ * Security (todo 30, finding 1): scoped to the given post type and, for users
+ * who cannot edit other authors' posts of that type, to posts they authored — so
+ * the tree search can't be used to enumerate other authors' draft/private content.
+ * Mirrors the author restriction in cms_tpv_get_pages().
+ *
+ * @param string $search    Title substring to search for.
+ * @param string $post_type Post type whose tree is being searched.
+ * @return array Rows with ->id and ->post_parent (empty array for an unknown post type).
+ */
+function cms_tpv_search_get_matching_posts( $search, $post_type ) {
+
+	global $wpdb;
+
+	$post_type_object = get_post_type_object( $post_type );
+	if ( empty( $post_type_object ) ) {
+		return array();
+	}
+
+	$sqlsearch = "%{$search}%";
+	$where_author = "";
+	$params = array( $post_type, $sqlsearch );
+
+	if ( ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+		$where_author = " AND post_author = %d";
+		$params[] = get_current_user_id();
+	}
+
+	// $where_author is a fixed internal string (not user input); values are bound via $params.
+	$sql = $wpdb->prepare(
+		"SELECT id, post_parent FROM $wpdb->posts WHERE post_type = %s AND post_title LIKE %s{$where_author}",
+		$params
+	);
+
+	return $wpdb->get_results( $sql );
+}
+
+/**
+ * Resolve the ancestor node ids to open so each search hit becomes visible in
+ * the tree, scoped to what the current user is allowed to see.
+ *
+ * Security (todo 30, finding 1): for a user who can't edit other authors' posts
+ * of this type, the walk up each hit's ancestor chain is restricted to posts
+ * they authored and stops at the first ancestor they can't see — so the returned
+ * "nodes to open" list can't be used to enumerate the ids of other authors'
+ * (hidden) ancestor posts. Users with edit_others_posts are unrestricted, so the
+ * behaviour for admins/editors is unchanged.
+ *
+ * @param array  $hits      Rows from cms_tpv_search_get_matching_posts() (each with ->post_parent).
+ * @param string $post_type Post type whose tree is being searched.
+ * @return int[] Unique ancestor node ids to open (may include 0 as a top-level "has a result" marker).
+ */
+function cms_tpv_search_get_nodes_to_open( $hits, $post_type ) {
+
+	global $wpdb;
+
+	$post_type_object = get_post_type_object( $post_type );
+
+	$restrict_author_id = 0;
+	if ( $post_type_object && ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+		$restrict_author_id = get_current_user_id();
+	}
+
+	$nodes_to_open = array();
+	foreach ( $hits as $oneHit ) {
+
+		// Top-level hit: no ancestors to open, but keep a marker so the client
+		// still registers a result (mirrors the previous behaviour).
+		if ( 0 === (int) $oneHit->post_parent ) {
+			$nodes_to_open[] = 0;
+			continue;
+		}
+
+		// Walk up the ancestor chain, stopping at the first node the user can't
+		// see (missing, or owned by another author when restricted).
+		$parentNodeID = (int) $oneHit->post_parent;
+		while ( $parentNodeID > 0 ) {
+			if ( $restrict_author_id ) {
+				$row = $wpdb->get_row( $wpdb->prepare( "SELECT id, post_parent FROM $wpdb->posts WHERE id = %d AND post_author = %d", $parentNodeID, $restrict_author_id ) );
+			} else {
+				$row = $wpdb->get_row( $wpdb->prepare( "SELECT id, post_parent FROM $wpdb->posts WHERE id = %d", $parentNodeID ) );
+			}
+
+			if ( null === $row ) {
+				break;
+			}
+
+			$nodes_to_open[] = $parentNodeID;
+			$parentNodeID = (int) $row->post_parent;
+		}
+	}
+
+	return array_unique( $nodes_to_open );
+}
+
 // Act on AJAX-call
 // Get pages
 function cms_tpv_get_childs() {
@@ -1597,55 +1793,29 @@ function cms_tpv_get_childs() {
 
 	check_ajax_referer('cms-tpv-ajax', 'cms-tpv-nonce');
 
-	$action = esc_attr($_GET["action"]);
-	$view = esc_attr($_GET["view"]); // all | public | trash
-	$post_type = (isset($_GET["post_type"])) ? esc_attr($_GET["post_type"]) : null;
-	$search = (isset($_GET["search_string"])) ? esc_attr(trim($_GET["search_string"])) : ""; // exits if we're doing a search
+	$action = sanitize_text_field($_GET["action"]);
+	$view = sanitize_text_field($_GET["view"]); // all | public | trash
+	$post_type = (isset($_GET["post_type"])) ? sanitize_text_field($_GET["post_type"]) : null;
+	$search = (isset($_GET["search_string"])) ? sanitize_text_field(trim($_GET["search_string"])) : ""; // exits if we're doing a search
 
 	// Check if user is allowed to get the list. For example subscribers should not be allowed to
 	// Use same capability that is required to add the menu
 	$post_type_object = get_post_type_object($post_type);
-	if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
-		die( __( 'Cheatin&#8217; uh?' ) );
+	if ( empty( $post_type_object ) || ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+		wp_die( __( 'Cheatin&#8217; uh?' ) ); // proper AJAX termination (matches cms_tpv_add_pages)
 	}
 
 	if ($action) {
 
 		if ($search) {
 
-			// find all pages that contains $search
-			// collect all post_parent
-			// for each parent id traverse up until post_parent is 0, saving all ids on the way
-
-			// what to search: since all we see in the GUI is the title, just search that
-			global $wpdb;
-			$sqlsearch = "%{$search}%";
-			// feels bad to leave out the "'" in the query, but prepare seems to add it..??
-			$sql = $wpdb->prepare("SELECT id, post_parent FROM $wpdb->posts WHERE post_type = 'page' AND post_title LIKE %s", $sqlsearch);
-			$hits = $wpdb->get_results($sql);
-			$arrNodesToOpen = array();
-			foreach ($hits as $oneHit) {
-				$arrNodesToOpen[] = $oneHit->post_parent;
-			}
-
-			$arrNodesToOpen = array_unique($arrNodesToOpen);
-			$arrNodesToOpen2 = array();
-			// find all parents to the arrnodestopen
-			foreach ($arrNodesToOpen as $oneNode) {
-				if ($oneNode > 0) {
-					// not at top so check it out
-					$parentNodeID = $oneNode;
-					while ($parentNodeID != 0) {
-						$hits = $wpdb->get_results($sql);
-						$sql = "SELECT id, post_parent FROM $wpdb->posts WHERE id = $parentNodeID";
-						$row = $wpdb->get_row($sql);
-						$parentNodeID = $row->post_parent;
-						$arrNodesToOpen2[] = $parentNodeID;
-					}
-				}
-			}
-
-			$arrNodesToOpen = array_merge($arrNodesToOpen, $arrNodesToOpen2);
+			// Find posts whose title matches (scoped to the current tree's post type
+			// and, for users who can't edit other authors' posts, to their own posts),
+			// then resolve the ancestor nodes to open so each hit becomes visible —
+			// both scoped so search can't enumerate other authors' unpublished content
+			// (security todo 30, finding 1).
+			$hits = cms_tpv_search_get_matching_posts( $search, $post_type );
+			$arrNodesToOpen = cms_tpv_search_get_nodes_to_open( $hits, $post_type );
 			$sReturn = "";
 			#foreach ($arrNodesToOpen as $oneNodeID) {
 			#	$sReturn .= "cms-tpv-{$oneNodeID},";
@@ -1673,7 +1843,7 @@ function cms_tpv_get_childs() {
 
 			// regular get
 
-			$id = (isset($_GET["id"])) ? esc_attr($_GET["id"]) : null;
+			$id = (isset($_GET["id"])) ? sanitize_text_field($_GET["id"]) : null;
 			$id = (int) str_replace("cms-tpv-", "", $id);
 
 			$jstree_open = array();
@@ -1706,9 +1876,9 @@ function cms_tpv_move_page() {
 
 	global $wpdb;
 
-	$node_id = esc_attr($_POST["node_id"]); // the node that was moved
-	$ref_node_id = esc_attr($_POST["ref_node_id"]);
-	$type = esc_attr($_POST["type"]);
+	$node_id = sanitize_text_field($_POST["node_id"]); // the node that was moved
+	$ref_node_id = sanitize_text_field($_POST["ref_node_id"]);
+	$type = sanitize_text_field($_POST["type"]);
 
 	$node_id = str_replace("cms-tpv-", "", $node_id);
 	$ref_node_id = str_replace("cms-tpv-", "", $ref_node_id);
@@ -1822,7 +1992,7 @@ function cms_tpv_show_annoying_box() {
 
 	//update_option('cms_tpv_show_annoying_little_box', 1); // enable this to show box while testing
 
-	if ( isset($_GET["action"]) && "cms_tpv_remove_annoying_box" == $_GET["action"] ) {
+	if ( isset($_GET["action"]) && "cms_tpv_remove_annoying_box" == $_GET["action"] && isset($_GET["_wpnonce"]) && wp_verify_nonce( $_GET["_wpnonce"], "cms_tpv_remove_annoying_box" ) ) {
 		$show_box = 0;
 		update_option('cms_tpv_show_annoying_little_box', $show_box);
 	} else {
@@ -1834,23 +2004,23 @@ function cms_tpv_show_annoying_box() {
 		<div class="cms_tpv_annoying_little_box">
 
 			<h3><?php _e('Thanks for using my plugin', 'cms-tree-page-view') ?></h3>
-			<p class="cms_tpv_annoying_little_box_gravatar"><a href="https://twitter.com/eskapism"><?php echo get_avatar("par.thernstrom@gmail.com", '64'); ?></a></p>
+			<p class="cms_tpv_annoying_little_box_gravatar"><a href="https://eskapism.se/"><?php echo get_avatar("par.thernstrom@gmail.com", '64'); ?></a></p>
 			<p><?php _e('Hi there! I just wanna says thanks for using my plugin. I hope you like it as much as I do.', 'cms-tree-page-view') ?></p>
-			<p class="cms_tpv_annoying_little_box_author"><a href="https://twitter.com/eskapism"><?php _e('/Pär Thernström - plugin creator', 'cms-tree-page-view') ?></a></p>
+			<p class="cms_tpv_annoying_little_box_author"><a href="https://eskapism.se/"><?php _e('/Pär Thernström - plugin creator', 'cms-tree-page-view') ?></a></p>
 
 			<h3><?php _e('I like this plugin<br>– how can I thank you?', 'cms-tree-page-view') ?></h3>
 			<p><?php _e('There are serveral ways for you to show your appreciation:', 'cms-tree-page-view') ?></p>
 			<ul>
 				<li><?php printf(__('<a href="%1$s">Give it a nice review</a> over at the WordPress Plugin Directory', 'cms-tree-page-view'), "http://wordpress.org/support/view/plugin-reviews/cms-tree-page-view") ?></li>
 				<li><?php printf(__('<a href="%1$s">Give a donation</a> – any amount will make me happy', 'cms-tree-page-view'), "http://eskapism.se/sida/donate/?utm_source=wordpress&utm_medium=banner&utm_campaign=promobox") ?></li>
-				<li><?php printf(__('<a href="%1$s">Post a nice tweet</a> or make a nice blog post about the plugin', 'cms-tree-page-view'), "https://twitter.com/intent/tweet?text=I really like the CMS Tree Page View plugin for WordPress http://wordpress.org/extend/plugins/cms-tree-page-view/") ?></li>
+				<li><?php _e('Write a nice blog post about the plugin', 'cms-tree-page-view') ?></li>
 			</ul>
 
 			<h3><?php _e('Support', 'cms-tree-page-view') ?></h3>
 			<p><?php printf(__('Please see the <a href="%1$s">support forum</a> for help.', 'cms-tree-page-view'), "http://wordpress.org/support/plugin/cms-tree-page-view") ?></p>
 
 			<p class="cms_tpv_annoying_little_box_close">
-				<a href="<?php echo esc_url( add_query_arg("action", "cms_tpv_remove_annoying_box") ) ?>">
+				<a href="<?php echo esc_url( wp_nonce_url( add_query_arg("action", "cms_tpv_remove_annoying_box"), "cms_tpv_remove_annoying_box" ) ) ?>">
 					<?php _e("Hide until next upgrade", 'cms-tree-page-view') ?>
 				</a>
 			</p>

@@ -39,7 +39,7 @@
         <div class="kasvi-flex-grid">
             
             <div class="kasvi-text-content">
-                
+                <!-- <h2>Lajikuvaus</h2> -->
                 <?php if(get_the_content()): ?>
                     <div class="content-section">
                         <h3>Yleiskuvaus</h3>
@@ -51,8 +51,8 @@
 
                 <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
-                $fields = [
-                    'Synonyymi' => 'synonyymi',
+                $fields_lajikuvaus = [
+                    // 'Synonyymi' => 'synonyymi',
                     'Uhanalaisuus' => 'uhanalaisuus',
                     'Koko' => 'koko',
                     'Kasvupaikka' => 'kasvupaikka',
@@ -68,7 +68,13 @@
                     'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
                 ];
 
-                foreach ($fields as $label => $slug): 
+                
+                // Listaus kentistä: Otsikko => ACF-slug
+                $fields_luopioinen = [
+                    'Löytöpaikat Luopioisissa' => 'loytopaikat',       
+                ];
+
+                foreach ($fields_lajikuvaus as $label => $slug): 
                     $value = get_field($slug);
                     
                     // Näytetään osio vain, jos kentässä on sisältöä
@@ -95,18 +101,6 @@
                         </div>
                     <?php endif; 
                 endforeach; ?>
-
-<!-- <?php if( have_rows('synonyymi2') ): ?>
-
-    <?php while( have_rows('synonyymi2') ): the_row(); ?>
-    <ul>
-        <li><?php the_sub_field('synonyymi_suomenkielinen_nimi'); ?></li>
-        <li><i><?php the_sub_field('synonyymi_tieteellinen_nimi'); ?></i></li>
-    </ul>
-    <?php endwhile; ?>
-<?php else: ?>
-    <?php // Ei rivejä -lauseke (valinnainen) ?>
-<?php endif; ?> -->
 
                 <div class="content-section">
                     <small>
@@ -173,58 +167,12 @@ endif;
                     <div class="clean-gallery">
                         <?php 
                         // 1. VANHAT URL-KENTÄT
-                        for ($i = 1; $i <= 5; $i++) {
+                        for ($i = 1; $i <= 4; $i++) {
                             $url = get_field("kuva_{$i}_url");
                             if ($url) {
                                 echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
                                 echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
                                 echo '</a>';
-                            }
-                        }
-
-                        // 2. POIMITAAN KUVAT WYSIWYG-EDITORISTA
-                        $editori_sisalto = get_field('galleria_editori');
-
-                        if ($editori_sisalto) {
-                            $pattern = '/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i';
-                            
-                            if (preg_match_all($pattern, $editori_sisalto, $matches)) {
-                                foreach ($matches[1] as $img_url) {
-                                    $img_url = htmlspecialchars_decode($img_url);
-                                    $full_url = preg_replace('/-\d+x\d+(?=\.(jpg|jpeg|png|gif|webp))/i', '', $img_url);
-                                    
-                                    $display_title = get_the_title();
-                                    $caption = '';
-
-                                    $attachment_id = attachment_url_to_postid($full_url);
-
-                                    if ($attachment_id) {
-                                        $media_title = get_the_title($attachment_id);
-                                        $media_caption = wp_get_attachment_caption($attachment_id);
-
-                                        if ($media_title && !preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $media_title)) {
-                                            $display_title = $media_title;
-                                        }
-                                        
-                                        if ($media_caption) {
-                                            $caption = $media_caption;
-                                        }
-                                    }
-
-                                    $lightbox_meta = 'title: ' . esc_attr($display_title) . ';';
-                                    if ($caption) {
-                                        $lightbox_meta .= ' description: ' . esc_attr($caption) . ';';
-                                    }
-                                    ?>
-                                    <a href="<?php echo esc_url($full_url); ?>" 
-                                       class="glightbox" 
-                                       data-glightbox="<?php echo $lightbox_meta; ?>">
-                                        <img src="<?php echo esc_url($img_url); ?>" 
-                                             alt="<?php echo esc_attr($display_title); ?>" 
-                                             loading="lazy">
-                                    </a>
-                                    <?php
-                                }
                             }
                         }
                         ?>
