@@ -39,7 +39,7 @@
         <div class="kasvi-flex-grid">
             
             <div class="kasvi-text-content">
-                <!-- <h2>Lajikuvaus</h2> -->
+                <h2>Lajikuvaus</h2>
                 <?php if(get_the_content()): ?>
                     <div class="content-section">
                         <h3>Yleiskuvaus</h3>
@@ -261,7 +261,13 @@ endif;
                                         ?>
                                             <div class="kartta-piste" style="position: absolute; left: <?php echo $left_pct; ?>%; top: <?php echo $top_pct; ?>%; width: <?php echo $koko_pct; ?>%; aspect-ratio: 1/1; background-color: <?php echo $vari; ?> !important; border: 1.5px solid #ffffff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
                                         <?php endforeach; ?>
+
                                     </div>
+                                     <div class="legend" style="display: flex; justify-content: center; margin-top: 15px; font-size: 0.65em; color: #2f2f2f; gap: 15px;">
+                                            <span><span style="display:inline-block; width:10px; height:10px; background:#000; border-radius: 50%; border:1px solid #333;"></span> Nykyhavainto</span>
+                                            <span><span style="display:inline-block; width:10px; height:10px; background:#0000FF; border-radius: 50%; border:1px solid #333;"></span> Havainto 2020 jälkeen</span>
+                                            <span><span style="display:inline-block; width:10px; height:10px; background:#FF0000; border-radius: 50%; border:1px solid #333;"></span> Hävinnyt</span>
+                                        </div>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -278,6 +284,7 @@ endif;
                                 </div>
                             </div>
                         <?php endif; ?>
+                        
                     </div>
                 <?php endif; // Kartta-osion end ?>
             </div>
