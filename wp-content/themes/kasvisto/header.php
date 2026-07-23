@@ -452,7 +452,7 @@ $header_kuva_url = get_template_directory_uri() . '/images/' . $bg_kuva;
         
         <div class="site-logo">
             <a href="<?php echo esc_url(home_url('/')); ?>">
-                <span class="logo-text">Luopioisten<br>Kasvisto</span>
+                <span class="logo-text">Luopioisten<br>kasvisto</span>
             </a>
         </div>
 

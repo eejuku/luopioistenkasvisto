@@ -57,11 +57,13 @@
                         $suomi = !empty($rivi['suomenkielinen_synonyymi']) ? trim($rivi['suomenkielinen_synonyymi']) : '';
                         $latina = !empty($rivi['tieteellinen_synonyymi']) ? trim($rivi['tieteellinen_synonyymi']) : '';
 
-                        if ($suomi !== '' && $latina !== '') {
-                            $synonyymit_formatted[] = esc_html($suomi) . ' – <i>' . esc_html($latina) . '</i>';
-                        } elseif ($suomi !== '') {
+                        // Lisätään suomenkielinen nimi omalle rivilleen, jos sellainen on
+                        if ($suomi !== '') {
                             $synonyymit_formatted[] = esc_html($suomi);
-                        } elseif ($latina !== '') {
+                        }
+
+                        // Lisätään tieteellinen nimi omalle rivilleen (kursivoituna), jos sellainen on
+                        if ($latina !== '') {
                             $synonyymit_formatted[] = '<i>' . esc_html($latina) . '</i>';
                         }
                     }
@@ -70,7 +72,11 @@
                         <div class="content-section">
                             <h3>Synonyymit</h3>
                             <div class="field-value">
-                                <p><?php echo implode(', ', $synonyymit_formatted); ?></p>
+                                <ul style="margin: 0; padding-left: 20px;">
+                                    <?php foreach ($synonyymit_formatted as $synonyymi): ?>
+                                        <li><?php echo $synonyymi; ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
                             </div>
                         </div>
                     <?php endif;
@@ -292,7 +298,7 @@ endif;
                                     </div>
                                      <div class="legend" style="display: flex; justify-content: center; margin-top: 15px; font-size: 0.65em; color: #2f2f2f; gap: 15px;">
                                             <span><span style="display:inline-block; width:10px; height:10px; background:#000; border-radius: 50%; border:1px solid #333;"></span> Nykyhavainto</span>
-                                            <span><span style="display:inline-block; width:10px; height:10px; background:#0000FF; border-radius: 50%; border:1px solid #333;"></span> Havainto 2020 jälkeen</span>
+                                            <span><span style="display:inline-block; width:10px; height:10px; background:#008000; border-radius: 50%; border:1px solid #333;"></span> Havainto 2020 jälkeen</span>
                                             <span><span style="display:inline-block; width:10px; height:10px; background:#FF0000; border-radius: 50%; border:1px solid #333;"></span> Hävinnyt</span>
                                         </div>
                                 </div>
