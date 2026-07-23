@@ -37,9 +37,7 @@
         </header>
 
         <div class="kasvi-flex-grid">
-            
             <div class="kasvi-text-content">
-                <!-- <h2>Lajikuvaus</h2> -->
                 <?php if(get_the_content()): ?>
                     <div class="content-section">
                         <h3>Yleiskuvaus</h3>
@@ -50,9 +48,38 @@
                 <?php endif; ?>
 
                 <?php 
+                // --- SYNONYMYRYHMÄN KÄSITTELY ---
+                $synonyymit_repeater = get_field('synonyymiryhma');
+                if (is_array($synonyymit_repeater) && !empty($synonyymit_repeater)) {
+                    $synonyymit_formatted = [];
+
+                    foreach ($synonyymit_repeater as $rivi) {
+                        $suomi = !empty($rivi['suomenkielinen_synonyymi']) ? trim($rivi['suomenkielinen_synonyymi']) : '';
+                        $latina = !empty($rivi['tieteellinen_synonyymi']) ? trim($rivi['tieteellinen_synonyymi']) : '';
+
+                        if ($suomi !== '' && $latina !== '') {
+                            $synonyymit_formatted[] = esc_html($suomi) . ' – <i>' . esc_html($latina) . '</i>';
+                        } elseif ($suomi !== '') {
+                            $synonyymit_formatted[] = esc_html($suomi);
+                        } elseif ($latina !== '') {
+                            $synonyymit_formatted[] = '<i>' . esc_html($latina) . '</i>';
+                        }
+                    }
+
+                    if (!empty($synonyymit_formatted)): ?>
+                        <div class="content-section">
+                            <h3>Synonyymit</h3>
+                            <div class="field-value">
+                                <p><?php echo implode(', ', $synonyymit_formatted); ?></p>
+                            </div>
+                        </div>
+                    <?php endif;
+                }
+                ?>
+
+                <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
                 $fields_lajikuvaus = [
-                    'Synonyymi' => 'synonyymi',
                     'Uhanalaisuus' => 'uhanalaisuus',
                     'Koko' => 'koko',
                     'Kasvupaikka' => 'kasvupaikka',
