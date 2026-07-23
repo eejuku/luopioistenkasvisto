@@ -39,7 +39,7 @@
         <div class="kasvi-flex-grid">
             
             <div class="kasvi-text-content">
-                <h2>Lajikuvaus</h2>
+                <!-- <h2>Lajikuvaus</h2> -->
                 <?php if(get_the_content()): ?>
                     <div class="content-section">
                         <h3>Yleiskuvaus</h3>
@@ -52,7 +52,7 @@
                 <?php 
                 // Listaus kentistä: Otsikko => ACF-slug
                 $fields_lajikuvaus = [
-                    // 'Synonyymi' => 'synonyymi',
+                    'Synonyymi' => 'synonyymi',
                     'Uhanalaisuus' => 'uhanalaisuus',
                     'Koko' => 'koko',
                     'Kasvupaikka' => 'kasvupaikka',

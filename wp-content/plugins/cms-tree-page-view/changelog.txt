@@ -6,6 +6,31 @@ WordPress.org shows on the plugin page). Each entry appears in only one
 place — the newest in readme.txt, everything older here — so there is no
 duplicate log to keep in sync.
 
+### 1.7.0 (June 2026)
+
+The plugin is now maintained by its original author again and is being modernized. This release focuses on security and compatibility with current WordPress and PHP.
+
+#### Changed
+
+- Tree rendering no longer runs three database queries per node. Loading a level of the tree now primes the post and meta caches in one query each and resolves all child counts in a single query, instead of one query each for the post, its meta, and a "has children?" check per node. On a tree with ~250 nodes this cut a single level's queries from ~760 to 4 (about 7× faster).
+- Tested up to WordPress 7.0.
+- Now requires at least WordPress 6.0 and PHP 7.4.
+
+#### Fixed
+
+- The tree now degrades gracefully instead of erroring on PHP 8+ when an unregistered post type is requested.
+- The settings screen no longer triggers "setting is unregistered / deprecated" and "headers already sent" notices on modern WordPress. The settings form is now handled directly by the plugin instead of routing through core `options.php`. Settings save exactly as before.
+- Removed a redundant database query that ran once per ancestor while expanding search results in the tree.
+
+#### Security
+
+- Fixed a reflected XSS issue where the `post_type` URL parameter was output on the tree pages without escaping.
+- Fixed potential stored XSS in the page tree data — page titles, author display names, permalinks, and edit links are now safely JSON-encoded.
+- Added a capability check (`manage_options`) to the settings save handler.
+- Hardened database queries with prepared statements.
+- Added nonce (CSRF) protection to the dismissible notice boxes.
+- Added direct file access (`ABSPATH`) guards.
+
 ### 1.6.8 (April 2023)
 
 Refactor of changes made in 1.6.7 security release

@@ -4,59 +4,55 @@ Contributors: eskapism
 Donate link: https://eskapism.se/sida/donate/
 Tags: reorder pages, page order, drag-and-drop, custom post types, tree view
 Text Domain: cms-tree-page-view
-Requires at least: 6.0
+Requires at least: 6.6
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 2.0.0
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Reorder, organize and manage your WordPress pages and custom post types in a drag-and-drop tree view — edit, view, add and search in wp-admin.
+See every page as a drag-and-drop tree. Reorder your site structure in seconds — then edit, add and search right there.
 
 ## Description
 
-**Reorder your WordPress pages by drag and drop, and manage your whole site structure from one visual tree — without ever leaving wp-admin.**
+**Your whole site, laid out as one clear tree. Drag a page to move it, click to edit, and shape your structure in seconds.**
 
-CMS Tree Page View gives WordPress the CMS-like page tree it's always been missing — a structured overview of all your pages and custom post types, much like the view found in a dedicated, page-focused CMS.
+See the tree in action:
 
-See your whole site hierarchy at a glance, then **drag and drop to reorder** your pages, and **edit, view, add and search** them — all without ever leaving the tree. You can even add many pages at once to lay out a brand-new site structure in seconds.
+https://youtu.be/UV47jXEB-r8
 
-Actively maintained again by its original author, in use since 2010, and translated into more than 20 languages.
+CMS Tree Page View gives WordPress the page overview it's always been missing: one friendly tree of every page and post, so you can finally see how your site fits together — and rearrange it just by dragging.
 
-**Perfect for** content-heavy sites, agencies and editors who manage large page structures and want a fast, visual way to organize them.
+No more clicking through endless paginated lists. Everything's in front of you: drag a page to reorder or renest it, and edit, add or search right where you are. Setting up a brand-new site? Add a whole batch of pages at once.
 
-#### Why CMS Tree Page View?
+Loved by editors, agencies and anyone who looks after a content-heavy site — and actively maintained again by its original author, in use since 2010 and translated into more than 20 languages.
 
-- **See everything in one place.** Stop clicking through paginated page lists — view every page, and exactly how it's nested, in a single tree.
-- **Reordering that your theme already understands.** The order you set is saved as WordPress' own `menu_order` — not in a separate hidden table — so navigation menus, `wp_list_pages()` and other plugins can use it directly.
-- **Change a post's type just by dragging it.** Drag an item from one tree into another to convert it — turn a page into a custom post type (or back) with no extra plugin. That's rare among reordering plugins.
-- **Not just pages.** Enable the tree for posts, WooCommerce products or any public custom post type — hierarchical or not.
+If you also run [Simple History](https://simple-history.com/?utm_source=cms-tree-page-view&utm_medium=plugin&utm_campaign=cmstpv_readme) — my free activity-log plugin — the tree shows recent changes as you go: pick any page to see its history, or glance at the latest edits across your whole site, without leaving the screen.
 
-#### Features and highlights:
+#### Why you'll like it
 
-- View your pages & posts in a tree-view, like you view files in Windows Explorer or the Finder on macOS
-- Drag and drop to rearrange/order your pages
-- Add pages after or inside a page
-- Add multiple pages at once - perfect for setting up a new site structure
-- Edit pages
-- View pages
-- Search pages
-- Available for both regular pages and custom posts
-- Works with both hierarchical and non-hierarchical post types
-- View your site hierarchy directly from the WordPress dashboard
-- Drag and drop between trees with different post types to change the post type of the dragged item, i.e. change a regular page to become any custom post type
-- Support for translation plugin [WPML](http://wordpress.org/extend/plugins/sitepress-multilingual-cms/), so you can manage all the languages of your site
+- **See your whole site in one place.** Every page, and exactly how it's nested, in a single tree.
+- **Rearrange by dragging.** Move a page up, down, or into another page just by dragging it — the order sticks, and your theme can use it too.
+- **Do everything without leaving the tree.** Edit, view, add and search your pages right where you see them.
+- **Not just pages.** Turn on the tree for posts, products or any content type — and drag an item from one tree into another to change what kind of thing it is.
 
-#### Show your pages on your site in the same order as they are in CMS Tree Page View
+#### What's in the tree
+
+- A clear, visual tree of your pages and posts — like folders in Finder or File Explorer
+- Drag and drop to reorder and renest
+- Drag a brand-new page straight into the tree to create it exactly where it belongs
+- Add a page after or inside another — or a whole batch at once
+- Edit, view and search, all in place
+- Full keyboard navigation, so your hands can stay on the keys
+- A tree right on your dashboard, ready the moment you log in
+- See who moved, edited or added a page, right beside the tree — when the free Simple History plugin is installed
+- Works with pages, posts, products and any custom content type — hierarchical or not
+
+#### Showing this order on your site
 
 The plugin stores the order you set as WordPress' "menu order". It does not change how your
 theme outputs your pages — to show them on the front end in the tree order, the query that
 outputs them must sort by `menu_order`. See the FAQ below for ready-to-use code examples.
-
-#### Screencast
-
-Watch this screencast to see how easy you could be managing your pages:
-[youtube http://www.youtube.com/watch?v=H4BGomLi_FU]
 
 #### Translations/Languages
 
@@ -65,11 +61,11 @@ Available in 20+ languages, including German, French, Spanish, Russian, Italian,
 #### Always show your pages in the admin area
 
 If you want to always have a list of your pages available in your WordPress admin area, please check out the plugin
-[Admin Menu Tree Page View](http://wordpress.org/extend/plugins/admin-menu-tree-page-view/).
+[Admin Menu Tree Page View](https://wordpress.org/plugins/admin-menu-tree-page-view/).
 
 #### Donation and more plugins
 
-- Check out my other plugin [Simple History](https://simple-history.com/?utm_source=cms-tree-page-view&utm_medium=plugin&utm_campaign=cmstpv_readme) if you want to see a log of changes in your WordPress admin. With Simple History you can see login attempts (both failed and sucessful), page changes, plugin updated, and more. It's a great way to view user actions on your site!
+- These two plugins work nicely together: install my free [Simple History](https://simple-history.com/?utm_source=cms-tree-page-view&utm_medium=plugin&utm_campaign=cmstpv_readme) plugin and the tree will show you who recently moved, edited or added each page. On its own, Simple History is a complete activity log for your admin — logins (both failed and successful), post and page edits, plugin updates, user changes and more — so you can always see what happened on your site, and when.
 - If you like this plugin don't forget to [donate to support further development](https://eskapism.se/sida/donate/).
 
 ## Installation
@@ -115,6 +111,10 @@ Yes. The tree works with any public post type — pages, regular posts, WooComme
 
 The same ones they can see on WordPress' built-in Posts and Pages screens. The tree follows WordPress' own permissions, so each user only sees content they are allowed to manage. For example, a user who can edit only their own content (such as a Contributor) sees their own pages and posts in the tree, not other people's drafts — exactly as on the standard WordPress overview screens.
 
+### Can I see who changed a page, or a history of edits?
+
+Yes — if you also install the free [Simple History](https://wordpress.org/plugins/simple-history/) plugin. When it's active, CMS Tree Page View shows recent activity right in the tree: select any page to see its own history — who edited it, and when — or open the "Latest changes" feed to see edits, moves and new pages across your whole site at a glance. Simple History is a separate free plugin by the same author; the tree works fine without it, and simply hides the history panels when it isn't installed.
+
 ### Will the tree change or slow down the front end of my site?
 
 No. CMS Tree Page View only adds the tree inside the WordPress admin; it loads nothing on the public side of your site, so it has no effect on front-end performance. The only thing it stores is the page order (as WordPress' "menu order") — see the first FAQ for how to display that order on the front end.
@@ -130,13 +130,51 @@ Yes. CMS Tree Page View has been taken back over by its original author and is b
 ## Screenshots
 
 1. Your entire site structure at a glance — every page, nested as a tree.
-2. Edit, view, or add several pages at once — right from the tree.
-3. Find any page instantly with built-in search.
-4. Drag and drop to reorder pages — the new order is saved automatically.
-5. The tree on your dashboard, ready the moment you log in.
-6. Switch between the regular list view and the tree view in one click.
+2. Select any page to edit, view, add a child, or reorder it — right from the tree.
+3. Add several pages at once — type one title per line, as drafts or published.
+4. Find any page instantly with built-in search.
+5. Drag and drop to reorder pages — the new order is saved automatically.
+6. See who moved, edited or added each page, right beside the tree — when the free Simple History plugin is installed.
+7. The tree on your dashboard, ready the moment you log in.
+8. Switch between the regular list view and the tree view in one click.
 
 ## Changelog
+
+### 2.0.0 (July 2026)
+
+A big, friendly refresh of the whole plugin.
+
+I hope you will like this update.
+If you like it: [leave a nice review](https://wordpress.org/support/plugin/cms-tree-page-view/reviews/#new-post) :)
+If you hate it: [leave feedback in the support forum](https://wordpress.org/support/plugin/cms-tree-page-view/) so I know what to improve!
+
+#### Added
+
+- Optional Simple History integration — see who changed what, right in the tree.
+- Full keyboard navigation — arrow keys to move around, "/" to search, "?" for the shortcut list.
+- Select a page to see its details and quick actions (edit, view, add, reorder) beside the tree.
+- Drag to create: drop the new-page item anywhere in the tree and the page is created right there — right parent, right position.
+- A friendly welcome note after activating the plugin points you straight to your tree.
+
+#### Changed
+
+- Rebuilt the entire tree interface to be faster and easier to use.
+- The dashboard widget is now a light, glanceable quick-nav card — click a page to jump straight to its editor, or open the full tree in one click. The editing tools live on the Tree View screen, so your dashboard stays fast and tidy.
+- The pages list screen got a clean List / Tree switch at the top — flip between WordPress' regular list and the tree with one click (this replaces the old option that embedded the tree inside the list screen).
+- Now requires WordPress 6.6 or later.
+- Adding several pages at once is now as simple as typing one title per line and pressing Enter.
+- Tightened permission and security checks across the tree.
+- The tree sidebar and settings screen now show a small "About this plugin" card with support, review, and Simple History links, replacing the old dismissible promo boxes.
+- Made the settings page easier to find: a Plugins-screen "Settings" link, a link in the tree sidebar's About card, and a mention in the welcome notice.
+
+#### Fixed
+
+- Reordering now saves the correct order on sites with a persistent object cache (Redis, Memcached); previously a drag could leave several pages sharing one order value.
+- The Tree View menu item no longer overwrites other plugins' admin menu items when a post type's menu lives in a custom location ([report](https://wordpress.org/support/topic/plugin-overwriting-search-and-filter-pro-menu-on-admin/)).
+
+#### Removed
+
+- Removed the bundled WPML / Sitepress integration (I was unable to test and maintain this since I don't use WPML myself).
 
 ### 1.7.1 (June 2026)
 
@@ -145,33 +183,8 @@ Yes. CMS Tree Page View has been taken back over by its original author and is b
 - The tree and its search now show each user only the posts and pages they are allowed to see, matching WordPress' built-in posts and pages screens. Users who cannot edit other people's content (such as Contributors) no longer see — or find by searching — other authors' drafts in the tree.
 - When adding pages, the plugin now respects who is allowed to publish. If a user cannot publish a given post type, their new page is saved as "Pending review" instead of being published.
 
-### 1.7.0 (June 2026)
-
-The plugin is now maintained by its original author again and is being modernized. This release focuses on security and compatibility with current WordPress and PHP.
-
-#### Changed
-
-- Tree rendering no longer runs three database queries per node. Loading a level of the tree now primes the post and meta caches in one query each and resolves all child counts in a single query, instead of one query each for the post, its meta, and a "has children?" check per node. On a tree with ~250 nodes this cut a single level's queries from ~760 to 4 (about 7× faster).
-- Tested up to WordPress 7.0.
-- Now requires at least WordPress 6.0 and PHP 7.4.
-
-#### Fixed
-
-- The tree now degrades gracefully instead of erroring on PHP 8+ when an unregistered post type is requested.
-- The settings screen no longer triggers "setting is unregistered / deprecated" and "headers already sent" notices on modern WordPress. The settings form is now handled directly by the plugin instead of routing through core `options.php`. Settings save exactly as before.
-- Removed a redundant database query that ran once per ancestor while expanding search results in the tree.
-
-#### Security
-
-- Fixed a reflected XSS issue where the `post_type` URL parameter was output on the tree pages without escaping.
-- Fixed potential stored XSS in the page tree data — page titles, author display names, permalinks, and edit links are now safely JSON-encoded.
-- Added a capability check (`manage_options`) to the settings save handler.
-- Hardened database queries with prepared statements.
-- Added nonce (CSRF) protection to the dismissible notice boxes.
-- Added direct file access (`ABSPATH`) guards.
-
 ### Older versions
 
-The changelog for all previous releases (1.6.8 and earlier, back to the first release in 2010) is in [changelog.txt](changelog.txt), included with the plugin.
+The changelog for all previous releases (1.7.0 and earlier, back to the first release in 2010) is in [changelog.txt](changelog.txt), included with the plugin.
 
 ysaetf7ruhjnm3e2x4tbtletpc35ckeb

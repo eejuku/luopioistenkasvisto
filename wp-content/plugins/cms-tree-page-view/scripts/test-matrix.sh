@@ -3,7 +3,7 @@
 # Run the Playwright e2e suite against a small WordPress/PHP version matrix to
 # confirm the plugin works on both ends of its declared support window:
 #
-#   - declared minimum : WP 6.0  / PHP 7.4  (readme.txt "Requires at least" / "Requires PHP")
+#   - declared minimum : WP 6.6  / PHP 7.4  (readme.txt "Requires at least" / "Requires PHP")
 #   - latest           : WP latest / PHP 8.3
 #
 # If it passes on the floor and on latest, everything in between is covered, so
@@ -47,7 +47,7 @@ printf '{\n\t"config": {\n\t\t"WP_DEBUG_DISPLAY": false\n\t}\n}\n' >"$OVERRIDE"
 
 # Rows: "WP_CORE|PHP_VERSION|LABEL"  -- WP_CORE is a zip URL wp-env can download.
 ROWS=(
-	"https://wordpress.org/wordpress-6.0.zip|7.4|WP 6.0 / PHP 7.4 (declared minimum)"
+	"https://wordpress.org/wordpress-6.6.zip|7.4|WP 6.6 / PHP 7.4 (declared minimum)"
 	"https://wordpress.org/latest.zip|8.3|WP latest / PHP 8.3"
 )
 

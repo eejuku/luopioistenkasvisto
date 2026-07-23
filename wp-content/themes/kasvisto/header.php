@@ -481,7 +481,7 @@ $header_kuva_url = get_template_directory_uri() . '/images/' . $bg_kuva;
                     <input 
                         type="search" 
                         class="search-field" 
-                        placeholder="Etsi kasveja tai sieniä..." 
+                        placeholder="Etsi sivustolta" 
                         value="<?php echo get_search_query(); ?>" 
                         name="s" 
                         id="s" 

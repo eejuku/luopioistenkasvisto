@@ -1,89 +1,99 @@
 <?php
+/**
+ * Plugin Name: CMS Tree Page View
+ * Plugin URI: https://eskapism.se/code-playground/cms-tree-page-view/
+ * Description: Adds a CMS-like tree view of all your pages, like the view often found in a page-focused CMS. Use the tree view to edit, view, add pages and search pages (very useful if you have many pages). And with drag and drop you can rearrange the order of your pages. Page management won't get any easier than this!
+ * Text Domain: cms-tree-page-view
+ * Version: 2.0.0
+ * Requires at least: 6.6
+ * Requires PHP: 7.4
+ * Author: Pär Thernström
+ * Author URI: https://eskapism.se/
+ * License: GPL2
+ *
+ * @package cms-tree-page-view
+ */
+
 /*
-Plugin Name: CMS Tree Page View
-Plugin URI: http://eskapism.se/code-playground/cms-tree-page-view/
-Description: Adds a CMS-like tree view of all your pages, like the view often found in a page-focused CMS. Use the tree view to edit, view, add pages and search pages (very useful if you have many pages). And with drag and drop you can rearrange the order of your pages. Page management won't get any easier than this!
-Text Domain: cms-tree-page-view
-Domain Path: /languages/
-Version: 1.7.1
-Author: Pär Thernström
-Author URI: http://eskapism.se/
-License: GPL2
-*/
+	Copyright 2010  Pär Thernström (email: par.thernstrom@gmail.com)
 
-/*  Copyright 2010  Pär Thernström (email: par.thernstrom@gmail.com)
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License, version 2, as
+	published by the Free Software Foundation.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as
-    published by the Free Software Foundation.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-#require("functions.php");
+define( 'CMS_TPV_VERSION', '2.0.0' );
+define( 'CMS_TPV_NAME', 'CMS Tree Page View' );
 
-define( "CMS_TPV_VERSION", "1.7.1");
-define( "CMS_TPV_NAME", "CMS Tree Page View");
+require __DIR__ . '/functions.php';
+require_once __DIR__ . '/inc/class-autoloader.php';
 
-require(dirname(__FILE__) . "/functions.php");
+add_action(
+	'rest_api_init',
+	function () {
+		( new CMS_Tree_Page_View\REST\Tree_Controller() )->register_routes();
+		( new CMS_Tree_Page_View\REST\Mutation_Controller() )->register_routes();
+		( new CMS_Tree_Page_View\REST\Activity_Controller() )->register_routes();
+	}
+);
 
-// Find the plugin directory URL
-$aa = __FILE__;
+// Simple History (https://simple-history.com/) is an optional dependency: this
+// action is only fired by Simple History itself, so registration is a no-op
+// (and the logger class is never loaded) when it isn't installed/active.
+add_action(
+	'simple_history/add_custom_logger',
+	function ( $simple_history ) {
+		$simple_history->register_logger( 'CMS_Tree_Page_View\\Integrations\\Simple_History_Logger' );
+	}
+);
+
+// Find the plugin directory URL, honouring mu-plugin / network-plugin loads.
+$cms_tpv_plugin_file = __FILE__;
 if ( isset( $cms_tpv_mu_plugin ) ) {
-	$aa = $cms_tpv_mu_plugin;
+	$cms_tpv_plugin_file = $cms_tpv_mu_plugin;
 }
 if ( isset( $cms_tpv_network_plugin ) ) {
-	$aa = $cms_tpv_network_plugin;
+	$cms_tpv_plugin_file = $cms_tpv_network_plugin;
 }
 if ( isset( $cms_tpv_plugin ) ) {
-	$aa = $cms_tpv_plugin;
+	$cms_tpv_plugin_file = $cms_tpv_plugin;
 }
 
-$plugin_dir_url = plugin_dir_url($aa);
+define( 'CMS_TPV_PLUGIN_FILE', $cms_tpv_plugin_file );
+define( 'CMS_TPV_URL', plugin_dir_url( $cms_tpv_plugin_file ) );
 
-// There! Now we should have it.
-define( "CMS_TPV_URL", $plugin_dir_url);
-// define( "CMS_TPV_PLUGIN_FOLDERNAME_AND_FILENAME", basename(dirname(__FILE__)) . "/" . basename(__FILE__) );
+// Translations load automatically: WordPress just-in-time loads language packs from
+// translate.wordpress.org (WP 4.6+), so no load_plugin_textdomain() call is needed.
 
-add_action( 'init', 'cms_tpv_load_textdomain' );
-
-// on admin init: add styles and scripts
+// On admin init: add styles and scripts.
 add_action( 'admin_init', 'cms_tpv_admin_init' );
-add_action( 'admin_enqueue_scripts', 'cms_admin_enqueue_scripts' );
+add_action( 'admin_enqueue_scripts', 'cms_tpv_admin_enqueue_scripts' );
+add_action( 'admin_enqueue_scripts', array( 'CMS_Tree_Page_View\\Tree_View_Screen', 'enqueue' ) );
+CMS_Tree_Page_View\Dashboard\Dashboard_Screen::register_hooks();
 add_action( 'admin_init', 'cms_tpv_save_settings' );
+add_action( 'admin_init', 'cms_tpv_maybe_show_welcome_notice' );
 
-// Hook onto dashboard and admin menu
-add_action( 'admin_menu', "cms_tpv_admin_menu" );
-add_action( 'admin_head', "cms_tpv_admin_head" );
-add_action( 'wp_dashboard_setup', "cms_tpv_wp_dashboard_setup" );
+// Hook onto dashboard and admin menu.
+add_action( 'admin_menu', 'cms_tpv_admin_menu' );
+add_action( 'current_screen', 'cms_tpv_add_tree_view_link_to_list_screen' );
 
-// Ajax hooks
-add_action('wp_ajax_cms_tpv_get_childs', 'cms_tpv_get_childs');
-add_action('wp_ajax_cms_tpv_move_page', 'cms_tpv_move_page');
-add_action('wp_ajax_cms_tpv_add_page', 'cms_tpv_add_page');
-add_action('wp_ajax_cms_tpv_add_pages', 'cms_tpv_add_pages');
+// Activation.
+define( 'CMS_TPV_MOVE_PERMISSION', 'move_cms_tree_view_page' );
+register_activation_hook( __FILE__, 'cms_tpv_install' );
+register_uninstall_hook( __FILE__, 'cms_tpv_uninstall' );
 
-// activation
-define( "CMS_TPV_MOVE_PERMISSION", "move_cms_tree_view_page");
-register_activation_hook( __FILE__ , 'cms_tpv_install' );
-register_uninstall_hook( __FILE__ , 'cms_tpv_uninstall' );
-
-// To test activation hook, uncomment function below
-// cms_tpv_install();
-
-// catch upgrade. moved from plugins_loaded to init to be able to use wp_roles
-add_action('init', 'cms_tpv_plugins_loaded' , 1);
-
-// hook onto query
-#add_action( 'parse_query', 'cms_tpv_parse_query' );
+// Catch upgrade. Moved from plugins_loaded to init to be able to use wp_roles.
+add_action( 'init', 'cms_tpv_plugins_loaded', 1 );
