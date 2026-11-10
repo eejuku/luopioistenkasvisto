@@ -17,6 +17,16 @@ add_action('after_setup_theme', 'kasvi_theme_setup');
 // 2. LADATAAN TYYLITIEDOSTO
 function kasvi_enqueue_styles() {
     wp_enqueue_style('kasvi-style', get_stylesheet_uri());
+
+    // GLightbox (kuvien suurennus ja karttalinkkien ponnahdusikkuna). Ladataan vain sivuilla,
+    // joilla sitä tarvitaan: kasvikortit, Galleriasivu-pohja ja sivut, joiden sisällössä on
+    // karttalinkki (class="karttalinkki", esim. Natura-sivu). Ponnahdusikkunan koodi: footer.php.
+    $sisalto = is_singular() ? (string) get_post_field('post_content', get_queried_object_id()) : '';
+    $karttalinkki = ($sisalto !== '' && strpos($sisalto, 'karttalinkki') !== false);
+    if (is_singular('kasvi') || is_page_template('template-galleriasivu.php') || $karttalinkki) {
+        wp_enqueue_style('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css', array(), null);
+        wp_enqueue_script('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js', array(), null, true);
+    }
 }
 add_action('wp_enqueue_scripts', 'kasvi_enqueue_styles');
 
@@ -124,7 +134,7 @@ add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
  * Laskurit
  */
 function hae_kasvi_maara_optimoitu($ryhma_slug, $lisa_slug = '') {
-    $debug_mode = true; // Muuta false, kun olet valmis ja luvut täsmäävät.
+    $debug_mode = false; // true = lasketaan joka latauksella ilman välimuistia (vain vianetsintään).
     
     if ( !function_exists('get_field') ) return 0;
 
@@ -233,14 +243,31 @@ add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 /**
  * MASSA-AJOTYÖKALU V3: Karttapisteiden tuonti JSON-tiedostosta ACF-kenttiin
  * Korjattu lukemaan suoraan piste-taulukko ilman 'pisteet'-avainta.
+ *
+ * POIS KÄYTÖSTÄ 11/2026: tuontia ei enää tarvita, ja ajettuna se korvaisi
+ * karttaeditorilla tehdyt muutokset karttapisteet.json-tiedoston vanhoilla pisteillä.
+ * Funktiota ei ole kytketty mihinkään, joten ?aja_karttatuonti=1 ei tee mitään.
+ * Poistetaan kokonaan siivousvaiheessa (yhdessä karttapisteet.json-tiedoston kanssa).
  */
-add_action('init', function() {
+function kasvisto_karttatuonti_pois_kaytosta() {
     if (!isset($_GET['aja_karttatuonti']) || $_GET['aja_karttatuonti'] !== '1') {
         return;
     }
 
     if (!current_user_can('manage_options')) {
         wp_die('Sinulla ei ole oikeutta ajaa tätä skriptiä. Kirjaudu ensin sisään ylläpitäjänä.');
+    }
+
+    // Varmistusvaihe: tuonti ajetaan vain sivuston itse luomasta linkistä (nonce),
+    // jotta ulkopuolinen linkki ei voi käynnistää sitä ylläpitäjän tietämättä.
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'kasvisto_karttatuonti')) {
+        $vahvistus_url = wp_nonce_url(add_query_arg('aja_karttatuonti', '1', home_url('/')), 'kasvisto_karttatuonti');
+        wp_die(
+            '<h1>Karttapisteiden massatuonti</h1>'
+            . '<p>Tuonti kirjoittaa karttapisteet.json-tiedoston pisteet kasvien karttapisteet_json-kenttiin ja korvaa niissä olevat arvot.</p>'
+            . '<p><a class="button button-primary" href="' . esc_url($vahvistus_url) . '">Aja tuonti</a></p>',
+            'Karttapisteiden massatuonti'
+        );
     }
 
     $json_polku = get_stylesheet_directory() . '/karttapisteet.json';
@@ -330,7 +357,8 @@ add_action('init', function() {
     echo '</div></body></html>';
     
     exit;
-});
+}
+// add_action('init', 'kasvisto_karttatuonti_pois_kaytosta');
 
 
 

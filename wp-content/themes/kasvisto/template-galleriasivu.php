@@ -23,9 +23,6 @@ get_header(); ?>
 
         <?php if ( function_exists('have_rows') && have_rows('galleriasivun_sisalto') ) : ?>
             
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-            <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-
             <div class="joustava-sisalto-wrapper">
                 <?php 
                 $galleria_index = 1; // Juokseva numero eri gallerioille
@@ -105,11 +102,12 @@ get_header(); ?>
                                                 <span class="pdf-ikoni">📄</span>
                                                 <div class="pdf-tekstit">
                                                     <h4 class="pdf-otsikko">
-                                                        <a href="<?php echo esc_url($tiedosto_url); ?>" 
-                                                           class="glightbox pdf-lightbox-link" 
-                                                           data-gallery="pdf-galleria-<?php echo $galleria_index; ?>" 
-                                                           data-type="iframe" 
-                                                           data-title="<?php echo esc_attr($otsikko); ?>">
+                                                        <?php /* PDF avataan omaan välilehteen: ponnahdusikkunassa se jäi tyhjäksi,
+                                                                 eivätkä puhelinten selaimet näytä upotettua PDF:ää kunnolla. */ ?>
+                                                        <a href="<?php echo esc_url($tiedosto_url); ?>"
+                                                           class="pdf-lightbox-link"
+                                                           target="_blank"
+                                                           rel="noopener">
                                                                 <?php echo esc_html($otsikko); ?>
                                                         </a>
                                                         <span class="pdf-koko"><?php echo $koko_teksti; ?></span>
