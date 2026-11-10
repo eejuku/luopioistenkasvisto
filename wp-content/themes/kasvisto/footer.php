@@ -17,31 +17,6 @@
     /* Varmistetaan näkyvyys */
     .glightbox-container { z-index: 999999 !important; }
     
-    /* Pakotetaan iframe näkymään heti */
-    .gslide-inline iframe {
-        width: 100% !important;
-        height: 85vh !important;
-        border: none;
-    }
-
-    /* Tyylitellään Lightbox-ikkunaa hieman siistimmäksi */
-    .gslide-inline {
-        background: #fff !important;
-        padding: 10px;
-        border-radius: 4px;
-        max-width: 95vw !important;
-    }
-    .gslide-inline iframe {
-        width: 100% !important;
-        height: 70vh !important; /* Puhelimella hieman matalampi, jotta sulkupainike mahtuu */
-        border: none;
-    }
-
-    @media (min-width: 768px) {
-        .gslide-inline iframe {
-            height: 85vh !important; /* Tietokoneella korkeampi */
-        }
-    }
     /* Estetään sivun skrollaus kartan alla kun se on auki */
     .glightbox-open {
         overflow: hidden;
@@ -54,33 +29,10 @@
     }
 </style>
 
-<script>
-(function() {
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('.karttalinkki');
-        
-        if (link) {
-            e.preventDefault();
-            const mapURL = link.getAttribute('href');
-
-            if (typeof GLightbox !== 'undefined') {
-                // Luodaan "inline"-tyyppinen sisältö, eli syötetään suoraan iframe-koodi
-                // Tämä ohittaa GLightboxin oman iframe-lataustarkistuksen
-                const instance = GLightbox({
-                    elements: [{
-                        'content': `<iframe src="${mapURL}" allowfullscreen></iframe>`,
-                        'width': '95vw',
-                        'height': '85vh'
-                    }]
-                });
-
-                instance.open();
-            } else {
-                window.open(mapURL, '_blank');
-            }
-        }
-    }, false);
-})();
-</script>
+<?php
+/* Karttalinkkien (.karttalinkki) ponnahdusikkuna poistettu käytöstä 11/2026.
+   Linkit aukeavat nyt tavallisina linkkeinä (Natura-sivulla uuteen välilehteen).
+   Vanha koodi löytyy git-historiasta, jos sitä vielä tarvitaan. */
+?>
 </body>
 </html>

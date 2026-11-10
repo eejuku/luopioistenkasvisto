@@ -18,10 +18,12 @@ add_action('after_setup_theme', 'kasvi_theme_setup');
 function kasvi_enqueue_styles() {
     wp_enqueue_style('kasvi-style', get_stylesheet_uri());
 
-    // GLightbox (kuvagalleriat ja karttalinkit). Ladataan kerran koko sivustolle:
-    // footer.php käyttää sitä karttalinkeissä kaikilla sivuilla.
-    wp_enqueue_style('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css', array(), null);
-    wp_enqueue_script('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js', array(), null, true);
+    // GLightbox (kuvien suurennus). Ladataan vain sivuilla, joilla on kuvagallerioita:
+    // kasvikortit ja Galleriasivu-pohjaa käyttävät sivut.
+    if (is_singular('kasvi') || is_page_template('template-galleriasivu.php')) {
+        wp_enqueue_style('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css', array(), null);
+        wp_enqueue_script('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js', array(), null, true);
+    }
 }
 add_action('wp_enqueue_scripts', 'kasvi_enqueue_styles');
 
@@ -238,8 +240,13 @@ add_shortcode('isäntäkasvit', 'tulosta_isantakasvi_taulukko');
 /**
  * MASSA-AJOTYÖKALU V3: Karttapisteiden tuonti JSON-tiedostosta ACF-kenttiin
  * Korjattu lukemaan suoraan piste-taulukko ilman 'pisteet'-avainta.
+ *
+ * POIS KÄYTÖSTÄ 11/2026: tuontia ei enää tarvita, ja ajettuna se korvaisi
+ * karttaeditorilla tehdyt muutokset karttapisteet.json-tiedoston vanhoilla pisteillä.
+ * Funktiota ei ole kytketty mihinkään, joten ?aja_karttatuonti=1 ei tee mitään.
+ * Poistetaan kokonaan siivousvaiheessa (yhdessä karttapisteet.json-tiedoston kanssa).
  */
-add_action('init', function() {
+function kasvisto_karttatuonti_pois_kaytosta() {
     if (!isset($_GET['aja_karttatuonti']) || $_GET['aja_karttatuonti'] !== '1') {
         return;
     }
@@ -347,7 +354,8 @@ add_action('init', function() {
     echo '</div></body></html>';
     
     exit;
-});
+}
+// add_action('init', 'kasvisto_karttatuonti_pois_kaytosta');
 
 
 
