@@ -21,39 +21,20 @@
 
     <hr class="section-divider">
 
+    <?php // Listat tulevat mu-pluginista (mu-plugins/kasvisto/uudet-ja-muokatut.php). ?>
+    <?php if ( function_exists('kasvisto_etusivu_lajilista') ) : ?>
     <div class="front-dynamic-grid">
         <div class="dynamic-card">
             <h2>Uusimmat lisäykset</h2>
-            <div class="latest-plants">
-                <?php 
-                $latest_args = array(
-                    'post_type' => 'kasvi',
-                    'posts_per_page' => 5,
-                    'orderby' => 'date',
-                    'order' => 'DESC'
-                );
-                $latest_query = new WP_Query($latest_args);
-                if ($latest_query->have_posts()) :
-                    echo '<ul class="latest-list">';
-                    while ($latest_query->have_posts()) : $latest_query->the_post();
-                        echo '<li><a href="'.get_permalink().'">'.get_the_title().'</a></li>';
-                    endwhile;
-                    echo '</ul>';
-                endif;
-                wp_reset_postdata();
-                ?>
-            </div>
+            <?php echo kasvisto_etusivu_lajilista('uudet', 5); ?>
         </div>
 
         <div class="dynamic-card">
-            <h2>Pikalinkit</h2>
-            <ul class="quick-links">
-                <li><a href="archive-kasvi.php">Selaa kaikkia kasveja →</a></li>
-                <li><a href="/vieraslajit/">Vieraslajit Luopioisissa →</a></li>
-                <li><a href="/tietoa-projektista/">Lue lisää hankkeesta →</a></li>
-            </ul>
+            <h2>Viimeksi muokatut</h2>
+            <?php echo kasvisto_etusivu_lajilista('muokatut', 5); ?>
         </div>
     </div>
+    <?php endif; ?>
 </main>
 
 <?php get_footer(); ?>

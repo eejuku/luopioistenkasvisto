@@ -59,3 +59,45 @@ function kasvisto_sc_viimeisimmat($atts) {
     <?php
     return ob_get_clean();
 }
+
+/**
+ * Etusivun lyhyt lista: uusimmat tai viimeksi muokatut kasvikortit.
+ * Käyttö teemassa: echo kasvisto_etusivu_lajilista('uudet', 5);
+ *
+ * @param string $tyyppi 'uudet' (lisäyspäivä) tai 'muokatut' (muokkauspäivä)
+ * @param int    $maara  rivien määrä
+ */
+function kasvisto_etusivu_lajilista( $tyyppi = 'uudet', $maara = 5 ) {
+    $muokatut = ( $tyyppi === 'muokatut' );
+    $query = new WP_Query( [
+        'post_type'              => 'kasvi',
+        'posts_per_page'         => (int) $maara,
+        'orderby'                => $muokatut ? 'modified' : 'date',
+        'order'                  => 'DESC',
+        'no_found_rows'          => true,
+        'ignore_sticky_posts'    => true,
+        'update_post_term_cache' => false,
+    ] );
+
+    if ( ! $query->have_posts() ) {
+        return '<p class="etusivu-lajilista-tyhja">Ei kasvikortteja.</p>';
+    }
+
+    // Kevyt taulukko ilman sarakeotsikoita: suomenkielinen nimi | tieteellinen nimi | päivämäärä.
+    $html = '<table class="etusivu-lajitaulukko"><tbody>';
+    while ( $query->have_posts() ) {
+        $query->the_post();
+        $tieteellinen = function_exists( 'get_field' ) ? (string) get_field( 'tieteellinen_nimi' ) : '';
+        $iso_pvm  = $muokatut ? get_the_modified_date( 'Y-m-d' ) : get_the_date( 'Y-m-d' );
+        $pvm      = $muokatut ? get_the_modified_date( 'j.n.Y' ) : get_the_date( 'j.n.Y' );
+
+        $html .= '<tr>'
+               . '<td class="etusivu-lajitaulukko-suomi"><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . '</a></td>'
+               . '<td class="etusivu-lajitaulukko-latina">' . esc_html( $tieteellinen ) . '</td>'
+               . '<td class="etusivu-lajitaulukko-pvm"><time datetime="' . esc_attr( $iso_pvm ) . '">' . esc_html( $pvm ) . '</time></td>'
+               . '</tr>';
+    }
+    wp_reset_postdata();
+    $html .= '</tbody></table>';
+    return $html;
+}

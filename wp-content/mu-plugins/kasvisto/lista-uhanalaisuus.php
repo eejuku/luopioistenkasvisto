@@ -166,7 +166,7 @@ function kasvisto_sc_testiversio($atts) {
     ob_start(); 
     ?>
     
-    <div class="kasvi-lista-container <?php echo $rakenne_luokka; ?>" id="container-<?php echo $wrapper_slug; ?>" style="width: 100%; max-width: 860px; margin: 0 auto 0 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <div class="kasvi-lista-container uhanalaisuuslista <?php echo $rakenne_luokka; ?>" id="container-<?php echo $wrapper_slug; ?>" style="width: 100%; max-width: 860px; margin: 0 auto 0 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         
         <header class="lista-header-wrapper" style="margin-bottom: 15px; width: 100%; box-sizing: border-box;">
             <div class="header-top-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
@@ -210,6 +210,7 @@ function kasvisto_sc_testiversio($atts) {
                 ?>
                 <div class="u-suodatin-nappi" 
                      data-u-acf-arvo="<?php echo esc_attr($taysi_acf_arvo); ?>" 
+                     data-u-lyhenne="<?php echo esc_attr($lyhenne); ?>" 
                      style="border: 1px solid #dcdcde; background: #f6f7f7; color: #1d2327; padding: 4px 1px; text-align: center; border-radius: 4px; cursor: pointer; user-select: none; transition: all 0.1s ease; height: 72px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1 1 0px; min-width: 0;">
                     <div class="u-lyhenne" style="font-size: 0.95rem; font-weight: 700; line-height: 1;"><?php echo $lyhenne; ?></div>
                     <div class="u-kuvaus" style="font-size: 0.58rem; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; font-weight: normal; max-width: 100%; height: 22px;"><?php echo esc_html($kuvaus); ?></div>
@@ -254,35 +255,37 @@ function kasvisto_sc_testiversio($atts) {
     </div>
 
     <style>
-    .aakkos-nav:empty { display: none !important; }
+    .uhanalaisuuslista .aakkos-nav:empty { display: none !important; }
 
     /* TÄYDELLINEN SYNKRONOITU GRID ILMAN GAP-REPESYJÄ (LEVEYDET TÄSMÄÄVÄT AINA VASTAKKAIN) */
-    .kasvi-lista-container.ei-loytopisteet .lista-otsikot,
-    .kasvi-lista-container.ei-loytopisteet .kasvi-rivi {
+    .kasvi-lista-container.uhanalaisuuslista.ei-loytopisteet .lista-otsikot,
+    .kasvi-lista-container.uhanalaisuuslista.ei-loytopisteet .kasvi-rivi {
         display: grid;
         grid-template-columns: 35% 35% 30%;
+        gap: 0; /* [kasvisto_uusi] samalla sivulla antaa 20 px välin → sarakkeet yli oikean reunan */
         width: 100%;
         box-sizing: border-box;
     }
     
-    .kasvi-lista-container.on-loytopisteet .lista-otsikot,
-    .kasvi-lista-container.on-loytopisteet .kasvi-rivi {
+    .kasvi-lista-container.uhanalaisuuslista.on-loytopisteet .lista-otsikot,
+    .kasvi-lista-container.uhanalaisuuslista.on-loytopisteet .kasvi-rivi {
         display: grid;
         grid-template-columns: 32% 32% 22% 14%;
+        gap: 0; /* [kasvisto_uusi] samalla sivulla antaa 20 px välin → sarakkeet yli oikean reunan */
         width: 100%;
         box-sizing: border-box;
     }
 
-    .kasvi-lista-container .kasvi-rivi {
+    .kasvi-lista-container.uhanalaisuuslista .kasvi-rivi {
         text-decoration: none;
         color: #1d2327;
         padding: 10px 0;
         border-bottom: 1px solid #f0f0f1;
     }
-    .kasvi-lista-container .kasvi-rivi:hover { background-color: #f6f7f7; }
+    .kasvi-lista-container.uhanalaisuuslista .kasvi-rivi:hover { background-color: #f6f7f7; }
 
     /* SISÄLTÖJEN VERTIKAALINEN TASAUS JA REUNAN LOGIIKKA */
-    .kasvi-lista-container .sarake { 
+    .kasvi-lista-container.uhanalaisuuslista .sarake { 
         box-sizing: border-box; 
         line-height: 1.2; 
         overflow: hidden; 
@@ -291,22 +294,22 @@ function kasvisto_sc_testiversio($atts) {
     }
     
     /* Normaalit sarakkeet tasataan vasemmalle */
-    .kasvi-lista-container .sarake:not(.otsikko-pisteet):not(.nimi-pisteet) {
+    .kasvi-lista-container.uhanalaisuuslista .sarake:not(.otsikko-pisteet):not(.nimi-pisteet) {
         justify-content: flex-start;
         text-align: left;
     }
 
     /* Löytöpisteet pakotetaan oikeaan reunaan kauniisti */
-    .kasvi-lista-container .otsikko-pisteet,
-    .kasvi-lista-container .nimi-pisteet {
+    .kasvi-lista-container.uhanalaisuuslista .otsikko-pisteet,
+    .kasvi-lista-container.uhanalaisuuslista .nimi-pisteet {
         justify-content: flex-end;
         text-align: right;
     }
 
-    .kasvi-lista-container .nimi-suomi, 
-    .kasvi-lista-container .nimi-latina,
-    .kasvi-lista-container .nimi-uhanalaisuus,
-    .kasvi-lista-container .nimi-pisteet {
+    .kasvi-lista-container.uhanalaisuuslista .nimi-suomi, 
+    .kasvi-lista-container.uhanalaisuuslista .nimi-latina,
+    .kasvi-lista-container.uhanalaisuuslista .nimi-uhanalaisuus,
+    .kasvi-lista-container.uhanalaisuuslista .nimi-pisteet {
         white-space: nowrap; 
         overflow: hidden; 
         text-overflow: ellipsis;
@@ -314,21 +317,46 @@ function kasvisto_sc_testiversio($atts) {
         width: 100%;
     }
 
-    .sarake-toggles .sarake { cursor: pointer; user-select: none; font-weight: 700; font-size: 0.85rem; padding: 10px 0; color: #333; }
+    .uhanalaisuuslista .sarake-toggles .sarake { cursor: pointer; user-select: none; font-weight: 700; font-size: 0.85rem; padding: 10px 0; color: #333; }
     
     /* VIHREÄ BRÄNDIVÄRI SEULA- JA LAJITTELU-AKTIIVISUUTEEN */
-    .kasvi-lista-rows.sort-suomi .nimi-suomi, .sarake-toggles .otsikko-suomi.active { color: #417430 !important; }
-    .kasvi-lista-rows.sort-latina .nimi-latina, .sarake-toggles .otsikko-latina.active { color: #417430 !important; }
-    .kasvi-lista-rows.sort-uhanalaisuus .nimi-uhanalaisuus, .sarake-toggles .otsikko-uhanalaisuus.active { color: #417430 !important; }
-    .kasvi-lista-rows.sort-pisteet .nimi-pisteet, .sarake-toggles .otsikko-pisteet.active { color: #417430 !important; }
+    .uhanalaisuuslista .kasvi-lista-rows.sort-suomi .nimi-suomi, .uhanalaisuuslista .sarake-toggles .otsikko-suomi.active { color: #417430 !important; }
+    .uhanalaisuuslista .kasvi-lista-rows.sort-latina .nimi-latina, .uhanalaisuuslista .sarake-toggles .otsikko-latina.active { color: #417430 !important; }
+    .uhanalaisuuslista .kasvi-lista-rows.sort-uhanalaisuus .nimi-uhanalaisuus, .uhanalaisuuslista .sarake-toggles .otsikko-uhanalaisuus.active { color: #417430 !important; }
+    .uhanalaisuuslista .kasvi-lista-rows.sort-pisteet .nimi-pisteet, .uhanalaisuuslista .sarake-toggles .otsikko-pisteet.active { color: #417430 !important; }
     
-    .sarake-toggles .sarake .indikaattori { font-size: 0.65rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
-    .sarake-toggles .otsikko-pisteet .indikaattori { margin-left: 0; margin-right: 5px; }
-    .kirjain-linkki:disabled { opacity: 0.3; cursor: not-allowed; }
+    .uhanalaisuuslista .sarake-toggles .sarake .indikaattori { font-size: 0.65rem; margin-left: 5px; display: inline-block; vertical-align: middle; }
+    .uhanalaisuuslista .sarake-toggles .otsikko-pisteet .indikaattori { margin-left: 0; margin-right: 5px; }
+    .uhanalaisuuslista .kirjain-linkki:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .u-suodatin-nappi:hover { border-color: #8c8f94 !important; }
-    .u-suodatin-nappi.aktiivinen { background: #417430 !important; color: #fff !important; border-color: #417430 !important; }
-    .u-suodatin-nappi.aktiivinen .u-maara-laskuri { color: #fff !important; opacity: 0.95; }
+    .uhanalaisuuslista .u-suodatin-nappi:hover { border-color: #8c8f94 !important; }
+    .uhanalaisuuslista .u-suodatin-nappi.aktiivinen { background: #417430 !important; color: #fff !important; border-color: #417430 !important; }
+    .uhanalaisuuslista .u-suodatin-nappi.aktiivinen .u-maara-laskuri { color: #fff !important; opacity: 0.95; }
+    /* OTSIKKORIVI SAMAAN LINJAAN RIVIEN KANSSA:
+       teeman .lista-otsikot antaa 20 px sivupehmusteen, rivit eivät → sarakkeet siirtyivät. */
+    .kasvi-lista-container.uhanalaisuuslista .lista-otsikot {
+        padding: 0;
+        align-items: stretch;
+    }
+    .kasvi-lista-container.uhanalaisuuslista .kasvi-lista-rows {
+        margin-top: 0; /* teeman 20 px rako otsikkorivin ja ensimmäisen lajin välissä */
+    }
+    .kasvi-lista-container.uhanalaisuuslista .lista-otsikot .sarake,
+    .kasvi-lista-container.uhanalaisuuslista .kasvi-rivi .sarake {
+        padding-left: 12px;
+        padding-right: 8px;
+    }
+    .kasvi-lista-container.uhanalaisuuslista .lista-otsikot .sarake {
+        overflow: visible;
+    }
+    .kasvi-lista-container.uhanalaisuuslista .lista-otsikot .otsikko-teksti {
+        white-space: normal;
+        line-height: 1.2;
+    }
+    .kasvi-lista-container.uhanalaisuuslista .kasvi-rivi .nimi-pisteet,
+    .kasvi-lista-container.uhanalaisuuslista .lista-otsikot .otsikko-pisteet {
+        padding-right: 12px;
+    }
     </style>
 
     <script>
@@ -517,7 +545,29 @@ function kasvisto_sc_testiversio($atts) {
             });
         });
 
+        // Suodatin osoitteesta, esim. /sammalet/suojelu/?uhanalaisuus=VU (kasvikortin merkkilinkit).
+        const osoiteSuodatin = new URLSearchParams(window.location.search).get('uhanalaisuus');
+        let suodatinOsoitteesta = false;
+        if (osoiteSuodatin && uSuodattimet.length) {
+            const koodit = osoiteSuodatin.toUpperCase().split(',').map(k => k.trim());
+            uSuodattimet.forEach(nappi => {
+                if (koodit.includes(nappi.getAttribute('data-u-lyhenne'))) {
+                    nappi.classList.add('aktiivinen');
+                    aktiivisetUhanalaisuudet.push(nappi.getAttribute('data-u-acf-arvo'));
+                    suodatinOsoitteesta = true;
+                }
+            });
+        }
+
         suodataLajiLista();
+
+        // Vieritetään suodatettuun listaan (vain sivun ensimmäinen tällainen lista).
+        if (suodatinOsoitteesta && !window.kasvistoUhanalaisuusVieritetty) {
+            window.kasvistoUhanalaisuusVieritetty = true;
+            window.addEventListener('load', function() {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
     })();
     </script>
 

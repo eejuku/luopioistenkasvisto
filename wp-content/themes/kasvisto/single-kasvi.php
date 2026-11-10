@@ -10,6 +10,8 @@
                 </a>
             </div>
 
+            <div class="kasvi-otsikkorivi">
+            <div class="kasvi-otsikko-nimet">
             <h1><?php the_title(); ?></h1>
             <?php $tieteellinen = get_field('tieteellinen_nimi'); ?>
             <?php if($tieteellinen): ?>
@@ -33,6 +35,15 @@
                     ?>
                     <span class="badge-ryhma badge-sub"><?php echo esc_html($label); ?></span>
                 <?php endif; ?>
+            </div>
+            </div>
+
+            <?php
+            // Uhanalaisuusmerkit nimen oikealle puolelle (mu-plugins/kasvisto/uhanalaisuus.php).
+            if (function_exists('kasvisto_uhanalaisuus_merkit_html')) {
+                echo kasvisto_uhanalaisuus_merkit_html(get_the_ID());
+            }
+            ?>
             </div>
         </header>
 
@@ -98,8 +109,13 @@
                     'Löytöpaikat Luopioisissa' => 'loytopaikat',
                     'Kirjallisuus' => 'kirjallisuus', 
                     'Löydettyjä isäntäkasveja' => 'isantakasvit',
-                    'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'         
+                    'Isäntäkasvin muita piensieniä' => 'isantakasvin_muut'
                 ];
+
+                // Uhanalaisuus näytetään merkkeinä otsikon vieressä. Jos mu-plugin puuttuu, näytetään vanhaan tapaan.
+                if (function_exists('kasvisto_uhanalaisuus_merkit_html')) {
+                    unset($fields_lajikuvaus['Uhanalaisuus']);
+                }
 
                 
                 // Listaus kentistä: Otsikko => ACF-slug

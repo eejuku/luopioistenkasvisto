@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $kasvisto_dir = __DIR__ . '/kasvisto/';
 
+require_once $kasvisto_dir . 'uhanalaisuus.php';
+
 require_once $kasvisto_dir . 'lista-kasvisto-uusi.php';
 require_once $kasvisto_dir . 'lista-uhanalaisuus.php';
 require_once $kasvisto_dir . 'jakalat-lisaryhmat.php';
@@ -35,6 +37,7 @@ add_action( 'init', function () {
     add_shortcode( 'jakalat_lisaryhmat', 'kasvisto_sc_jakalat_lisaryhmat' );
     add_shortcode( 'kasvisto_viimeisimmat', 'kasvisto_sc_viimeisimmat' );
     add_shortcode( 'kuvagalleria', 'kasvisto_sc_kuvagalleria' );
+    add_shortcode( 'kasvisto_uhanalaisuussivu', 'kasvisto_sc_uhanalaisuussivu' );
 
     // Snippetin #16 funktio on olemassa → snippetti on vielä päällä, käytetään sitä.
     if ( ! function_exists( 'render_kasvikartat_editor_v5_2' ) ) {

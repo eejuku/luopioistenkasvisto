@@ -107,6 +107,13 @@ a { text-decoration: none; color: inherit; transition: 0.3s ease; }
     flex-shrink: 0;
 }
 
+/* Sisältöalue saa kaventua: ilman min-width: 0 flex-lapsi on vähintään sisältönsä
+   levyinen, ja leveä lista tai nappirivi työnsi sivun näkymän yli (vaakavieritys). */
+.page-layout > .content-area {
+    flex: 1;
+    min-width: 0;
+}
+
 .side-nav {
     background: #f9f9f9;
     padding: 15px;
@@ -1056,5 +1063,144 @@ ACF PRO -GALLERIAN STYLET
     .kasvi-galleria-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 6px;
+    }
+}
+
+/* ==========================================================================
+   ETUSIVU: UUSIMMAT JA VIIMEKSI MUOKATUT KASVIT (kevyt taulukko)
+   (lista: mu-plugins/kasvisto/uudet-ja-muokatut.php)
+   ========================================================================== */
+.etusivu-lajitaulukko {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* samat sarakeleveydet molemmissa korteissa */
+    font-size: 0.9rem;
+}
+.etusivu-lajitaulukko-suomi { width: 44%; }
+.etusivu-lajitaulukko-pvm { width: 5.5rem; }
+.etusivu-lajitaulukko td {
+    padding: 8px 10px 8px 0;
+    border-bottom: 1px solid #e6e6e6;
+    vertical-align: baseline;
+}
+.etusivu-lajitaulukko tr:last-child td {
+    border-bottom: none;
+}
+.etusivu-lajitaulukko-suomi a {
+    color: #77a464;
+    font-weight: 600;
+}
+.etusivu-lajitaulukko-suomi a:hover {
+    color: #1e8449;
+}
+.etusivu-lajitaulukko-latina {
+    color: #666;
+    font-style: italic;
+}
+.etusivu-lajitaulukko td.etusivu-lajitaulukko-pvm {
+    padding-right: 0;
+    text-align: right;
+    white-space: nowrap;
+    color: #888;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}
+@media (max-width: 480px) {
+    /* Kapealla näytöllä tieteellinen nimi suomenkielisen alle, pvm oikealle */
+    .etusivu-lajitaulukko tr { display: grid; grid-template-columns: 1fr auto; column-gap: 10px; border-bottom: 1px solid #e6e6e6; padding: 8px 0; }
+    .etusivu-lajitaulukko tr:last-child { border-bottom: none; }
+    .etusivu-lajitaulukko td { padding: 0; border: none; width: auto; }
+    .etusivu-lajitaulukko td.etusivu-lajitaulukko-pvm { padding: 0; }
+    .etusivu-lajitaulukko-latina { grid-row: 2; font-size: 0.8rem; }
+    .etusivu-lajitaulukko-pvm { grid-column: 2; grid-row: 1; }
+}
+
+/* ==========================================================================
+   KASVIKORTTI: UHANALAISUUSMERKIT OTSIKON VIERESSÄ
+   (merkit: mu-plugins/kasvisto/uhanalaisuus.php)
+   Merkkilohko on samassa linjassa oikean sarakkeen (Kuvat, Kartat) kanssa:
+   sama 400 px leveys ja 60 px väli kuin .kasvi-flex-grid -asettelussa.
+   Ulkoasu seuraa /sammalet/suojelu/ -sivun suodatinnappeja; yläreunan juova
+   on kasviryhmän teemaväri (--theme-color, asetetaan header.php:ssä).
+   ========================================================================== */
+.kasvi-otsikkorivi {
+    display: flex;
+    align-items: flex-start;
+    gap: 60px;
+}
+.kasvi-otsikko-nimet {
+    flex: 1;
+    min-width: 0;
+}
+.uhanalaisuus-merkit {
+    width: 400px;
+    flex-shrink: 0;
+}
+.uhanalaisuus-merkit-otsikko {
+    display: block;
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #393939;
+}
+.uhanalaisuus-merkit-rivi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.u-merkki {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 104px;
+    min-height: 74px;
+    padding: 8px 6px 7px;
+    box-sizing: border-box;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-top: 5px solid var(--theme-color, #77a464);
+    border-radius: 6px;
+    color: #1d2327;
+    text-align: center;
+    text-decoration: none !important;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+a.u-merkki:hover,
+a.u-merkki:focus-visible {
+    border-left-color: #8c8f94;
+    border-right-color: #8c8f94;
+    border-bottom-color: #8c8f94;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+.u-merkki-lyhenne {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.u-merkki-kuvaus {
+    font-size: 0.7rem;
+    line-height: 1.15;
+    color: #50575e;
+}
+
+@media (max-width: 900px) {
+    /* Sarakkeet menevät allekkain kuten .kasvi-flex-grid: merkit nimen alle */
+    .kasvi-otsikkorivi {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .uhanalaisuus-merkit {
+        width: auto;
+    }
+}
+@media (max-width: 480px) {
+    .u-merkki {
+        width: 92px;
+        min-height: 66px;
     }
 }
