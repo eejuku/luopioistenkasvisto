@@ -151,90 +151,39 @@ function kasvisto_uhanalaisuus_merkit_html( $post_id ) {
 /**
  * Shortcode [kasvisto_uhanalaisuussivu ryhma="Jäkälät"]
  *
- * Rakentaa ryhmän uhanalaisuussivun /sammalet/suojelu/ -sivun mallin mukaan:
- *   1. lista kustakin luokasta (oletus RE, CR, EN, VU, NT, RT); tyhjät luokat
- *      kootaan yhdelle "ei löytöjä" -riville
- *   2. koko ryhmän lista uhanalaisuussuodattimilla ([kasvisto_testiversio])
+ * Ryhmän uhanalaisuussivun listaustyökalu: koko ryhmän lajilista, jossa
+ * uhanalaisuusluokka valitaan napeista. Sama työkalu kuin [kasvisto_testiversio],
+ * mutta ryhmä on pakollinen ja otsikolla on valmis oletus ("Jäkälien uhanalaisuus").
  *
- * Parametrit:
- *   ryhma        Putkilokasvit | Sammalet | Jäkälät | Piensienet (pakollinen)
- *   luokat       pilkuin erotetut lyhenteet, esim. "CR,EN,VU,NT"
- *   loytopisteet "kylla" näyttää löytöpaikkasarakkeen (oletus), "ei" piilottaa
- *   otsikko      koko listan otsikko (oletus "<Ryhmän> uhanalaisuus")
- *   kokolista    "ei" jättää koko ryhmän suodatettavan listan pois
+ * Kaikki [kasvisto_testiversio]-parametrit toimivat sellaisinaan, esim.
+ *   [kasvisto_uhanalaisuussivu ryhma="Sammalet" loytopisteet="kylla" hakukentta="ei"
+ *    aakkosnavigaatio="ei" otsikko="Sammalten uhanalaisuus" alaotsikko="..."]
+ *
+ *   ryhma            Putkilokasvit | Sammalet | Jäkälät | Piensienet (pakollinen)
+ *   otsikko          listan otsikko (oletus "<Ryhmän> uhanalaisuus")
+ *   alaotsikko       pienempi teksti otsikon alla
+ *   loytopisteet     "kylla" näyttää löytöpaikkasarakkeen (oletus "ei")
+ *   hakukentta       "ei" piilottaa hakukentän
+ *   aakkosnavigaatio "ei" piilottaa aakkosnapit
+ *   nayta_maara      "ei" piilottaa lajimäärän otsikosta
+ *   putkilokasvien_lisaryhmat, sammalten_lisaryhmat, jakalien_lisaryhmat,
+ *   piensienten_lisaryhmat   rajaus lisäryhmän mukaan (pilkuin erotettuna)
+ *
+ * Kasvikortin uhanalaisuusmerkki linkittää sivulle, jolla tämä (tai
+ * [kasvisto_testiversio]) on, ja suodattaa listan valmiiksi (?uhanalaisuus=VU).
  */
 function kasvisto_sc_uhanalaisuussivu( $atts ) {
-    $a = shortcode_atts( [
-        'ryhma'        => '',
-        'luokat'       => 'RE,CR,EN,VU,NT,RT',
-        'loytopisteet' => 'kylla',
-        'otsikko'      => '',
-        'kokolista'    => 'kylla',
-    ], $atts );
+    $atts  = is_array( $atts ) ? $atts : [];
+    $ryhma = isset( $atts['ryhma'] ) ? trim( $atts['ryhma'] ) : '';
 
-    $ryhma = trim( $a['ryhma'] );
-    if ( $ryhma === '' || ! function_exists( 'kasvisto_sc_kasvisto_uusi' ) ) {
+    if ( $ryhma === '' || ! function_exists( 'kasvisto_sc_testiversio' ) ) {
         return '<p><strong>Virhe:</strong> [kasvisto_uhanalaisuussivu] tarvitsee ryhmän, esim. ryhma="Jäkälät".</p>';
     }
 
-    $sanakirja = kasvisto_uhanalaisuus_sanakirja();
-    $luokat    = array_values( array_filter( array_map( 'trim', explode( ',', strtoupper( $a['luokat'] ) ) ),
-        function ( $k ) use ( $sanakirja ) { return isset( $sanakirja[ $k ] ); } ) );
-
-    // Lasketaan lajimäärät luokittain samoin rajauksin kuin listat
-    // ([kasvisto_uusi] jättää pois "Muualta löydettyjä sammalia").
-    $maarat = array_fill_keys( $luokat, 0 );
-    $kysely = new WP_Query( [
-        'post_type'              => 'kasvi',
-        'posts_per_page'         => -1,
-        'fields'                 => 'ids',
-        'no_found_rows'          => true,
-        'update_post_term_cache' => false,
-    ] );
-    foreach ( $kysely->posts as $id ) {
-        $kasvin_ryhma = get_field( 'ryhma', $id );
-        $osuu = is_array( $kasvin_ryhma ) ? in_array( $ryhma, $kasvin_ryhma, true ) : ( strcasecmp( (string) $kasvin_ryhma, $ryhma ) === 0 );
-        if ( ! $osuu ) {
-            continue;
-        }
-        if ( in_array( 'Muualta löydettyjä sammalia', (array) get_field( 'sammalten_lisaryhmat', $id ), true ) ) {
-            continue;
-        }
-        foreach ( kasvisto_uhanalaisuus_luokat( $id ) as $luokka ) {
-            if ( isset( $maarat[ $luokka['koodi'] ] ) ) {
-                $maarat[ $luokka['koodi'] ]++;
-            }
-        }
+    $atts['ryhma'] = $ryhma;
+    if ( ! isset( $atts['otsikko'] ) || trim( $atts['otsikko'] ) === '' ) {
+        $atts['otsikko'] = kasvisto_uhanalaisuus_ryhma_genetiivi( $ryhma ) . ' uhanalaisuus';
     }
 
-    $html    = '<div class="uhanalaisuussivu">';
-    $tyhjat  = [];
-    foreach ( $luokat as $koodi ) {
-        if ( $maarat[ $koodi ] === 0 ) {
-            $tyhjat[] = $sanakirja[ $koodi ];
-            continue;
-        }
-        $html .= kasvisto_sc_kasvisto_uusi( [
-            'ryhma'            => $ryhma,
-            'uhanalaisuus'     => $sanakirja[ $koodi ],
-            'otsikko'          => $sanakirja[ $koodi ],
-            'loytopisteet'     => $a['loytopisteet'],
-            'hakukentta'       => 'ei',
-            'aakkosnavigaatio' => 'ei',
-        ] );
-    }
-    if ( $tyhjat ) {
-        $html .= '<p class="uhanalaisuussivu-ei-loytoja"><strong>Ei löytöjä Luopioisista:</strong> '
-               . esc_html( implode( ', ', $tyhjat ) ) . '.</p>';
-    }
-
-    if ( $a['kokolista'] !== 'ei' && function_exists( 'kasvisto_sc_testiversio' ) ) {
-        $html .= kasvisto_sc_testiversio( [
-            'ryhma'        => $ryhma,
-            'otsikko'      => $a['otsikko'] !== '' ? $a['otsikko'] : kasvisto_uhanalaisuus_ryhma_genetiivi( $ryhma ) . ' uhanalaisuus',
-            'loytopisteet' => $a['loytopisteet'],
-        ] );
-    }
-
-    return $html . '</div>';
+    return kasvisto_sc_testiversio( $atts );
 }
