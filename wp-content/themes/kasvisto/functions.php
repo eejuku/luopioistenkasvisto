@@ -18,9 +18,12 @@ add_action('after_setup_theme', 'kasvi_theme_setup');
 function kasvi_enqueue_styles() {
     wp_enqueue_style('kasvi-style', get_stylesheet_uri());
 
-    // GLightbox (kuvien suurennus). Ladataan vain sivuilla, joilla on kuvagallerioita:
-    // kasvikortit ja Galleriasivu-pohjaa käyttävät sivut.
-    if (is_singular('kasvi') || is_page_template('template-galleriasivu.php')) {
+    // GLightbox (kuvien suurennus ja karttalinkkien ponnahdusikkuna). Ladataan vain sivuilla,
+    // joilla sitä tarvitaan: kasvikortit, Galleriasivu-pohja ja sivut, joiden sisällössä on
+    // karttalinkki (class="karttalinkki", esim. Natura-sivu). Ponnahdusikkunan koodi: footer.php.
+    $sisalto = is_singular() ? (string) get_post_field('post_content', get_queried_object_id()) : '';
+    $karttalinkki = ($sisalto !== '' && strpos($sisalto, 'karttalinkki') !== false);
+    if (is_singular('kasvi') || is_page_template('template-galleriasivu.php') || $karttalinkki) {
         wp_enqueue_style('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css', array(), null);
         wp_enqueue_script('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js', array(), null, true);
     }
