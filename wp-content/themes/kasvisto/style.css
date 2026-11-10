@@ -1058,3 +1058,156 @@ ACF PRO -GALLERIAN STYLET
         gap: 6px;
     }
 }
+
+/* ==========================================================================
+   ETUSIVU: UUSIMMAT JA VIIMEKSI MUOKATUT KASVIT
+   (lista: mu-plugins/kasvisto/uudet-ja-muokatut.php)
+   ========================================================================== */
+.etusivu-lajilista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.etusivu-lajilista li {
+    border-bottom: 1px solid #eee;
+}
+.etusivu-lajilista li:last-child {
+    border-bottom: none;
+}
+.etusivu-lajilista a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 9px 0;
+    text-decoration: none;
+}
+.etusivu-lajilista-nimet {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.etusivu-lajilista-suomi {
+    color: #77a464;
+    font-weight: 600;
+}
+.etusivu-lajilista a:hover .etusivu-lajilista-suomi {
+    color: #1e8449;
+}
+.etusivu-lajilista-latina {
+    color: #666;
+    font-style: italic;
+    font-size: 0.85rem;
+}
+.etusivu-lajilista-pvm {
+    flex-shrink: 0;
+    color: #888;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}
+.etusivu-lajilista-kaikki {
+    margin: 16px 0 0;
+    text-align: right;
+    font-size: 0.9rem;
+}
+.etusivu-lajilista-kaikki a {
+    color: #77a464;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   KASVIKORTTI: UHANALAISUUSMERKIT OTSIKON VIERESSÄ
+   (merkit: mu-plugins/kasvisto/uhanalaisuus.php)
+   Ulkoasu seuraa /sammalet/suojelu/ -sivun suodatinnappeja. Yläreunan värijuova
+   noudattaa Punaisen kirjan tavanomaisia luokkavärejä.
+   ========================================================================== */
+.kasvi-otsikkorivi {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.kasvi-otsikko-nimet {
+    min-width: 0;
+}
+.uhanalaisuus-merkit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+.uhanalaisuus-merkit-otsikko {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #888;
+}
+.uhanalaisuus-merkit-rivi {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.u-merkki {
+    --u-vari: #dcdcde;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 104px;
+    min-height: 74px;
+    padding: 8px 6px 7px;
+    box-sizing: border-box;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-top: 5px solid var(--u-vari);
+    border-radius: 6px;
+    color: #1d2327;
+    text-align: center;
+    text-decoration: none !important;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+a.u-merkki:hover,
+a.u-merkki:focus-visible {
+    border-left-color: #8c8f94;
+    border-right-color: #8c8f94;
+    border-bottom-color: #8c8f94;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+.u-merkki-lyhenne {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.u-merkki-kuvaus {
+    font-size: 0.7rem;
+    line-height: 1.15;
+    color: #50575e;
+}
+.u-merkki-re { --u-vari: #3d3d3d; }
+.u-merkki-ew { --u-vari: #542344; }
+.u-merkki-cr { --u-vari: #d81e05; }
+.u-merkki-en { --u-vari: #fc7f3f; }
+.u-merkki-vu { --u-vari: #f9e814; }
+.u-merkki-nt { --u-vari: #cce226; }
+.u-merkki-lc { --u-vari: #60c659; }
+.u-merkki-dd { --u-vari: #d1d1c6; }
+.u-merkki-na { --u-vari: #c1b5a5; }
+.u-merkki-ne { --u-vari: #e8e8e8; }
+.u-merkki-rt { --u-vari: #8e6bbf; }
+
+@media (max-width: 600px) {
+    .uhanalaisuus-merkit,
+    .uhanalaisuus-merkit-rivi {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+    .u-merkki {
+        width: 92px;
+        min-height: 66px;
+    }
+}

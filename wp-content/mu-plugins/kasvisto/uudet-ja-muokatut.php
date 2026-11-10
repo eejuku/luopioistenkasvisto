@@ -59,3 +59,46 @@ function kasvisto_sc_viimeisimmat($atts) {
     <?php
     return ob_get_clean();
 }
+
+/**
+ * Etusivun lyhyt lista: uusimmat tai viimeksi muokatut kasvikortit.
+ * Käyttö teemassa: echo kasvisto_etusivu_lajilista('uudet', 5);
+ *
+ * @param string $tyyppi 'uudet' (lisäyspäivä) tai 'muokatut' (muokkauspäivä)
+ * @param int    $maara  rivien määrä
+ */
+function kasvisto_etusivu_lajilista( $tyyppi = 'uudet', $maara = 5 ) {
+    $muokatut = ( $tyyppi === 'muokatut' );
+    $query = new WP_Query( [
+        'post_type'              => 'kasvi',
+        'posts_per_page'         => (int) $maara,
+        'orderby'                => $muokatut ? 'modified' : 'date',
+        'order'                  => 'DESC',
+        'no_found_rows'          => true,
+        'ignore_sticky_posts'    => true,
+        'update_post_term_cache' => false,
+    ] );
+
+    if ( ! $query->have_posts() ) {
+        return '<p class="etusivu-lajilista-tyhja">Ei kasvikortteja.</p>';
+    }
+
+    $html = '<ul class="etusivu-lajilista">';
+    while ( $query->have_posts() ) {
+        $query->the_post();
+        $tieteellinen = function_exists( 'get_field' ) ? (string) get_field( 'tieteellinen_nimi' ) : '';
+        $iso_pvm  = $muokatut ? get_the_modified_date( 'Y-m-d' ) : get_the_date( 'Y-m-d' );
+        $pvm      = $muokatut ? get_the_modified_date( 'j.n.Y' ) : get_the_date( 'j.n.Y' );
+
+        $html .= '<li><a href="' . esc_url( get_permalink() ) . '">'
+               . '<span class="etusivu-lajilista-nimet">'
+               . '<span class="etusivu-lajilista-suomi">' . esc_html( get_the_title() ) . '</span>'
+               . ( $tieteellinen !== '' ? '<span class="etusivu-lajilista-latina">' . esc_html( $tieteellinen ) . '</span>' : '' )
+               . '</span>'
+               . '<time class="etusivu-lajilista-pvm" datetime="' . esc_attr( $iso_pvm ) . '">' . esc_html( $pvm ) . '</time>'
+               . '</a></li>';
+    }
+    wp_reset_postdata();
+    $html .= '</ul>';
+    return $html;
+}
