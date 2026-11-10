@@ -83,22 +83,21 @@ function kasvisto_etusivu_lajilista( $tyyppi = 'uudet', $maara = 5 ) {
         return '<p class="etusivu-lajilista-tyhja">Ei kasvikortteja.</p>';
     }
 
-    $html = '<ul class="etusivu-lajilista">';
+    // Kevyt taulukko ilman sarakeotsikoita: suomenkielinen nimi | tieteellinen nimi | päivämäärä.
+    $html = '<table class="etusivu-lajitaulukko"><tbody>';
     while ( $query->have_posts() ) {
         $query->the_post();
         $tieteellinen = function_exists( 'get_field' ) ? (string) get_field( 'tieteellinen_nimi' ) : '';
         $iso_pvm  = $muokatut ? get_the_modified_date( 'Y-m-d' ) : get_the_date( 'Y-m-d' );
         $pvm      = $muokatut ? get_the_modified_date( 'j.n.Y' ) : get_the_date( 'j.n.Y' );
 
-        $html .= '<li><a href="' . esc_url( get_permalink() ) . '">'
-               . '<span class="etusivu-lajilista-nimet">'
-               . '<span class="etusivu-lajilista-suomi">' . esc_html( get_the_title() ) . '</span>'
-               . ( $tieteellinen !== '' ? '<span class="etusivu-lajilista-latina">' . esc_html( $tieteellinen ) . '</span>' : '' )
-               . '</span>'
-               . '<time class="etusivu-lajilista-pvm" datetime="' . esc_attr( $iso_pvm ) . '">' . esc_html( $pvm ) . '</time>'
-               . '</a></li>';
+        $html .= '<tr>'
+               . '<td class="etusivu-lajitaulukko-suomi"><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . '</a></td>'
+               . '<td class="etusivu-lajitaulukko-latina">' . esc_html( $tieteellinen ) . '</td>'
+               . '<td class="etusivu-lajitaulukko-pvm"><time datetime="' . esc_attr( $iso_pvm ) . '">' . esc_html( $pvm ) . '</time></td>'
+               . '</tr>';
     }
     wp_reset_postdata();
-    $html .= '</ul>';
+    $html .= '</tbody></table>';
     return $html;
 }

@@ -262,6 +262,7 @@ function kasvisto_sc_testiversio($atts) {
     .kasvi-lista-container.uhanalaisuuslista.ei-loytopisteet .kasvi-rivi {
         display: grid;
         grid-template-columns: 35% 35% 30%;
+        gap: 0; /* [kasvisto_uusi] samalla sivulla antaa 20 px välin → sarakkeet yli oikean reunan */
         width: 100%;
         box-sizing: border-box;
     }
@@ -270,6 +271,7 @@ function kasvisto_sc_testiversio($atts) {
     .kasvi-lista-container.uhanalaisuuslista.on-loytopisteet .kasvi-rivi {
         display: grid;
         grid-template-columns: 32% 32% 22% 14%;
+        gap: 0; /* [kasvisto_uusi] samalla sivulla antaa 20 px välin → sarakkeet yli oikean reunan */
         width: 100%;
         box-sizing: border-box;
     }

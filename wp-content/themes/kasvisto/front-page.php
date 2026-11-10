@@ -34,7 +34,6 @@
             <?php echo kasvisto_etusivu_lajilista('muokatut', 5); ?>
         </div>
     </div>
-    <p class="etusivu-lajilista-kaikki"><a href="/paivitykset-ja-uudet-ominaisuudet/uudet-ja-muokatut/">Kaikki uudet ja muokatut kortit →</a></p>
     <?php endif; ?>
 </main>
 
