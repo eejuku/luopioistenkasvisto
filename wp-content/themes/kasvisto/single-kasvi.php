@@ -157,9 +157,6 @@ if ( function_exists('get_field') ) :
     
     if ( !empty($kuvat) && is_array($kuvat) ) : ?>
         
-        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-        <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script> -->
-
         <div class="kasvi-galleria-grid">
             <?php foreach ($kuvat as $kuva) : 
                 $pieni_kuva = $kuva['sizes']['medium']; // 300x300px kuva
@@ -180,17 +177,7 @@ if ( function_exists('get_field') ) :
                 </a>
             <?php endforeach; ?>
         </div>
-        <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof GLightbox !== 'undefined') {
-                GLightbox({
-                    selector: '.glightbox',
-                    touchNavigation: true,
-                    loop: true
-                });
-            }
-        });
-        </script>
+        <?php /* GLightbox käynnistetään kerran sivun lopussa (ks. tiedoston loppu). */ ?>
 
     <?php 
     endif;
@@ -370,11 +357,9 @@ endif;
     <?php endwhile; endif; ?>
 </main>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.querySelector('.glightbox')) {
+    if (typeof GLightbox !== 'undefined' && document.querySelector('.glightbox')) {
         const lightbox = GLightbox({
             selector: '.glightbox',
             loop: true,

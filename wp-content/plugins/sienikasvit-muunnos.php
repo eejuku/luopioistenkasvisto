@@ -24,6 +24,9 @@ add_action('admin_menu', function() {
 // 2. Ajax-tallennus
 add_action('wp_ajax_tallenna_sienikasvit_repeateriin', function() {
     if ( !current_user_can('manage_options') ) wp_send_json_error('Ei oikeuksia.');
+    if ( !check_ajax_referer('tallenna_sienikasvit_repeateriin', '_ajax_nonce', false) ) {
+        wp_send_json_error('Istunto vanhentui. Lataa sivu uudelleen.');
+    }
 
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
     $rivit   = isset($_POST['rivit']) ? $_POST['rivit'] : array();
@@ -178,7 +181,8 @@ function renderoi_sienityokalu_sivu() {
 
     <script type="text/javascript">
     jQuery(document).ready(function($) {
-        
+        var sieniNonce = <?php echo wp_json_encode(wp_create_nonce('tallenna_sienikasvit_repeateriin')); ?>;
+
         // Luodaan uusi HTML-rivi
         function luoRiviHtml(index, haettuTeksti, valittuYleisyys) {
             var kasvit = <?php echo json_encode(array_map(function($k) { 
@@ -277,6 +281,7 @@ function renderoi_sienityokalu_sivu() {
                 type: 'POST',
                 data: {
                     action: 'tallenna_sienikasvit_repeateriin',
+                    _ajax_nonce: sieniNonce,
                     post_id: postID,
                     rivit: datat
                 },

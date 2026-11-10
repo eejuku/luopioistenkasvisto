@@ -17,6 +17,11 @@ add_action('after_setup_theme', 'kasvi_theme_setup');
 // 2. LADATAAN TYYLITIEDOSTO
 function kasvi_enqueue_styles() {
     wp_enqueue_style('kasvi-style', get_stylesheet_uri());
+
+    // GLightbox (kuvagalleriat ja karttalinkit). Ladataan kerran koko sivustolle:
+    // footer.php käyttää sitä karttalinkeissä kaikilla sivuilla.
+    wp_enqueue_style('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css', array(), null);
+    wp_enqueue_script('glightbox', 'https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js', array(), null, true);
 }
 add_action('wp_enqueue_scripts', 'kasvi_enqueue_styles');
 
@@ -124,7 +129,7 @@ add_action( 'pre_get_posts', 'kasvisto_muokkaa_haun_maaraa' );
  * Laskurit
  */
 function hae_kasvi_maara_optimoitu($ryhma_slug, $lisa_slug = '') {
-    $debug_mode = true; // Muuta false, kun olet valmis ja luvut täsmäävät.
+    $debug_mode = false; // true = lasketaan joka latauksella ilman välimuistia (vain vianetsintään).
     
     if ( !function_exists('get_field') ) return 0;
 
@@ -241,6 +246,18 @@ add_action('init', function() {
 
     if (!current_user_can('manage_options')) {
         wp_die('Sinulla ei ole oikeutta ajaa tätä skriptiä. Kirjaudu ensin sisään ylläpitäjänä.');
+    }
+
+    // Varmistusvaihe: tuonti ajetaan vain sivuston itse luomasta linkistä (nonce),
+    // jotta ulkopuolinen linkki ei voi käynnistää sitä ylläpitäjän tietämättä.
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'kasvisto_karttatuonti')) {
+        $vahvistus_url = wp_nonce_url(add_query_arg('aja_karttatuonti', '1', home_url('/')), 'kasvisto_karttatuonti');
+        wp_die(
+            '<h1>Karttapisteiden massatuonti</h1>'
+            . '<p>Tuonti kirjoittaa karttapisteet.json-tiedoston pisteet kasvien karttapisteet_json-kenttiin ja korvaa niissä olevat arvot.</p>'
+            . '<p><a class="button button-primary" href="' . esc_url($vahvistus_url) . '">Aja tuonti</a></p>',
+            'Karttapisteiden massatuonti'
+        );
     }
 
     $json_polku = get_stylesheet_directory() . '/karttapisteet.json';

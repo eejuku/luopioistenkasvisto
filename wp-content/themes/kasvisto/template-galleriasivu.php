@@ -23,9 +23,6 @@ get_header(); ?>
 
         <?php if ( function_exists('have_rows') && have_rows('galleriasivun_sisalto') ) : ?>
             
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-            <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-
             <div class="joustava-sisalto-wrapper">
                 <?php 
                 $galleria_index = 1; // Juokseva numero eri gallerioille
