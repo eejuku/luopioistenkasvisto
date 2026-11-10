@@ -23,15 +23,69 @@ function kasvisto_karttaeditori_menu() {
 }
 
 function kasvisto_karttaeditori_tallenna() {
-    $post_id = intval($_POST['post_id']);
-    $json_data = $_POST['json_data']; // Tämä on nyt joko JSON-merkkijono tai tyhjä ""
-    
-    if ($post_id && current_user_can('edit_post', $post_id)) {
-        // Jos data on tyhjä, poistetaan meta-tieto tai tallennetaan tyhjänä
-        update_post_meta($post_id, 'karttapisteet_json', $json_data);
-        wp_send_json_success();
+    // Pyynnön on tultava editorin omalta sivulta (nonce).
+    if ( ! check_ajax_referer('kasvisto_karttaeditori', '_ajax_nonce', false) ) {
+        wp_send_json_error('Istunto vanhentui. Lataa sivu uudelleen.');
     }
-    wp_send_json_error();
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if ( ! $post_id || ! in_array(get_post_type($post_id), array('kasvi', 'post'), true) || ! current_user_can('edit_post', $post_id) ) {
+        wp_send_json_error('Ei oikeuksia tai virheellinen kortti.');
+    }
+
+    // Tämä on joko JSON-merkkijono tai tyhjä "" (= pisteet poistettu)
+    $raaka = isset($_POST['json_data']) ? wp_unslash($_POST['json_data']) : '';
+    $json_data = kasvisto_karttaeditori_puhdista($raaka);
+    if ($json_data === false) {
+        wp_send_json_error('Virheellinen karttadata, ei tallennettu.');
+    }
+
+    // update_post_meta poistaa kenoviivat, joten ne lisätään ensin (JSON sisältää lainausmerkkejä).
+    update_post_meta($post_id, 'karttapisteet_json', wp_slash($json_data));
+    wp_send_json_success();
+}
+
+/**
+ * Tarkistaa editorin lähettämän datan ja rakentaa siitä puhtaan JSONin:
+ * {"size":"15","points":[{"x":0.1,"y":0.2,"c":"black"}, ...]}
+ * Palauttaa '' (ei pisteitä), JSON-merkkijonon tai false (virheellinen data).
+ */
+function kasvisto_karttaeditori_puhdista($raaka) {
+    if (trim((string) $raaka) === '') {
+        return '';
+    }
+    $data = json_decode($raaka, true);
+    if ( ! is_array($data) || ! isset($data['points']) || ! is_array($data['points']) || count($data['points']) > 5000 ) {
+        return false;
+    }
+
+    $koko = isset($data['size']) ? (int) $data['size'] : 15;
+    $pisteet = array();
+    foreach ($data['points'] as $p) {
+        if ( ! is_array($p) || ! isset($p['x'], $p['y']) || ! is_numeric($p['x']) || ! is_numeric($p['y']) ) {
+            return false;
+        }
+        $vari = isset($p['c']) ? strtolower((string) $p['c']) : 'black';
+        if ($vari === 'musta') {
+            $vari = 'black';
+        }
+        if ( ! preg_match('/^([a-z]{3,20}|#[0-9a-f]{3,6})$/', $vari) ) {
+            $vari = 'black';
+        }
+        $pisteet[] = array(
+            'x' => round((float) $p['x'], 5),
+            'y' => round((float) $p['y'], 5),
+            'c' => $vari,
+        );
+    }
+
+    if (empty($pisteet)) {
+        return '';
+    }
+    return wp_json_encode(array(
+        'size'   => (string) max(1, min(100, $koko)),
+        'points' => $pisteet,
+    ));
 }
 
 function kasvisto_karttaeditori_render() {
@@ -98,9 +152,10 @@ function kasvisto_karttaeditori_render() {
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <?php /* jQuery tulee WordPressin omasta latauksesta; erillinen jQuery-kopio rikkoi wp-adminin muita skriptejä. */ ?>
     <script>
     (function($) {
+        const tallennusNonce = <?php echo wp_json_encode(wp_create_nonce('kasvisto_karttaeditori')); ?>;
         let kasvit = <?php echo json_encode($kasvi_lista); ?>;
         const POHJA = { L: 42, T: 7, R: 535, B: 500 };
         const bgImg = new Image();
@@ -232,6 +287,7 @@ function kasvisto_karttaeditori_render() {
 
             $.post(ajaxurl, {
                 action: 'save_kasvi_data',
+                _ajax_nonce: tallennusNonce,
                 post_id: currentId,
                 json_data: finalData // Lähetetään joko JSON tai tyhjä ""
             }, function(res) {
@@ -240,6 +296,8 @@ function kasvisto_karttaeditori_render() {
                     kasvit[idx].data = finalData ? JSON.parse(finalData) : null;
                     $('#kk-msg').html('<span style="color:green">Tallennettu!</span>');
                     renderList();
+                } else {
+                    $('#kk-msg').css('color', '#b32d2e').text('Ei tallennettu: ' + (res.data || 'tuntematon virhe'));
                 }
                 setTimeout(() => { $btn.text('TALLENNA MUUTOKSET'); }, 1000);
             });
