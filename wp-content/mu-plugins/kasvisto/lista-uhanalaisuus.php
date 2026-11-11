@@ -52,18 +52,11 @@ function kasvisto_sc_testiversio($atts) {
         'RT' => 'Alueellisesti uhanalaiset (RT)'
     ];
 
-    $args = [
-        'post_type'      => 'kasvi',
-        'posts_per_page' => -1,
-    ];
-
-    $query = new WP_Query($args);
+    // Kasvit käydään läpi erissä, jotta muisti ei lopu (ks. apu.php).
     $kasvit = [];
 
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
+    {
+        foreach (kasvisto_kasvit_erissa() as $post_id) {
             
             // --- PÄÄRYHMÄTARKISTUS ---
             $ryhma = get_field('ryhma', $post_id);
@@ -150,7 +143,6 @@ function kasvisto_sc_testiversio($atts) {
                 'eka_latina'    => $latina_nimi ? mb_strtoupper(mb_substr($latina_nimi, 0, 1, 'UTF-8')) : ''
             ];
         }
-        wp_reset_postdata();
     }
 
     usort($kasvit, function($a, $b) {

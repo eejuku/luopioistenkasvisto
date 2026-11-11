@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $kasvisto_dir = __DIR__ . '/kasvisto/';
 
+require_once $kasvisto_dir . 'apu.php';
 require_once $kasvisto_dir . 'uhanalaisuus.php';
 
 require_once $kasvisto_dir . 'lista-kasvisto-uusi.php';

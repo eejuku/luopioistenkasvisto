@@ -42,22 +42,11 @@ function kasvisto_sc_kasvisto_uusi($atts) {
     $nayta_aakkoset    = (trim($a['aakkosnavigaatio']) !== 'ei');
     $rajus_luopioiset  = (trim($a['vain_luopioiset']) === 'kylla');
 
-    // ULTRAKEVYT TIETOKANTAHAKU (Estää muistin loppumisen)
-    $args = [
-        'post_type'              => 'kasvi',
-        'posts_per_page'         => -1,
-        'no_found_rows'          => true,
-        'update_post_meta_cache' => false,
-        'update_post_term_cache' => false,
-    ];
-
-    $query = new WP_Query($args);
+    // Kasvit käydään läpi erissä, jotta muisti ei lopu (ks. apu.php).
     $kasvit = [];
 
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
+    {
+        foreach (kasvisto_kasvit_erissa() as $post_id) {
             
             // --- TARKISTUS 1: PÄÄRYHMÄ ---
             $ryhma = get_field('ryhma', $post_id);
@@ -136,7 +125,6 @@ function kasvisto_sc_kasvisto_uusi($atts) {
                 'eka_latina'  => $latina_nimi ? mb_strtoupper(mb_substr($latina_nimi, 0, 1, 'UTF-8')) : ''
             ];
         }
-        wp_reset_postdata();
     }
 
     // TURVALLINEN SUOMALAINEN JÄRJESTYS (Ei riko PHP 8+ ympäristöjä)
