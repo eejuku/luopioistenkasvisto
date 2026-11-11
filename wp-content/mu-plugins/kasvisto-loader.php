@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $kasvisto_dir = __DIR__ . '/kasvisto/';
 
 require_once $kasvisto_dir . 'apu.php';
+require_once $kasvisto_dir . 'valimuisti.php';
 require_once $kasvisto_dir . 'uhanalaisuus.php';
 
 require_once $kasvisto_dir . 'lista-kasvisto-uusi.php';
@@ -46,9 +47,10 @@ function kasvisto_editorin_pyynto() {
  *  - editorin pyynnöissä palautetaan kevyt paikkamerkki
  *  - listan jälkeen palautetaan sivun oma $post (listat käyvät läpi kaikki kasvit,
  *    ja wp_reset_postdata() ei palauta sitä REST-pyynnöissä)
+ *  - $valimuisti = true: valmis lista tallennetaan (ks. kasvisto/valimuisti.php)
  */
-function kasvisto_rekisteroi_shortcode( $tag, $callback ) {
-    add_shortcode( $tag, function ( $atts, $content = null, $sc_tag = '' ) use ( $tag, $callback ) {
+function kasvisto_rekisteroi_shortcode( $tag, $callback, $valimuisti = false ) {
+    add_shortcode( $tag, function ( $atts, $content = null, $sc_tag = '' ) use ( $tag, $callback, $valimuisti ) {
         if ( kasvisto_editorin_pyynto() ) {
             $kuvaus = '';
             if ( is_array( $atts ) && ! empty( $atts['ryhma'] ) ) {
@@ -62,7 +64,11 @@ function kasvisto_rekisteroi_shortcode( $tag, $callback ) {
         $alkuperainen = $post;
         $puskuritaso  = ob_get_level();
         try {
-            $html = call_user_func( $callback, $atts, $content, $sc_tag );
+            $rakenna = function () use ( $callback, $atts, $content, $sc_tag ) {
+                return call_user_func( $callback, $atts, $content, $sc_tag );
+            };
+            // Kaatunutta listaa ei tallenneta: poikkeus ohittaa tallennuksen.
+            $html = $valimuisti ? kasvisto_lista_valimuistista( $tag, $atts, $rakenna ) : $rakenna();
         } catch ( \Throwable $e ) {
             // Lista kaatui: koko sivu ei kaadu. Syy lokiin ja ylläpitäjälle näkyviin.
             while ( ob_get_level() > $puskuritaso ) {
@@ -83,12 +89,13 @@ function kasvisto_rekisteroi_shortcode( $tag, $callback ) {
 }
 
 add_action( 'init', function () {
-    kasvisto_rekisteroi_shortcode( 'kasvisto_uusi', 'kasvisto_sc_kasvisto_uusi' );
-    kasvisto_rekisteroi_shortcode( 'kasvisto_testiversio', 'kasvisto_sc_testiversio' );
-    kasvisto_rekisteroi_shortcode( 'jakalat_lisaryhmat', 'kasvisto_sc_jakalat_lisaryhmat' );
-    kasvisto_rekisteroi_shortcode( 'kasvisto_viimeisimmat', 'kasvisto_sc_viimeisimmat' );
+    // true = lista välimuistiin (kasvikorttien muutos tyhjentää sen). Kuvagalleria riippuu kuvista, ei korteista.
+    kasvisto_rekisteroi_shortcode( 'kasvisto_uusi', 'kasvisto_sc_kasvisto_uusi', true );
+    kasvisto_rekisteroi_shortcode( 'kasvisto_testiversio', 'kasvisto_sc_testiversio', true );
+    kasvisto_rekisteroi_shortcode( 'jakalat_lisaryhmat', 'kasvisto_sc_jakalat_lisaryhmat', true );
+    kasvisto_rekisteroi_shortcode( 'kasvisto_viimeisimmat', 'kasvisto_sc_viimeisimmat', true );
     kasvisto_rekisteroi_shortcode( 'kuvagalleria', 'kasvisto_sc_kuvagalleria' );
-    kasvisto_rekisteroi_shortcode( 'kasvisto_uhanalaisuussivu', 'kasvisto_sc_uhanalaisuussivu' );
+    kasvisto_rekisteroi_shortcode( 'kasvisto_uhanalaisuussivu', 'kasvisto_sc_uhanalaisuussivu', true );
 
     // Snippetin #16 funktio on olemassa → snippetti on vielä päällä, käytetään sitä.
     if ( ! function_exists( 'render_kasvikartat_editor_v5_2' ) ) {
