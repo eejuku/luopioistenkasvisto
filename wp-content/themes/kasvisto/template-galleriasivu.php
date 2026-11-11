@@ -54,12 +54,14 @@ get_header(); ?>
                                         $iso_kuva     = $kuva['url'];
                                         $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
                                         $kuvausteksti = !empty($kuva['caption']) ? $kuva['caption'] : '';
+                                        $kuva_id      = !empty($kuva['ID']) ? (int) $kuva['ID'] : 0;
+                                        $kuvaus_html  = function_exists('kasvisto_lightbox_kuvaus') ? kasvisto_lightbox_kuvaus($kuvausteksti, $kuva_id) : esc_html($kuvausteksti);
                                     ?>
                                         <a href="<?php echo esc_url($iso_kuva); ?>" 
                                            class="glightbox kasvi-galleria-item" 
                                            data-gallery="galleria-<?php echo $galleria_index; ?>" 
                                            data-title="<?php echo esc_attr($otsikko); ?>" 
-                                           data-description="<?php echo esc_attr($kuvausteksti); ?>">
+                                           data-description="<?php echo esc_attr($kuvaus_html); ?>">
                                             
                                             <img src="<?php echo esc_url($pieni_kuva); ?>" alt="<?php echo esc_attr($kuva['alt']); ?>" loading="lazy">
                                             
