@@ -193,7 +193,6 @@ if ( function_exists('get_field') ) :
                     <img src="<?php echo esc_url($pieni_kuva); ?>" 
                          alt="<?php echo esc_attr($kuva['alt']); ?>" 
                          loading="lazy">
-                    <?php if (function_exists('kasvisto_lisenssimerkki_html')) echo kasvisto_lisenssimerkki_html($kuva_id); ?>
                 </a>
             <?php endforeach; ?>
         </div>
@@ -212,9 +211,8 @@ endif;
                             if ($url) {
                                 // Vanhat URL-kuvat eivät ole mediakirjastossa: oletuslisenssi.
                                 $kuvaus_html = function_exists('kasvisto_lightbox_kuvaus') ? kasvisto_lightbox_kuvaus('', null) : '';
-                                echo '<a href="' . esc_url($url) . '" class="glightbox kuva-lisenssi-kehys" data-title="' . esc_attr(get_the_title()) . '" data-description="' . esc_attr($kuvaus_html) . '">';
+                                echo '<a href="' . esc_url($url) . '" class="glightbox" data-title="' . esc_attr(get_the_title()) . '" data-description="' . esc_attr($kuvaus_html) . '">';
                                 echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
-                                if (function_exists('kasvisto_lisenssimerkki_html')) echo kasvisto_lisenssimerkki_html(null);
                                 echo '</a>';
                             }
                         }

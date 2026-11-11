@@ -1209,27 +1209,6 @@ a.u-merkki:focus-visible {
    KUVIEN LISENSSIMERKINTÄ (CC BY-NC-SA 4.0)
    (mu-plugins/kasvisto/lisenssi.php)
    ========================================================================== */
-.kasvi-galleria-item,
-.kuvamatriisi-item a,
-.kuva-lisenssi-kehys {
-    position: relative;
-    display: block;
-}
-.kuva-lisenssimerkki {
-    position: absolute;
-    right: 5px;
-    bottom: 5px;
-    padding: 2px 5px;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: 0.02em;
-    pointer-events: none;
-    white-space: nowrap;
-}
 .kuva-lisenssirivi {
     font-size: 0.8rem;
     color: #646970;

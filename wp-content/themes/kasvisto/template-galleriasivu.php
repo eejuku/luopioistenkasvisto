@@ -64,7 +64,6 @@ get_header(); ?>
                                            data-description="<?php echo esc_attr($kuvaus_html); ?>">
                                             
                                             <img src="<?php echo esc_url($pieni_kuva); ?>" alt="<?php echo esc_attr($kuva['alt']); ?>" loading="lazy">
-                                            <?php if (function_exists('kasvisto_lisenssimerkki_html')) echo kasvisto_lisenssimerkki_html($kuva_id); ?>
                                             
                                             <div class="galleria-overlay"><span class="suurennus-ikoni">🔍</span></div>
                                         </a>

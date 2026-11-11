@@ -117,7 +117,6 @@ function kasvisto_sc_kuvagalleria( $atts ) {
             echo '<div class="kuvamatriisi-item">';
                 echo '<a href="#" onclick="event.preventDefault(); document.getElementById(\'lightbox-' . $id . '\').showModal();">';
                     echo wp_get_attachment_image( $id, 'small' );
-                    echo function_exists( 'kasvisto_lisenssimerkki_html' ) ? kasvisto_lisenssimerkki_html( $id ) : '';
                 echo '</a>';
             echo '</div>';
 

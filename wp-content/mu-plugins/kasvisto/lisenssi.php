@@ -4,8 +4,7 @@
  *
  *  - Jokaiseen mediakirjaston kuvaan voi merkitä kuvaajan ja poikkeavan lisenssin
  *    (Media → kuva → kentät "Kuvaaja" ja "Lisenssi").
- *  - Gallerioiden pikkukuviin tulee pieni "CC BY-NC-SA" -merkki, ja suurennetun kuvan
- *    alle kuvaaja ja lisenssi linkkeineen.
+ *  - Suurennetun kuvan alle tulee kuvaaja ja lisenssi linkkeineen (pikkukuviin ei merkintää).
  *  - Sivujen ja artikkelien kuvalohkojen alle tulee sama merkintä.
  *  - Sivun <head>-osaan tulee koneluettava lisenssilinkki (rel="license").
  *
@@ -27,10 +26,10 @@ const KASVISTO_LISENSSI_URL   = 'https://creativecommons.org/licenses/by-nc-sa/4
 const KASVISTO_KAYTTOEHTOSIVU = 'sivustosta/kayttooikeudet';
 
 /**
- * Kuvaaja, jota käytetään, jos kuvalle ei ole merkitty kuvaajaa.
- * Tyhjä = näytetään vain sivuston nimi.
+ * Kuvaaja, jota käytetään, jos kuvalle ei ole merkitty kuvaajaa (käytännössä kaikki
+ * sivuston kuvat ovat hänen). Poikkeukset merkitään kuvakohtaisesti mediakirjastossa.
  */
-const KASVISTO_OLETUSKUVAAJA = '';
+const KASVISTO_OLETUSKUVAAJA = 'Tuomo Kuitunen';
 
 /**
  * Käyttöehtosivun osoite (tai CC:n tiivistelmä, jos sivua ei ole).
@@ -64,20 +63,6 @@ function kasvisto_kuvan_lisenssi( $kuva_id = null ) {
         $kuvaaja = KASVISTO_OLETUSKUVAAJA;
     }
     return [ 'tyyppi' => $tyyppi, 'kuvaaja' => $kuvaaja ];
-}
-
-/**
- * Pieni merkki pikkukuvan kulmaan. Tyhjä, jos merkintää ei näytetä.
- * (Pikkukuva on itse linkki suurennokseen, joten merkki ei ole linkki.)
- */
-function kasvisto_lisenssimerkki_html( $kuva_id = null ) {
-    $l = kasvisto_kuvan_lisenssi( $kuva_id );
-    if ( $l['tyyppi'] === 'ei' ) {
-        return '';
-    }
-    $teksti = $l['tyyppi'] === 'cc' ? 'CC BY-NC-SA' : '©';
-    $otsake = $l['tyyppi'] === 'cc' ? 'Lisenssi ' . KASVISTO_LISENSSI_LYHYT : 'Kaikki oikeudet pidätetään';
-    return '<span class="kuva-lisenssimerkki" title="' . esc_attr( $otsake ) . '">' . esc_html( $teksti ) . '</span>';
 }
 
 /**
@@ -130,7 +115,7 @@ add_filter( 'attachment_fields_to_edit', function ( $kentat, $kuva ) {
         'label' => 'Kuvaaja',
         'input' => 'text',
         'value' => $kuvaaja,
-        'helps' => 'Näytetään kuvan yhteydessä. Tyhjä = "Luopioisten kasvisto".',
+        'helps' => 'Täytä vain, jos kuvaaja on joku muu kuin ' . KASVISTO_OLETUSKUVAAJA . '.',
     ];
 
     $vaihtoehdot = [
