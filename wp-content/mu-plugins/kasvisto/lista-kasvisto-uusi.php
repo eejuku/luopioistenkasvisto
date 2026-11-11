@@ -85,17 +85,8 @@ function kasvisto_sc_kasvisto_uusi($atts) {
                 }
             }
 
-            // --- KEVEÄ SYNONYYMIHAKU (Hakuilmiötä varten ilman loop-kaatumista) ---
-            $synonyymit_teksti = '';
-            $synonyymit_repeater = get_field('synonyymit', $post_id);
-            if (is_array($synonyymit_repeater) && !empty($synonyymit_repeater)) {
-                $syn_list = [];
-                foreach ($synonyymit_repeater as $row) {
-                    if (!empty($row['suomenkielinen_synonyymi'])) $syn_list[] = mb_strtolower($row['suomenkielinen_synonyymi'], 'UTF-8');
-                    if (!empty($row['tieteellinen_synonyymi']))    $syn_list[] = mb_strtolower($row['tieteellinen_synonyymi'], 'UTF-8');
-                }
-                $synonyymit_teksti = implode(' | ', $syn_list);
-            }
+            // --- SYNONYYMIT HAKUA VARTEN (ks. apu.php) ---
+            $synonyymit_teksti = kasvisto_synonyymit_hakuun($post_id);
 
             // --- LÖYTÖPISTEIDEN LASKENTA VAIN JOS PARAMEETRI PÄÄLLÄ ---
             $pisteet_maara_teksti = '-';
