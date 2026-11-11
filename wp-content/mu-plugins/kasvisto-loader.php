@@ -30,6 +30,7 @@ require_once $kasvisto_dir . 'jakalat-lisaryhmat.php';
 require_once $kasvisto_dir . 'uudet-ja-muokatut.php';
 require_once $kasvisto_dir . 'kuvagalleria.php';
 require_once $kasvisto_dir . 'karttaeditori.php';
+require_once $kasvisto_dir . 'kuvien-sijainnit.php';
 
 /**
  * Onko kyse editorin taustapyynnöstä (lohkoeditorin tallennus/esikatselu REST-rajapinnan
