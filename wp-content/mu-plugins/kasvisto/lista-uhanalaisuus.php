@@ -52,18 +52,11 @@ function kasvisto_sc_testiversio($atts) {
         'RT' => 'Alueellisesti uhanalaiset (RT)'
     ];
 
-    $args = [
-        'post_type'      => 'kasvi',
-        'posts_per_page' => -1,
-    ];
-
-    $query = new WP_Query($args);
+    // Kasvit käydään läpi erissä, jotta muisti ei lopu (ks. apu.php).
     $kasvit = [];
 
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_id = get_the_ID();
+    {
+        foreach (kasvisto_kasvit_erissa() as $post_id) {
             
             // --- PÄÄRYHMÄTARKISTUS ---
             $ryhma = get_field('ryhma', $post_id);
@@ -97,7 +90,7 @@ function kasvisto_sc_testiversio($atts) {
 
             $naytettava_teksti = $kasvin_luokat[0];
             if (preg_match('/^(.*?)\s*\(([A-Z]{2})\)$/', $naytettava_teksti, $matches)) {
-                $muotoiltu_u_teksti = '<strong style="color:#2c3338; font-weight:600;">' . $matches[2] . '</strong> <span style="color:#c0c0c0; font-size:0.8rem; margin:0 4px;">—</span> ' . $matches[1];
+                $muotoiltu_u_teksti = '<strong class="u-koodi" style="color:#2c3338; font-weight:600;">' . $matches[2] . '</strong> <span class="u-erotin" style="color:#c0c0c0; font-size:0.8rem; margin:0 4px;">—</span> <span class="u-teksti">' . esc_html($matches[1]) . '</span>';
             } else {
                 $muotoiltu_u_teksti = $naytettava_teksti;
             }
@@ -150,7 +143,6 @@ function kasvisto_sc_testiversio($atts) {
                 'eka_latina'    => $latina_nimi ? mb_strtoupper(mb_substr($latina_nimi, 0, 1, 'UTF-8')) : ''
             ];
         }
-        wp_reset_postdata();
     }
 
     usort($kasvit, function($a, $b) {
@@ -217,6 +209,18 @@ function kasvisto_sc_testiversio($atts) {
                     <div class="u-maara-laskuri" style="font-size: 0.9rem; font-weight: 600; color: #666; line-height: 1;">0</div>
                 </div>
             <?php endforeach; ?>
+        </div>
+
+        <?php /* Kapealla näytöllä nappien tilalla näytetään tämä valikko (ks. tyylit alla). */ ?>
+        <div class="uhanalaisuus-valikko-kaare">
+            <label class="uhanalaisuus-valikko-otsikko" for="uvalikko-<?php echo $wrapper_slug; ?>">Uhanalaisuusluokka</label>
+            <select class="uhanalaisuus-valikko" id="uvalikko-<?php echo $wrapper_slug; ?>">
+                <option value="">Kaikki luokat</option>
+                <?php foreach ($uhanalaisuus_sanakirja as $lyhenne => $taysi_acf_arvo) :
+                    $kuvaus = trim(preg_replace('/\s*\([A-Z]{2}\)/', '', $taysi_acf_arvo)); ?>
+                    <option value="<?php echo esc_attr($taysi_acf_arvo); ?>" data-teksti="<?php echo esc_attr($lyhenne . ' – ' . $kuvaus); ?>"><?php echo esc_html($lyhenne . ' – ' . $kuvaus); ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="lista-otsikot sarake-toggles">
@@ -357,6 +361,67 @@ function kasvisto_sc_testiversio($atts) {
     .kasvi-lista-container.uhanalaisuuslista .lista-otsikot .otsikko-pisteet {
         padding-right: 12px;
     }
+
+    /* PUDOTUSVALIKKO KAPEALLA NÄYTÖLLÄ: napit piiloon, valikko näkyviin.
+       Raja lasketaan listan omasta leveydestä (container query), varalla näytön leveys. */
+    .kasvi-lista-container.uhanalaisuuslista {
+        container-type: inline-size;
+    }
+    .uhanalaisuuslista .uhanalaisuus-valikko-kaare {
+        display: none;
+        margin: 0 0 20px;
+    }
+    .uhanalaisuuslista .uhanalaisuus-valikko-otsikko {
+        display: block;
+        margin: 0 0 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #50575e;
+    }
+    .uhanalaisuuslista .uhanalaisuus-valikko {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        font-size: 1rem;
+        border: 1px solid #8c8f94;
+        border-radius: 6px;
+        background: #fff;
+        color: #1d2327;
+    }
+    @container (max-width: 640px) {
+        .uhanalaisuus-suodatin-ruudukko { display: none !important; }
+        .uhanalaisuus-valikko-kaare { display: block !important; }
+    }
+    /* KAPEA LISTA: tieteellinen nimi suomenkielisen alle, uhanalaisuudesta vain lyhenne */
+    @container (max-width: 640px) {
+        .lista-otsikot.sarake-toggles,
+        .kasvi-rivi {
+            grid-template-columns: minmax(0, 1fr) 3.4rem !important;
+            row-gap: 2px;
+        }
+        .kasvi-lista-container.on-loytopisteet .lista-otsikot.sarake-toggles,
+        .kasvi-lista-container.on-loytopisteet .kasvi-rivi {
+            grid-template-columns: minmax(0, 1fr) 3.4rem 3.6rem !important;
+        }
+        .kasvi-rivi .nimi-suomi { grid-column: 1; grid-row: 1; white-space: normal !important; }
+        .kasvi-rivi .nimi-latina { grid-column: 1; grid-row: 2; white-space: normal !important; font-size: 0.85rem; }
+        .kasvi-rivi .nimi-uhanalaisuus { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+        .kasvi-rivi .nimi-pisteet { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+        .kasvi-rivi .u-erotin,
+        .kasvi-rivi .u-teksti { display: none; }
+        .lista-otsikot .otsikko-latina { display: none !important; }
+        .lista-otsikot .sarake { font-size: 0.75rem !important; }
+        .lista-otsikot .otsikko-uhanalaisuus .otsikko-teksti,
+        .lista-otsikot .otsikko-pisteet .otsikko-teksti { font-size: 0; }
+        .lista-otsikot .otsikko-uhanalaisuus .otsikko-teksti::after { content: "Luokka"; font-size: 0.75rem; }
+        .lista-otsikot .otsikko-pisteet .otsikko-teksti::after { content: "Löytö\00ADpaikat"; font-size: 0.75rem; }
+    }
+    @supports not (container-type: inline-size) {
+        @media (max-width: 700px) {
+            .uhanalaisuuslista .uhanalaisuus-suodatin-ruudukko { display: none !important; }
+            .uhanalaisuuslista .uhanalaisuus-valikko-kaare { display: block !important; }
+        }
+    }
     </style>
 
     <script>
@@ -372,6 +437,7 @@ function kasvisto_sc_testiversio($atts) {
         const otsikkoTogglet = container.querySelectorAll('.sarake-toggles .sarake');
         const uSuodattimet = container.querySelectorAll('.u-suodatin-nappi');
         const laskuri = container.querySelector('.laskuri-maara');
+        const valikko = container.querySelector('.uhanalaisuus-valikko');
         const rivit = Array.from(lista.querySelectorAll('.kasvi-rivi'));
 
         let nykyinenJarjestys = 'suomi';
@@ -402,7 +468,24 @@ function kasvisto_sc_testiversio($atts) {
 
                 const maaraDiv = nappi.querySelector('.u-maara-laskuri');
                 if (maaraDiv) maaraDiv.textContent = count;
+
+                // Sama lukumäärä pudotusvalikkoon
+                if (valikko) {
+                    const optio = Array.from(valikko.options).find(o => o.value === acfArvo);
+                    if (optio) optio.textContent = optio.getAttribute('data-teksti') + ' (' + count + ')';
+                }
             });
+
+            if (valikko) {
+                let kaikki = 0;
+                rivit.forEach(rivi => {
+                    const nimi = (rivi.getAttribute('data-nimi') || '').toLowerCase();
+                    const latina = (rivi.getAttribute('data-latina') || '').toLowerCase();
+                    const synonyymit = (rivi.getAttribute('data-synonyymit') || '').toLowerCase();
+                    if (!termi || nimi.includes(termi) || latina.includes(termi) || synonyymit.includes(termi)) kaikki++;
+                });
+                valikko.options[0].textContent = 'Kaikki luokat (' + kaikki + ')';
+            }
         }
 
         function suodataLajiLista() {
@@ -494,20 +577,26 @@ function kasvisto_sc_testiversio($atts) {
             paivitaAakkoset();
         }
 
+        // Yksi uhanalaisuusluokka kerrallaan. acfArvo '' = kaikki luokat.
+        function valitseLuokka(acfArvo) {
+            aktiivisetUhanalaisuudet = acfArvo ? [acfArvo] : [];
+            uSuodattimet.forEach(n => n.classList.toggle('aktiivinen', !!acfArvo && n.getAttribute('data-u-acf-arvo') === acfArvo));
+            if (valikko) valikko.value = acfArvo || '';
+            suodataLajiLista();
+        }
+
         uSuodattimet.forEach(nappi => {
             nappi.addEventListener('click', function() {
-                const acfArvo = this.getAttribute('data-u-acf-arvo');
-                
-                if (this.classList.contains('aktiivinen')) {
-                    this.classList.remove('aktiivinen');
-                    aktiivisetUhanalaisuudet = aktiivisetUhanalaisuudet.filter(item => item !== acfArvo);
-                } else {
-                    this.classList.add('aktiivinen');
-                    aktiivisetUhanalaisuudet.push(acfArvo);
-                }
-                suodataLajiLista();
+                // Valitun napin uusi painallus poistaa valinnan.
+                valitseLuokka(this.classList.contains('aktiivinen') ? '' : this.getAttribute('data-u-acf-arvo'));
             });
         });
+
+        if (valikko) {
+            valikko.addEventListener('change', function() {
+                valitseLuokka(this.value);
+            });
+        }
 
         if (haku) {
             haku.addEventListener('input', function() {
@@ -546,17 +635,18 @@ function kasvisto_sc_testiversio($atts) {
         });
 
         // Suodatin osoitteesta, esim. /sammalet/suojelu/?uhanalaisuus=VU (kasvikortin merkkilinkit).
+        // Vain yksi luokka: jos osoitteessa on useampi (VU,NT), käytetään ensimmäistä.
         const osoiteSuodatin = new URLSearchParams(window.location.search).get('uhanalaisuus');
         let suodatinOsoitteesta = false;
         if (osoiteSuodatin && uSuodattimet.length) {
-            const koodit = osoiteSuodatin.toUpperCase().split(',').map(k => k.trim());
-            uSuodattimet.forEach(nappi => {
-                if (koodit.includes(nappi.getAttribute('data-u-lyhenne'))) {
-                    nappi.classList.add('aktiivinen');
-                    aktiivisetUhanalaisuudet.push(nappi.getAttribute('data-u-acf-arvo'));
-                    suodatinOsoitteesta = true;
-                }
-            });
+            const koodi = osoiteSuodatin.toUpperCase().split(',')[0].trim();
+            const nappi = Array.from(uSuodattimet).find(n => n.getAttribute('data-u-lyhenne') === koodi);
+            if (nappi) {
+                aktiivisetUhanalaisuudet = [nappi.getAttribute('data-u-acf-arvo')];
+                nappi.classList.add('aktiivinen');
+                if (valikko) valikko.value = aktiivisetUhanalaisuudet[0];
+                suodatinOsoitteesta = true;
+            }
         }
 
         suodataLajiLista();

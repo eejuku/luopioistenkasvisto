@@ -16,7 +16,11 @@ add_action('after_setup_theme', 'kasvi_theme_setup');
 
 // 2. LADATAAN TYYLITIEDOSTO
 function kasvi_enqueue_styles() {
-    wp_enqueue_style('kasvi-style', get_stylesheet_uri());
+    // Versioksi tiedoston muokkausaika: kun style.css muuttuu, osoite muuttuu ja selaimet
+    // hakevat uuden version. (Oletuksena versio oli WordPressin versio, jolloin selaimet
+    // käyttivät vanhaa tyylitiedostoa välimuistista vielä julkaisun jälkeen.)
+    $tyyli = get_stylesheet_directory() . '/style.css';
+    wp_enqueue_style('kasvi-style', get_stylesheet_uri(), array(), file_exists($tyyli) ? filemtime($tyyli) : null);
 
     // GLightbox (kuvien suurennus ja karttalinkkien ponnahdusikkuna). Ladataan vain sivuilla,
     // joilla sitä tarvitaan: kasvikortit, Galleriasivu-pohja ja sivut, joiden sisällössä on
