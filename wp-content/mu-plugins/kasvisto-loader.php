@@ -59,7 +59,20 @@ function kasvisto_rekisteroi_shortcode( $tag, $callback ) {
 
         global $post;
         $alkuperainen = $post;
-        $html = call_user_func( $callback, $atts, $content, $sc_tag );
+        $puskuritaso  = ob_get_level();
+        try {
+            $html = call_user_func( $callback, $atts, $content, $sc_tag );
+        } catch ( \Throwable $e ) {
+            // Lista kaatui: koko sivu ei kaadu. Syy lokiin ja ylläpitäjälle näkyviin.
+            while ( ob_get_level() > $puskuritaso ) {
+                ob_end_clean();
+            }
+            $syy = get_class( $e ) . ': ' . $e->getMessage() . ' (' . basename( $e->getFile() ) . ' rivi ' . $e->getLine() . ')';
+            error_log( '[kasvisto] [' . $tag . '] ' . $syy );
+            $html = current_user_can( 'manage_options' )
+                ? '<p style="padding:12px;border:2px solid #d63638;background:#fcf0f1;color:#1d2327;"><strong>[' . esc_html( $tag ) . '] kaatui:</strong> ' . esc_html( $syy ) . '</p>'
+                : '';
+        }
         $post = $alkuperainen;
         if ( $alkuperainen instanceof WP_Post ) {
             setup_postdata( $alkuperainen );
