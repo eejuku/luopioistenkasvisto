@@ -86,3 +86,35 @@ function kasvisto_tyhjenna_acf_valimuisti() {
         }
     }
 }
+
+/**
+ * Kasvin synonyymit yhtenä hakutekstinä (pienin kirjaimin, erottimena " | ").
+ * Listojen haku vertaa hakusanaa myös tähän, mutta synonyymeja ei näytetä listassa.
+ *
+ * Kasvikortin synonyymit ovat ACF-toistokentässä `synonyymiryhma`, alikentät
+ * `suomenkielinen_synonyymi` ja `tieteellinen_synonyymi` (ks. single-kasvi.php).
+ * (Listat lukivat aiemmin olematonta kenttää `synonyymit`, joten haku ei löytänyt
+ * synonyymeja.)
+ */
+function kasvisto_synonyymit_hakuun( $post_id ) {
+    if ( ! function_exists( 'get_field' ) ) {
+        return '';
+    }
+    $rivit = get_field( 'synonyymiryhma', $post_id );
+    if ( ! is_array( $rivit ) || empty( $rivit ) ) {
+        return '';
+    }
+    $nimet = [];
+    foreach ( $rivit as $rivi ) {
+        if ( ! is_array( $rivi ) ) {
+            continue;
+        }
+        foreach ( [ 'suomenkielinen_synonyymi', 'tieteellinen_synonyymi' ] as $kentta ) {
+            $nimi = isset( $rivi[ $kentta ] ) ? trim( wp_strip_all_tags( (string) $rivi[ $kentta ] ) ) : '';
+            if ( $nimi !== '' ) {
+                $nimet[] = mb_strtolower( $nimi, 'UTF-8' );
+            }
+        }
+    }
+    return implode( ' | ', array_unique( $nimet ) );
+}
