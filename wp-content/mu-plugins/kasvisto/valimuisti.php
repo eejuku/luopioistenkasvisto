@@ -6,7 +6,8 @@
  * määrän kasvaessa. Valmis lista (HTML) tallennetaan siksi tietokantaan, ja seuraavat
  * kävijät saavat sen suoraan.
  *
- * Tallessa oleva lista vanhenee heti, kun mikä tahansa kasvikortti muuttuu:
+ * Tallessa oleva lista vanhenee heti, kun listojen koodi päivittyy (julkaisu) tai
+ * mikä tahansa kasvikortti muuttuu:
  *   - kortti tallennetaan, poistetaan tai siirretään roskakoriin
  *   - kortin kenttä muuttuu (myös karttaeditori, WP All Import, WP Sheet Editor)
  * Silloin "listaversio" kasvaa, ja kaikki listat lasketaan seuraavalla latauksella
@@ -30,6 +31,23 @@ const KASVISTO_LISTA_SAILYTYS = DAY_IN_SECONDS;
  */
 function kasvisto_lista_versio() {
     return (int) get_option( 'kasvisto_lista_versio', 1 );
+}
+
+/**
+ * Listakoodin versio: muuttuu, kun mikä tahansa mu-plugins/kasvisto/-tiedosto muuttuu
+ * (julkaisu päivittää tiedostojen muokkausajat). Näin uusi koodi ei koskaan näytä
+ * vanhalla koodilla tallennettuja listoja.
+ */
+function kasvisto_lista_koodiversio() {
+    static $versio = null;
+    if ( $versio === null ) {
+        $ajat = [];
+        foreach ( (array) glob( __DIR__ . '/*.php' ) as $tiedosto ) {
+            $ajat[] = basename( $tiedosto ) . '@' . @filemtime( $tiedosto );
+        }
+        $versio = md5( implode( ',', $ajat ) );
+    }
+    return $versio;
 }
 
 /**
@@ -61,7 +79,7 @@ function kasvisto_vanhenna_listat() {
 function kasvisto_lista_valimuistista( $tag, $atts, callable $rakenna ) {
     $atts = is_array( $atts ) ? $atts : [];
     ksort( $atts );
-    $avain = 'kasvisto_l_' . md5( $tag . '|' . wp_json_encode( $atts ) . '|' . kasvisto_lista_versio() );
+    $avain = 'kasvisto_l_' . md5( $tag . '|' . wp_json_encode( $atts ) . '|' . kasvisto_lista_versio() . '|' . kasvisto_lista_koodiversio() );
 
     $tallessa = get_transient( $avain );
     if ( is_string( $tallessa ) && $tallessa !== '' ) {
