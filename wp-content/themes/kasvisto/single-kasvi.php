@@ -180,16 +180,20 @@ if ( function_exists('get_field') ) :
                 $iso_kuva     = $kuva['url'];
                 $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
                 $kuvausteksti = !empty($kuva['caption']) ? $kuva['caption'] : '';
+                $kuva_id      = !empty($kuva['ID']) ? (int) $kuva['ID'] : 0;
+                // Kuvateksti + kuvaaja ja lisenssi (mu-plugins/kasvisto/lisenssi.php)
+                $kuvaus_html  = function_exists('kasvisto_lightbox_kuvaus') ? kasvisto_lightbox_kuvaus($kuvausteksti, $kuva_id) : esc_html($kuvausteksti);
             ?>
                 <a href="<?php echo esc_url($iso_kuva); ?>" 
                    class="glightbox kasvi-galleria-item" 
                    data-gallery="kasvigalleria" 
                    data-title="<?php echo esc_attr($otsikko); ?>" 
-                   data-description="<?php echo esc_attr($kuvausteksti); ?>">
+                   data-description="<?php echo esc_attr($kuvaus_html); ?>">
                     
                     <img src="<?php echo esc_url($pieni_kuva); ?>" 
                          alt="<?php echo esc_attr($kuva['alt']); ?>" 
                          loading="lazy">
+                    <?php if (function_exists('kasvisto_lisenssimerkki_html')) echo kasvisto_lisenssimerkki_html($kuva_id); ?>
                 </a>
             <?php endforeach; ?>
         </div>
@@ -206,8 +210,11 @@ endif;
                         for ($i = 1; $i <= 4; $i++) {
                             $url = get_field("kuva_{$i}_url");
                             if ($url) {
-                                echo '<a href="' . esc_url($url) . '" class="glightbox" data-glightbox="title: ' . esc_attr(get_the_title()) . '">';
+                                // Vanhat URL-kuvat eivät ole mediakirjastossa: oletuslisenssi.
+                                $kuvaus_html = function_exists('kasvisto_lightbox_kuvaus') ? kasvisto_lightbox_kuvaus('', null) : '';
+                                echo '<a href="' . esc_url($url) . '" class="glightbox kuva-lisenssi-kehys" data-title="' . esc_attr(get_the_title()) . '" data-description="' . esc_attr($kuvaus_html) . '">';
                                 echo '<img src="' . esc_url($url) . '" alt="' . esc_attr(get_the_title()) . '">';
+                                if (function_exists('kasvisto_lisenssimerkki_html')) echo kasvisto_lisenssimerkki_html(null);
                                 echo '</a>';
                             }
                         }

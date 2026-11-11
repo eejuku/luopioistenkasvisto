@@ -117,6 +117,7 @@ function kasvisto_sc_kuvagalleria( $atts ) {
             echo '<div class="kuvamatriisi-item">';
                 echo '<a href="#" onclick="event.preventDefault(); document.getElementById(\'lightbox-' . $id . '\').showModal();">';
                     echo wp_get_attachment_image( $id, 'small' );
+                    echo function_exists( 'kasvisto_lisenssimerkki_html' ) ? kasvisto_lisenssimerkki_html( $id ) : '';
                 echo '</a>';
             echo '</div>';
 
@@ -125,6 +126,10 @@ function kasvisto_sc_kuvagalleria( $atts ) {
                 echo '<button onclick="document.getElementById(\'lightbox-' . $id . '\').close();" class="lightbox-close-btn">Sulje ✕</button>';
                 echo '<div style="clear:both;"></div>';
                 echo '<img src="' . esc_url( $full_url ) . '" alt="' . esc_attr( $alt ) . '" style="max-width:100%; height:auto; display:block; margin:0 auto; max-height:75vh; object-fit:contain;">';
+                $kuvaus = function_exists( 'kasvisto_lightbox_kuvaus' ) ? kasvisto_lightbox_kuvaus( wp_get_attachment_caption( $id ), $id ) : '';
+                if ( $kuvaus !== '' ) {
+                    echo '<p class="kuva-lisenssi" style="text-align:center; margin:10px 0 0; font-size:0.85rem; color:#50575e;">' . $kuvaus . '</p>';
+                }
             echo '</dialog>';
 
         endwhile;
