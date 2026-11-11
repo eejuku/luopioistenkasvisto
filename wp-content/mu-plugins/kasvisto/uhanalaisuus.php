@@ -30,16 +30,22 @@ function kasvisto_uhanalaisuus_sanakirja() {
 }
 
 /**
- * Kunkin kasviryhmän uhanalaisuussivu. Kasvikortin merkki linkittää tänne ja
- * suodattaa sivun listan (?uhanalaisuus=VU).
+ * Kasvikortin uhanalaisuusmerkki linkittää ryhmän uhanalaisuuslistaan ja suodattaa sen
+ * valmiiksi (?uhanalaisuus=VU).
  *
- * Linkki näytetään vasta, kun sivu on julkaistu ja sen sisällössä on
- * [kasvisto_uhanalaisuussivu]- tai [kasvisto_testiversio]-shortcode. Sivun voi siis
- * rakentaa tuotannossa rauhassa, ja linkit aktivoituvat itsestään.
+ * Sivu löydetään automaattisesti: se julkaistu sivu, jonka sisällössä on
+ * [kasvisto_uhanalaisuussivu ryhma="..."] (tai [kasvisto_testiversio ryhma="..."]).
+ * Sivun voi siis luoda tai siirtää minne tahansa, eikä linkkejä tarvitse säätää.
+ *
+ * Jos samalle ryhmälle on useampi sivu, valitaan:
+ *   1. [kasvisto_uhanalaisuussivu] ennen [kasvisto_testiversio]-sivua
+ *   2. alla luetellut ensisijaiset sivut
+ *   3. ei testisivuja (osoitteessa "testi"), jos muitakin on
+ *   4. vanhin sivu
  */
-function kasvisto_uhanalaisuus_listasivut() {
+function kasvisto_uhanalaisuus_ensisijaiset_sivut() {
     return [
-        'Putkilokasvit' => 'putkilokasvit/suojeluohjelmat/uhanalaiset-kasvit',
+        'Putkilokasvit' => 'putkilokasvit/suojelu',
         'Sammalet'      => 'sammalet/suojelu',
         'Jäkälät'       => 'jakalat/suojelu',
         'Piensienet'    => 'piensienet/piensienten-suojelu',
@@ -47,28 +53,80 @@ function kasvisto_uhanalaisuus_listasivut() {
 }
 
 /**
- * Ryhmän uhanalaisuussivun osoite tai '' (ei sivua / sivulla ei vielä listaa).
+ * Ryhmä (pienin kirjaimin) → uhanalaisuussivun osoite. Tulos välimuistissa 12 h,
+ * ja välimuisti tyhjennetään aina, kun jokin sivu tallennetaan tai poistetaan.
  */
-function kasvisto_uhanalaisuus_listasivu_url( $ryhma ) {
-    static $valimuisti = [];
-    if ( ! is_string( $ryhma ) || $ryhma === '' ) {
-        return '';
+function kasvisto_uhanalaisuus_sivukartta() {
+    static $kartta = null;
+    if ( $kartta !== null ) {
+        return $kartta;
     }
-    if ( array_key_exists( $ryhma, $valimuisti ) ) {
-        return $valimuisti[ $ryhma ];
+    $tallessa = get_transient( 'kasvisto_uhanalaisuus_sivut' );
+    if ( is_array( $tallessa ) ) {
+        return $kartta = $tallessa;
     }
 
-    $url   = '';
-    $sivut = kasvisto_uhanalaisuus_listasivut();
-    if ( isset( $sivut[ $ryhma ] ) ) {
-        $sivu = get_page_by_path( $sivut[ $ryhma ] );
-        if ( $sivu && $sivu->post_status === 'publish'
-            && ( has_shortcode( $sivu->post_content, 'kasvisto_uhanalaisuussivu' )
-                || has_shortcode( $sivu->post_content, 'kasvisto_testiversio' ) ) ) {
-            $url = get_permalink( $sivu );
+    global $wpdb;
+    $sivut = $wpdb->get_results(
+        "SELECT ID, post_content FROM {$wpdb->posts}
+         WHERE post_type = 'page' AND post_status = 'publish'
+           AND ( post_content LIKE '%[kasvisto_uhanalaisuussivu%' OR post_content LIKE '%[kasvisto_testiversio%' )
+         ORDER BY ID ASC"
+    );
+
+    $ensisijaiset = array_combine( array_map( 'mb_strtolower', array_keys( kasvisto_uhanalaisuus_ensisijaiset_sivut() ) ), array_values( kasvisto_uhanalaisuus_ensisijaiset_sivut() ) );
+    $parhaat      = []; // ryhma => [pisteet, url]
+    $regex        = get_shortcode_regex( [ 'kasvisto_uhanalaisuussivu', 'kasvisto_testiversio' ] );
+
+    foreach ( (array) $sivut as $sivu ) {
+        if ( ! preg_match_all( '/' . $regex . '/s', $sivu->post_content, $osumat, PREG_SET_ORDER ) ) {
+            continue;
+        }
+        $polku = trim( (string) get_page_uri( $sivu->ID ), '/' );
+        $url   = get_permalink( $sivu->ID );
+        foreach ( $osumat as $osuma ) {
+            $atts  = shortcode_parse_atts( $osuma[3] );
+            $ryhma = is_array( $atts ) && ! empty( $atts['ryhma'] ) ? mb_strtolower( trim( $atts['ryhma'] ) ) : '';
+            if ( $ryhma === '' ) {
+                continue;
+            }
+            $pisteet = 0;
+            if ( $osuma[2] === 'kasvisto_uhanalaisuussivu' ) {
+                $pisteet += 100;
+            }
+            if ( isset( $ensisijaiset[ $ryhma ] ) && $ensisijaiset[ $ryhma ] === $polku ) {
+                $pisteet += 10;
+            }
+            if ( strpos( $polku, 'testi' ) === false ) {
+                $pisteet += 1;
+            }
+            // Tasapelissä vanhin (pienin ID) voittaa, koska sivut käydään ID-järjestyksessä.
+            if ( ! isset( $parhaat[ $ryhma ] ) || $pisteet > $parhaat[ $ryhma ][0] ) {
+                $parhaat[ $ryhma ] = [ $pisteet, $url ];
+            }
         }
     }
-    return $valimuisti[ $ryhma ] = $url;
+
+    $kartta = array_map( function ( $p ) { return $p[1]; }, $parhaat );
+    set_transient( 'kasvisto_uhanalaisuus_sivut', $kartta, 12 * HOUR_IN_SECONDS );
+    return $kartta;
+}
+
+// Sivun tallennus tai poisto → sivukartta rakennetaan uudelleen.
+add_action( 'save_post_page', function () { delete_transient( 'kasvisto_uhanalaisuus_sivut' ); } );
+add_action( 'deleted_post', function () { delete_transient( 'kasvisto_uhanalaisuus_sivut' ); } );
+add_action( 'trashed_post', function () { delete_transient( 'kasvisto_uhanalaisuus_sivut' ); } );
+
+/**
+ * Ryhmän uhanalaisuussivun osoite tai '' (ryhmälle ei ole sivua, jolla lista on).
+ */
+function kasvisto_uhanalaisuus_listasivu_url( $ryhma ) {
+    if ( ! is_string( $ryhma ) || trim( $ryhma ) === '' ) {
+        return '';
+    }
+    $kartta = kasvisto_uhanalaisuus_sivukartta();
+    $avain  = mb_strtolower( trim( $ryhma ) );
+    return isset( $kartta[ $avain ] ) ? $kartta[ $avain ] : '';
 }
 
 /**
