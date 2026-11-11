@@ -98,7 +98,7 @@ function kasvisto_lightbox_kuvaus( $kuvateksti, $kuva_id = null ) {
     if ( $rivi !== '' ) {
         $osat[] = $rivi;
     }
-    return implode( '<br>', $osat );
+    return implode( '', $osat ); // osat ovat omia rivejään (display: block, ks. style.css)
 }
 
 // --- Mediakirjaston kentät: Kuvaaja ja Lisenssi -----------------------------------
@@ -164,7 +164,7 @@ add_filter( 'render_block', function ( $html, $lohko ) {
     $rivi = '<span class="kuva-lisenssi kuvalohko-lisenssi">' . $rivi . '</span>';
     // Kuvatekstin perään, tai kuvan alle, jos kuvatekstiä ei ole.
     if ( stripos( $html, '</figcaption>' ) !== false ) {
-        return preg_replace( '#</figcaption>#i', '<br>' . $rivi . '</figcaption>', $html, 1 );
+        return preg_replace( '#</figcaption>#i', $rivi . '</figcaption>', $html, 1 );
     }
     return preg_replace( '#</figure>(?!.*</figure>)#is', '<figcaption class="wp-element-caption">' . $rivi . '</figcaption></figure>', $html, 1 );
 }, 10, 2 );

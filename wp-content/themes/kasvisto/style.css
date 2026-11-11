@@ -1209,19 +1209,42 @@ a.u-merkki:focus-visible {
    KUVIEN LISENSSIMERKINTÄ (CC BY-NC-SA 4.0)
    (mu-plugins/kasvisto/lisenssi.php)
    ========================================================================== */
+.kuva-kuvateksti {
+    display: block;
+}
 .kuva-lisenssirivi {
-    font-size: 0.8rem;
-    color: #646970;
+    display: block;
+    margin-top: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    color: #8c8f94;
 }
 .kuva-lisenssirivi a {
     color: inherit;
     text-decoration: underline;
+    text-decoration-color: rgba(140, 143, 148, 0.5);
+    text-underline-offset: 2px;
 }
-/* Suurennetun kuvan alla (GLightbox) */
+.kuva-lisenssirivi a:hover {
+    color: #50575e;
+}
+
+/* Suurennettu kuva (GLightbox): otsikko ylemmäs, löytöpaikka otsikon alle,
+   lisenssi omaksi rivikseen ohuen viivan alle. */
+.gslide-description .gdesc-inner {
+    padding: 12px 20px 14px;
+}
+.gslide-description .gslide-title {
+    margin-bottom: 2px;
+}
 .gslide-desc .kuva-lisenssirivi {
-    display: inline-block;
-    margin-top: 4px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
+
 /* Sivujen kuvalohkot */
 .kuvalohko-lisenssi {
     display: block;
