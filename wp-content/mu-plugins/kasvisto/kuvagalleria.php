@@ -111,7 +111,7 @@ function kasvisto_sc_kuvagalleria( $atts ) {
         while ( $kuva_query->have_posts() ) : $kuva_query->the_post();
             $id        = get_the_ID();
             $dialog_ids[] = 'lightbox-' . $id; // Tallennetaan ID listaan
-            $full_url  = wp_get_attachment_image_url( $id, 'full' );
+            $full_url  = kasvisto_suurennoksen_url( $id );
             $alt       = get_post_meta( $id, '_wp_attachment_image_alt', true );
 
             echo '<div class="kuvamatriisi-item">';
@@ -124,7 +124,7 @@ function kasvisto_sc_kuvagalleria( $atts ) {
             echo '<dialog id="lightbox-' . $id . '" class="lightbox-dialog" onclick="if(event.target === this) this.close();">';
                 echo '<button onclick="document.getElementById(\'lightbox-' . $id . '\').close();" class="lightbox-close-btn">Sulje ✕</button>';
                 echo '<div style="clear:both;"></div>';
-                echo '<img src="' . esc_url( $full_url ) . '" alt="' . esc_attr( $alt ) . '" style="max-width:100%; height:auto; display:block; margin:0 auto; max-height:75vh; object-fit:contain;">';
+                echo '<img src="' . esc_url( $full_url ) . '" alt="' . esc_attr( $alt ) . '" loading="lazy" style="max-width:100%; height:auto; display:block; margin:0 auto; max-height:75vh; object-fit:contain;">';
                 $kuvaus = function_exists( 'kasvisto_lightbox_kuvaus' ) ? kasvisto_lightbox_kuvaus( wp_get_attachment_caption( $id ), $id ) : '';
                 if ( $kuvaus !== '' ) {
                     echo '<p class="kuva-lisenssi" style="text-align:center; margin:10px 0 0; font-size:0.85rem; color:#50575e;">' . $kuvaus . '</p>';

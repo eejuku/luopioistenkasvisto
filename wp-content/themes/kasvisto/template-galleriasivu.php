@@ -51,7 +51,7 @@ get_header(); ?>
                                 <div class="kasvi-galleria-grid">
                                     <?php foreach ( $kuvat as $kuva ) : 
                                         $pieni_kuva   = !empty($kuva['sizes']['medium_large']) ? $kuva['sizes']['medium_large'] : $kuva['sizes']['medium'];
-                                        $iso_kuva     = $kuva['url'];
+                                        $iso_kuva     = function_exists('kasvisto_suurennoksen_url') ? kasvisto_suurennoksen_url($kuva) : $kuva['url']; // ei alkuperäistä: kevyempi, ei kameran metatietoja
                                         $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
                                         $kuvausteksti = !empty($kuva['caption']) ? $kuva['caption'] : '';
                                         $kuva_id      = !empty($kuva['ID']) ? (int) $kuva['ID'] : 0;

@@ -118,3 +118,43 @@ function kasvisto_synonyymit_hakuun( $post_id ) {
     }
     return implode( ' | ', array_unique( $nimet ) );
 }
+
+/**
+ * Suurennoksen (lightbox) kuvaosoite.
+ *
+ * Lightbox näytti ennen alkuperäisen tiedoston (jopa ~3 Mt). Alkuperäisessä ovat myös
+ * kameran metatiedot (EXIF/IPTC/XMP). WordPressin tekemät koot ovat kevyitä ja niistä
+ * metatiedot on jo poistettu, joten käytetään suurinta niistä.
+ *
+ * Järjestys: 2048x2048 → 1536x1536 → large. Jos kuva on niin pieni, ettei mitään
+ * näistä ole tehty, palautetaan alkuperäinen.
+ *
+ * @param array|int $kuva ACF:n kuvataulukko tai liitteen ID
+ * @return string
+ */
+function kasvisto_suurennoksen_url( $kuva ) {
+    $koot = [ '2048x2048', '1536x1536', 'large' ];
+
+    if ( is_array( $kuva ) ) {
+        foreach ( $koot as $koko ) {
+            if ( ! empty( $kuva['sizes'][ $koko ] ) ) {
+                return $kuva['sizes'][ $koko ];
+            }
+        }
+        $kuva = ! empty( $kuva['ID'] ) ? (int) $kuva['ID'] : ( $kuva['url'] ?? '' );
+        if ( ! is_int( $kuva ) ) {
+            return (string) $kuva;
+        }
+    }
+
+    $meta = wp_get_attachment_metadata( (int) $kuva );
+    foreach ( $koot as $koko ) {
+        if ( ! empty( $meta['sizes'][ $koko ] ) ) {
+            $url = wp_get_attachment_image_url( (int) $kuva, $koko );
+            if ( $url ) {
+                return $url;
+            }
+        }
+    }
+    return (string) wp_get_attachment_url( (int) $kuva );
+}
