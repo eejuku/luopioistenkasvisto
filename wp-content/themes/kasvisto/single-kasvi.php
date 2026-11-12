@@ -177,7 +177,7 @@ if ( function_exists('get_field') ) :
             <?php foreach ($kuvat as $kuva) : 
                 $pieni_kuva = $kuva['sizes']['medium']; // 300x300px kuva
                 // $pieni_kuva   = !empty($kuva['sizes']['medium_large']) ? $kuva['sizes']['medium_large'] : $kuva['sizes']['medium'];
-                $iso_kuva     = $kuva['url'];
+                $iso_kuva     = function_exists('kasvisto_suurennoksen_url') ? kasvisto_suurennoksen_url($kuva) : $kuva['url']; // ei alkuperäistä: kevyempi, ei kameran metatietoja
                 $otsikko      = !empty($kuva['title']) ? $kuva['title'] : '';
                 $kuvausteksti = !empty($kuva['caption']) ? $kuva['caption'] : '';
                 $kuva_id      = !empty($kuva['ID']) ? (int) $kuva['ID'] : 0;
