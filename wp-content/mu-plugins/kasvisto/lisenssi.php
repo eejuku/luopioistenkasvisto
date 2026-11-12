@@ -94,6 +94,10 @@ function kasvisto_lightbox_kuvaus( $kuvateksti, $kuva_id = null ) {
     if ( trim( (string) $kuvateksti ) !== '' ) {
         $osat[] = '<span class="kuva-kuvateksti">' . esc_html( $kuvateksti ) . '</span>';
     }
+    $linkki = kasvisto_alkuperaisen_kuvan_linkki_html( $kuva_id );
+    if ( $linkki !== '' ) {
+        $osat[] = $linkki;
+    }
     $rivi = kasvisto_lisenssirivi_html( $kuva_id );
     if ( $rivi !== '' ) {
         $osat[] = $rivi;
