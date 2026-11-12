@@ -1249,3 +1249,19 @@ a.u-merkki:focus-visible {
 .kuvalohko-lisenssi {
     display: block;
 }
+
+/* Linkki täysikokoiseen alkuperäiseen kuvaan (mu-plugins/kasvisto/kuvien-laatu.php) */
+.kuva-alkuperainen {
+    display: block;
+    margin-top: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+.kuva-alkuperainen a {
+    color: #2b6cb0;
+    text-decoration: none;
+}
+.kuva-alkuperainen a:hover {
+    text-decoration: underline;
+}
