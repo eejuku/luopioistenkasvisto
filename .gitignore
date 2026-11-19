@@ -32,3 +32,7 @@ npm-debug.log*
 pull.sh
 push.sh
 
+
+# Vanhan sivuston ohjaustiedosto tehdään palvelimella taulukosta (ohjaukset/LUEMINUT.md)
+ohjaukset/vanha-sivusto.map
+ohjaukset/.vanha-sivusto.*.tmp
