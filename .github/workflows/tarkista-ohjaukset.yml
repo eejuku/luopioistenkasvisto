@@ -1,0 +1,16 @@
+name: Tarkista ohjaustaulukko
+
+# Tarkistaa vanhan sivuston ohjaustaulukon jokaisessa PR:ssä, jossa sitä muutetaan.
+# Punainen rasti = taulukossa on virhe; avaa "Details", niin näet mikä rivi.
+on:
+  pull_request:
+    paths:
+      - 'ohjaukset/**'
+
+jobs:
+  tarkista:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Tarkista taulukko
+        run: python3 ohjaukset/tee-rewritemap.py --tarkista

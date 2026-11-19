@@ -22,3 +22,6 @@ jobs:
             cd /var/www/html
             git fetch --all
             git reset --hard origin/main
+            # Vanhan sivuston ohjaukset: taulukosta Apachen ohjaustiedosto.
+            # Jos taulukossa on virhe, edellinen ohjaustiedosto jää voimaan ja ajo näkyy punaisena.
+            python3 ohjaukset/tee-rewritemap.py
